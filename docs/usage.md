@@ -752,7 +752,8 @@ Please note: *showing the summary will not execute the command*.
 
 Sometimes you may want to override the task name print on summary, up-to-date
 messages to STDOUT, etc. In this case you can just set `label:`, which can also
-be interpolated with variables:
+be interpolated with variables. Tasks invoked through the command line can have
+an alternative name through the `alias:` field:
 
 ```yaml
 version: '3'
@@ -770,7 +771,13 @@ tasks:
     label: 'print-{{.MESSAGE}}'
     cmds:
       - echo "{{.MESSAGE}}"
+
+  this-is-a-very-task-name:
+    alias: greetings
+    cmds:
+      - echo 'greetings!'
 ```
+On the command line execute `task greetings`
 
 ## Silent mode
 
