@@ -22,11 +22,8 @@ func (e *Executor) PrintTasksHelp() {
 	// Format in tab-separated columns with a tab stop of 8.
 	w := tabwriter.NewWriter(e.Stdout, 0, 8, 0, '\t', 0)
 	for _, task := range tasks {
-
 		if task.Alias != "" {
-
 			fmt.Fprintf(w, "* %s: \t%s (alias: %s)\n", task.Name(), task.Desc, task.Alias)
-
 		} else {
 			fmt.Fprintf(w, "* %s: \t%s\n", task.Name(), task.Desc)
 		}
