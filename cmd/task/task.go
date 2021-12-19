@@ -160,8 +160,9 @@ func main() {
 	}
 
 	var (
-		calls   []taskfile.Call
-		globals *taskfile.Vars
+		calls      []taskfile.Call
+		globals    *taskfile.Vars
+		aliasesMap map[string]string
 	)
 
 	tasksAndVars, cliArgs, err := getArgs()
@@ -173,6 +174,19 @@ func main() {
 		calls, globals = args.ParseV3(tasksAndVars...)
 	} else {
 		calls, globals = args.ParseV2(tasksAndVars...)
+	}
+
+	// Idenitfy tasks with an alias name then resolve the aliases
+	for _, task := range e.Taskfile.Tasks {
+		if task.Alias != "" {
+			aliasesMap[task.Alias] = task.Task
+		}
+	}
+	for callIdx, c := range calls {
+		if _, ok := e.Taskfile.Tasks[c.Task]; !ok {
+			calls[callIdx] = taskfile.Call{Task: aliasesMap[c.Task], Vars: c.Vars}
+			callIdx++
+		}
 	}
 
 	globals.Set("CLI_ARGS", taskfile.Var{Static: cliArgs})

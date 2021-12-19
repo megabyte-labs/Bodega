@@ -6,6 +6,7 @@ type Tasks map[string]*Task
 // Task represents a task
 type Task struct {
 	Task          string
+	Alias         string
 	Cmds          []*Cmd
 	Deps          []*Dep
 	Label         string
@@ -47,6 +48,7 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	var task struct {
+		Alias         string
 		Cmds          []*Cmd
 		Deps          []*Dep
 		Label         string
@@ -71,6 +73,7 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 	t.Cmds = task.Cmds
 	t.Deps = task.Deps
+	t.Alias = task.Alias
 	t.Label = task.Label
 	t.Desc = task.Desc
 	t.Summary = task.Summary

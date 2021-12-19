@@ -12,6 +12,7 @@ func ParseV3(args ...string) ([]taskfile.Call, *taskfile.Vars) {
 	var globals = &taskfile.Vars{}
 
 	for _, arg := range args {
+		// If the argument is not a global environment variable
 		if !strings.Contains(arg, "=") {
 			calls = append(calls, taskfile.Call{Task: arg})
 			continue
