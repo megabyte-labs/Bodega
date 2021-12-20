@@ -3,6 +3,8 @@ package task
 import (
 	"fmt"
 	"sort"
+	"strconv"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/go-task/task/v3/internal/logger"
@@ -21,11 +23,16 @@ func (e *Executor) PrintTasksHelp() {
 
 	// Format in tab-separated columns with a tab stop of 8.
 	w := tabwriter.NewWriter(e.Stdout, 0, 8, 0, '\t', 0)
+	var isHidden bool
 	for _, task := range tasks {
-		if task.Alias != "" {
-			fmt.Fprintf(w, "* %s: \t%s (alias: %s)\n", task.Name(), task.Desc, task.Alias)
-		} else {
-			fmt.Fprintf(w, "* %s: \t%s\n", task.Name(), task.Desc)
+		// FIXME: task.Hide should offer the truth value
+		isHidden, _ = strconv.ParseBool(strings.TrimSpace(task.Hide))
+		if !isHidden {
+			if task.Alias != "" {
+				fmt.Fprintf(w, "* %s: \t%s (alias: %s)\n", task.Name(), task.Desc, task.Alias)
+			} else {
+				fmt.Fprintf(w, "* %s: \t%s\n", task.Name(), task.Desc)
+			}
 		}
 	}
 	w.Flush()
