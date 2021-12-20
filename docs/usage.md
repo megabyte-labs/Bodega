@@ -671,6 +671,7 @@ tasks:
 ## Help
 
 Running `task --list` (or `task -l`) lists all tasks with a description.
+If you would like to hide a task from being listed, set the `hide:` field.
 The following Taskfile:
 
 ```yaml
@@ -681,6 +682,10 @@ tasks:
     desc: Build the go binary.
     cmds:
       - go build -v -i main.go
+
+  unnecessary:
+    desc: Unnecessary task.
+    hide: true
 
   test:
     desc: Run all the go tests.
