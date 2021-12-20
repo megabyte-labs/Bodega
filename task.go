@@ -343,7 +343,7 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 		}
 
 		for i := range t.Cmds {
-			if err := e.runCommand(ctx, t, call, i); err != nil {
+			if err := e.runCommand(ctx, t, i); err != nil {
 				if err2 := e.statusOnError(t); err2 != nil {
 					e.Logger.VerboseErrf(logger.Yellow, "task: error cleaning status on error: %v", err2)
 				}
@@ -399,7 +399,8 @@ func (e *Executor) runDeps(ctx context.Context, t *taskfile.Task) error {
 	return g.Wait()
 }
 
-func (e *Executor) runCommand(ctx context.Context, t *taskfile.Task, call taskfile.Call, i int) error {
+// Runs a single command of index i from t.Cmds
+func (e *Executor) runCommand(ctx context.Context, t *taskfile.Task, i int) error {
 	cmd := t.Cmds[i]
 
 	switch {
