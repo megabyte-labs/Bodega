@@ -17,12 +17,18 @@ func Yellow() PrintFunc  { return color.New(color.FgYellow).FprintfFunc() }
 func Magenta() PrintFunc { return color.New(color.FgMagenta).FprintfFunc() }
 func Red() PrintFunc     { return color.New(color.FgRed).FprintfFunc() }
 
+const (
+	verbosityLevelNone int = iota
+	verbosityLevelInfo
+	verbosityLevelDebug
+)
+
 // Logger is just a wrapper that prints stuff to STDOUT or STDERR,
 // with optional color.
 type Logger struct {
 	Stdout  io.Writer
 	Stderr  io.Writer
-	Verbose bool
+	Verbose int
 	Color   bool
 }
 
@@ -40,7 +46,13 @@ func (l *Logger) Outf(color Color, s string, args ...interface{}) {
 
 // VerboseOutf prints stuff to STDOUT if verbose mode is enabled.
 func (l *Logger) VerboseOutf(color Color, s string, args ...interface{}) {
-	if l.Verbose {
+	if l.Verbose >= verbosityLevelInfo {
+		l.Outf(color, s, args...)
+	}
+}
+
+func (l *Logger) DebugOutf(color Color, s string, args ...interface{}) {
+	if l.Verbose >= verbosityLevelDebug {
 		l.Outf(color, s, args...)
 	}
 }
@@ -59,7 +71,13 @@ func (l *Logger) Errf(color Color, s string, args ...interface{}) {
 
 // VerboseErrf prints stuff to STDERR if verbose mode is enabled.
 func (l *Logger) VerboseErrf(color Color, s string, args ...interface{}) {
-	if l.Verbose {
+	if l.Verbose >= verbosityLevelInfo {
+		l.Errf(color, s, args...)
+	}
+}
+
+func (l *Logger) DebugErrf(color Color, s string, args ...interface{}) {
+	if l.Verbose >= verbosityLevelDebug {
 		l.Errf(color, s, args...)
 	}
 }

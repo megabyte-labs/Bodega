@@ -532,7 +532,7 @@ func TestStatusVariables(t *testing.T) {
 		Stdout:  &buff,
 		Stderr:  &buff,
 		Silent:  false,
-		Verbose: true,
+		Verbose: 1, // Verbosity level of 1
 	}
 	assert.NoError(t, e.Setup())
 	assert.NoError(t, e.Run(context.Background(), taskfile.Call{Task: "build"}))

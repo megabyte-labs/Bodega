@@ -63,12 +63,12 @@ func main() {
 		status      bool
 		force       bool
 		watch       bool
-		verbose     bool
 		silent      bool
 		dry         bool
 		summary     bool
 		parallel    bool
 		concurrency int
+		verbose     int
 		dir         string
 		entrypoint  string
 		output      string
@@ -82,7 +82,7 @@ func main() {
 	pflag.BoolVar(&status, "status", false, "exits with non-zero exit code if any of the given tasks is not up-to-date")
 	pflag.BoolVarP(&force, "force", "f", false, "forces execution even when the task is up-to-date")
 	pflag.BoolVarP(&watch, "watch", "w", false, "enables watch of the given task")
-	pflag.BoolVarP(&verbose, "verbose", "v", false, "enables verbose mode")
+	pflag.CountVarP(&verbose, "verbose", "v", "enables verbose mode (repeat option for more output)")
 	pflag.BoolVarP(&silent, "silent", "s", false, "disables echoing")
 	pflag.BoolVarP(&parallel, "parallel", "p", false, "executes tasks provided on command line in parallel")
 	pflag.BoolVar(&dry, "dry", false, "compiles and prints tasks in the order that they would be run, without executing them")

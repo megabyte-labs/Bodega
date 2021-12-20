@@ -8,6 +8,7 @@ import (
 	"os"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/go-task/task/v3/internal/compiler"
 	compilerv2 "github.com/go-task/task/v3/internal/compiler/v2"
@@ -36,7 +37,7 @@ type Executor struct {
 	Entrypoint  string
 	Force       bool
 	Watch       bool
-	Verbose     bool
+	Verbose     int
 	Silent      bool
 	Dry         bool
 	Summary     bool
@@ -315,6 +316,7 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 			return err
 		}
 
+		// Do not execute task if preconditions are met or the task is up to date
 		if !e.Force {
 			if err := ctx.Err(); err != nil {
 				return err
@@ -338,10 +340,14 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 			}
 		}
 
+		// By default, tasks will be executed in the directory where the Taskfile is located
+		// unless the `dir` field is set
 		if err := e.mkdir(t); err != nil {
 			e.Logger.Errf(logger.Red, "task: cannot make directory %q: %v", t.Dir, err)
 		}
 
+		// Execute all commands in the task
+		timeBefore := time.Now()
 		for i := range t.Cmds {
 			if err := e.runCommand(ctx, t, i); err != nil {
 				if err2 := e.statusOnError(t); err2 != nil {
@@ -356,7 +362,8 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 				return &taskRunError{t.Task, err}
 			}
 		}
-		e.Logger.VerboseErrf(logger.Magenta, `task: "%s" finished`, call.Task)
+		timeAfter := time.Now().Sub(timeBefore)
+		e.Logger.VerboseErrf(logger.Magenta, `task: "%s" finished in %3f seconds`, call.Task, timeAfter.Seconds())
 		return nil
 	})
 }
@@ -378,6 +385,7 @@ func (e *Executor) mkdir(t *taskfile.Task) error {
 	return nil
 }
 
+// runDeps runs all dependency tasks within task t
 func (e *Executor) runDeps(ctx context.Context, t *taskfile.Task) error {
 	g, ctx := errgroup.WithContext(ctx)
 
@@ -404,6 +412,9 @@ func (e *Executor) runCommand(ctx context.Context, t *taskfile.Task, i int) erro
 	cmd := t.Cmds[i]
 
 	switch {
+	// A command can be interpreted as a taskfile.Task following this syntax:
+	//  cmds:
+	//    - task: task-to-be-called
 	case cmd.Task != "":
 		reacquire := e.releaseConcurrencyLimit()
 		defer reacquire()
@@ -414,7 +425,7 @@ func (e *Executor) runCommand(ctx context.Context, t *taskfile.Task, i int) erro
 		}
 		return nil
 	case cmd.Cmd != "":
-		if e.Verbose || (!cmd.Silent && !t.Silent && !e.Taskfile.Silent && !e.Silent) {
+		if e.Verbose != 0 || (!cmd.Silent && !t.Silent && !e.Taskfile.Silent && !e.Silent) {
 			e.Logger.Errf(logger.Green, "task: [%s] %s", t.Name(), cmd.Cmd)
 		}
 
@@ -442,6 +453,8 @@ func (e *Executor) runCommand(ctx context.Context, t *taskfile.Task, i int) erro
 			}
 		}()
 
+		// Using mvdans/sh to run shell commands
+		timeBefore := time.Now()
 		err := execext.RunCommand(ctx, &execext.RunCommandOptions{
 			Command: cmd.Cmd,
 			Dir:     t.Dir,
@@ -450,6 +463,8 @@ func (e *Executor) runCommand(ctx context.Context, t *taskfile.Task, i int) erro
 			Stdout:  stdOut,
 			Stderr:  stdErr,
 		})
+		timeAfter := time.Now().Sub(timeBefore)
+		e.Logger.DebugOutf(logger.Cyan, "task: [%s] command %s took %v ms", t.Name(), cmd.Cmd, timeAfter.Milliseconds())
 		if execext.IsExitError(err) && cmd.IgnoreError {
 			e.Logger.VerboseErrf(logger.Yellow, "task: [%s] command error ignored: %v", t.Name(), err)
 			return nil
@@ -483,6 +498,7 @@ func getEnviron(t *taskfile.Task) []string {
 	return environ
 }
 
+// startExecution is a helper fucntion used inside Executor.RunTask to execute commands
 func (e *Executor) startExecution(ctx context.Context, t *taskfile.Task, execute func(ctx context.Context) error) error {
 	h, err := e.GetHash(t)
 	if err != nil {
