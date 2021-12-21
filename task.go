@@ -312,6 +312,7 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 
 	return e.startExecution(ctx, t, func(ctx context.Context) error {
 		e.Logger.VerboseErrf(logger.Magenta, `task: "%s" started`, call.Task)
+		timeBefore := time.Now()
 		if err := e.runDeps(ctx, t); err != nil {
 			return err
 		}
@@ -347,7 +348,6 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 		}
 
 		// Execute all commands in the task
-		timeBefore := time.Now()
 		for i := range t.Cmds {
 			if err := e.runCommand(ctx, t, i); err != nil {
 				if err2 := e.statusOnError(t); err2 != nil {
@@ -362,8 +362,9 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 				return &taskRunError{t.Task, err}
 			}
 		}
+		// The task execution time is accurate to a couple of milliseconds
 		timeAfter := time.Now().Sub(timeBefore)
-		e.Logger.VerboseErrf(logger.Magenta, `task: "%s" finished in %3f seconds`, call.Task, timeAfter.Seconds())
+		e.Logger.VerboseErrf(logger.Magenta, `task: "%s" finished in %f seconds`, call.Task, timeAfter.Seconds())
 		return nil
 	})
 }
