@@ -22,6 +22,7 @@ func ParseV3(args ...string) ([]taskfile.Call, *taskfile.Vars) {
 		globals.Set(name, taskfile.Var{Static: value})
 	}
 
+	// Assume the task to run is the default task
 	if len(calls) == 0 {
 		calls = append(calls, taskfile.Call{Task: "default"})
 	}
