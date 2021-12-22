@@ -45,7 +45,7 @@ func (e *Executor) compiledTask(call taskfile.Call, evaluateShVars bool) (*taskf
 
 	r := templater.Templater{Vars: vars, RemoveNoValue: v >= 3.0}
 
-	new := taskfile.Task{
+	newT := taskfile.Task{
 		Task:        origTask.Task,
 		Label:       r.Replace(origTask.Label),
 		Desc:        r.Replace(origTask.Desc),
@@ -62,27 +62,27 @@ func (e *Executor) compiledTask(call taskfile.Call, evaluateShVars bool) (*taskf
 		IgnoreError: origTask.IgnoreError,
 		Run:         r.Replace(origTask.Run),
 	}
-	new.Dir, err = execext.Expand(new.Dir)
+	newT.Dir, err = execext.Expand(newT.Dir)
 	if err != nil {
 		return nil, err
 	}
-	if e.Dir != "" && !filepath.IsAbs(new.Dir) {
-		new.Dir = filepath.Join(e.Dir, new.Dir)
+	if e.Dir != "" && !filepath.IsAbs(newT.Dir) {
+		newT.Dir = filepath.Join(e.Dir, newT.Dir)
 	}
-	if new.Prefix == "" {
-		new.Prefix = new.Task
+	if newT.Prefix == "" {
+		newT.Prefix = newT.Task
 	}
 
-	new.Env = &taskfile.Vars{}
-	new.Env.Merge(r.ReplaceVars(e.Taskfile.Env))
-	new.Env.Merge(r.ReplaceVars(origTask.Env))
+	newT.Env = &taskfile.Vars{}
+	newT.Env.Merge(r.ReplaceVars(e.Taskfile.Env))
+	newT.Env.Merge(r.ReplaceVars(origTask.Env))
 	if evaluateShVars {
-		err = new.Env.Range(func(k string, v taskfile.Var) error {
-			static, err := e.Compiler.HandleDynamicVar(v, new.Dir)
+		err = newT.Env.Range(func(k string, v taskfile.Var) error {
+			static, err := e.Compiler.HandleDynamicVar(v, newT.Dir)
 			if err != nil {
 				return err
 			}
-			new.Env.Set(k, taskfile.Var{Static: static})
+			newT.Env.Set(k, taskfile.Var{Static: static})
 			return nil
 		})
 		if err != nil {
@@ -91,12 +91,12 @@ func (e *Executor) compiledTask(call taskfile.Call, evaluateShVars bool) (*taskf
 	}
 
 	if len(origTask.Cmds) > 0 {
-		new.Cmds = make([]*taskfile.Cmd, 0, len(origTask.Cmds))
+		newT.Cmds = make([]*taskfile.Cmd, 0, len(origTask.Cmds))
 		for _, cmd := range origTask.Cmds {
 			if cmd == nil {
 				continue
 			}
-			new.Cmds = append(new.Cmds, &taskfile.Cmd{
+			newT.Cmds = append(newT.Cmds, &taskfile.Cmd{
 				Task:        r.Replace(cmd.Task),
 				Silent:      cmd.Silent,
 				Cmd:         r.Replace(cmd.Cmd),
@@ -106,12 +106,12 @@ func (e *Executor) compiledTask(call taskfile.Call, evaluateShVars bool) (*taskf
 		}
 	}
 	if len(origTask.Deps) > 0 {
-		new.Deps = make([]*taskfile.Dep, 0, len(origTask.Deps))
+		newT.Deps = make([]*taskfile.Dep, 0, len(origTask.Deps))
 		for _, dep := range origTask.Deps {
 			if dep == nil {
 				continue
 			}
-			new.Deps = append(new.Deps, &taskfile.Dep{
+			newT.Deps = append(newT.Deps, &taskfile.Dep{
 				Task: r.Replace(dep.Task),
 				Vars: r.ReplaceVars(dep.Vars),
 			})
@@ -119,12 +119,12 @@ func (e *Executor) compiledTask(call taskfile.Call, evaluateShVars bool) (*taskf
 	}
 
 	if len(origTask.Preconditions) > 0 {
-		new.Preconditions = make([]*taskfile.Precondition, 0, len(origTask.Preconditions))
+		newT.Preconditions = make([]*taskfile.Precondition, 0, len(origTask.Preconditions))
 		for _, precond := range origTask.Preconditions {
 			if precond == nil {
 				continue
 			}
-			new.Preconditions = append(new.Preconditions, &taskfile.Precondition{
+			newT.Preconditions = append(newT.Preconditions, &taskfile.Precondition{
 				Sh:  r.Replace(precond.Sh),
 				Msg: r.Replace(precond.Msg),
 			})
@@ -132,7 +132,7 @@ func (e *Executor) compiledTask(call taskfile.Call, evaluateShVars bool) (*taskf
 	}
 
 	if len(origTask.Status) > 0 {
-		for _, checker := range []status.Checker{e.timestampChecker(&new), e.checksumChecker(&new)} {
+		for _, checker := range []status.Checker{e.timestampChecker(&newT), e.checksumChecker(&newT)} {
 			value, err := checker.Value()
 			if err != nil {
 				return nil, err
@@ -144,8 +144,8 @@ func (e *Executor) compiledTask(call taskfile.Call, evaluateShVars bool) (*taskf
 		// cache of the the values manually
 		r.ResetCache()
 
-		new.Status = r.ReplaceSlice(origTask.Status)
+		newT.Status = r.ReplaceSlice(origTask.Status)
 	}
 
-	return &new, r.Err()
+	return &newT, r.Err()
 }
