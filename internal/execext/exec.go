@@ -16,12 +16,13 @@ import (
 
 // RunCommandOptions is the options for the RunCommand func
 type RunCommandOptions struct {
-	Command string
-	Dir     string
-	Env     []string
-	Stdin   io.Reader
-	Stdout  io.Writer
-	Stderr  io.Writer
+	InitScript string
+	Command    string
+	Dir        string
+	Env        []string
+	Stdin      io.Reader
+	Stdout     io.Writer
+	Stderr     io.Writer
 }
 
 var (
@@ -54,6 +55,15 @@ func RunCommand(ctx context.Context, opts *RunCommandOptions) error {
 	)
 	if err != nil {
 		return err
+	}
+	if opts.InitScript != "" {
+
+		pInit, err := syntax.NewParser().Parse(strings.NewReader(opts.InitScript), "")
+		if err != nil {
+			return err
+		}
+		// TODO: error checking
+		r.Run(ctx, pInit)
 	}
 	return r.Run(ctx, p)
 }

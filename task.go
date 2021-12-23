@@ -532,12 +532,13 @@ func (e *Executor) runCommand(ctx context.Context, t *taskfile.Task, i int) erro
 		// Using mvdans/sh to run shell commands
 		timeBefore := time.Now()
 		err := execext.RunCommand(ctx, &execext.RunCommandOptions{
-			Command: cmd.Cmd,
-			Dir:     t.Dir,
-			Env:     getEnviron(t),
-			Stdin:   e.Stdin,
-			Stdout:  stdOut,
-			Stderr:  stdErr,
+			InitScript: t.InitScript,
+			Command:    cmd.Cmd,
+			Dir:        t.Dir,
+			Env:        getEnviron(t),
+			Stdin:      e.Stdin,
+			Stdout:     stdOut,
+			Stderr:     stdErr,
 		})
 		timeAfter := time.Now().Sub(timeBefore)
 		e.Logger.DebugOutf(logger.Cyan, "task: [%s] command %s took %v ms", t.Name(), cmd.Cmd, timeAfter.Milliseconds())
