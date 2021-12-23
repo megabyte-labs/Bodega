@@ -25,6 +25,7 @@ import (
 	"github.com/go-task/task/v3/internal/ui"
 	"github.com/go-task/task/v3/taskfile"
 	"github.com/go-task/task/v3/taskfile/read"
+	"mvdan.cc/sh/v3/interp"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -364,6 +365,7 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 	defer release()
 
 	return e.startExecution(ctx, t, func(ctx context.Context) error {
+		e.Logger.VerboseErrf(logger.Magenta, `task: "%s" started`, call.Task)
 		if err := e.runDeps(ctx, t); err != nil {
 			return err
 		}
@@ -403,9 +405,26 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 				e.Logger.Errf(logger.Red, "task: prompt execution failed: %v", err)
 			}
 		}
+
+		// Execute the initial shell script then pass the returned runner to each command
+		var runner *interp.Runner = nil
+		if t.ShellRc != "" {
+			runner, err = execext.RunCommand(ctx, &execext.RunCommandOptions{
+				Command: t.ShellRc,
+				Dir:     t.Dir,
+				Env:     getEnviron(t),
+				Stdin:   e.Stdin,
+				Stdout:  e.Stdout, // TODO: support Prefix
+				Stderr:  e.Stderr,
+			}, nil)
+			if execext.IsExitError(err) {
+				e.Logger.VerboseErrf(logger.Yellow, "task: [%s] error executing initial script: %v", t.Name(), err)
+			}
+		}
+
 		// Execute all commands in the task
 		for i := range t.Cmds {
-			if err := e.runCommand(ctx, t, i); err != nil {
+			if err := e.runCommand(ctx, t, call, i, runner); err != nil {
 				if err2 := e.statusOnError(t); err2 != nil {
 					e.Logger.VerboseErrf(logger.Yellow, "task: error cleaning status on error: %v", err2)
 				}
@@ -483,8 +502,7 @@ func (e *Executor) runDeps(ctx context.Context, t *taskfile.Task) error {
 	return g.Wait()
 }
 
-// Runs a single command of index i from t.Cmds
-func (e *Executor) runCommand(ctx context.Context, t *taskfile.Task, i int) error {
+func (e *Executor) runCommand(ctx context.Context, t *taskfile.Task, call taskfile.Call, i int, runner *interp.Runner) error {
 	cmd := t.Cmds[i]
 
 	switch {
@@ -531,15 +549,14 @@ func (e *Executor) runCommand(ctx context.Context, t *taskfile.Task, i int) erro
 
 		// Using mvdans/sh to run shell commands
 		timeBefore := time.Now()
-		err := execext.RunCommand(ctx, &execext.RunCommandOptions{
-			InitScript: t.InitScript,
-			Command:    cmd.Cmd,
-			Dir:        t.Dir,
-			Env:        getEnviron(t),
-			Stdin:      e.Stdin,
-			Stdout:     stdOut,
-			Stderr:     stdErr,
-		})
+		_, err := execext.RunCommand(ctx, &execext.RunCommandOptions{
+			Command: cmd.Cmd,
+			Dir:     t.Dir,
+			Env:     getEnviron(t),
+			Stdin:   e.Stdin,
+			Stdout:  stdOut,
+			Stderr:  stdErr,
+		}, runner)
 		timeAfter := time.Now().Sub(timeBefore)
 		e.Logger.DebugOutf(logger.Cyan, "task: [%s] command %s took %v ms", t.Name(), cmd.Cmd, timeAfter.Milliseconds())
 		if _, ok := execext.IsExitError(err); ok && cmd.IgnoreError {

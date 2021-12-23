@@ -16,13 +16,12 @@ import (
 
 // RunCommandOptions is the options for the RunCommand func
 type RunCommandOptions struct {
-	InitScript string
-	Command    string
-	Dir        string
-	Env        []string
-	Stdin      io.Reader
-	Stdout     io.Writer
-	Stderr     io.Writer
+	Command string
+	Dir     string
+	Env     []string
+	Stdin   io.Reader
+	Stdout  io.Writer
+	Stderr  io.Writer
 }
 
 var (
@@ -31,14 +30,15 @@ var (
 )
 
 // RunCommand runs a shell command
-func RunCommand(ctx context.Context, opts *RunCommandOptions) error {
+// The returned Runner may be used for subsequent commands
+func RunCommand(ctx context.Context, opts *RunCommandOptions, r *interp.Runner) (*interp.Runner, error) {
 	if opts == nil {
-		return ErrNilOptions
+		return r, ErrNilOptions
 	}
 
 	p, err := syntax.NewParser().Parse(strings.NewReader(opts.Command), "")
 	if err != nil {
-		return err
+		return r, err
 	}
 
 	environ := opts.Env
@@ -46,26 +46,20 @@ func RunCommand(ctx context.Context, opts *RunCommandOptions) error {
 		environ = os.Environ()
 	}
 
-	r, err := interp.New(
-		interp.Params("-e"),
-		interp.Dir(opts.Dir),
-		interp.Env(expand.ListEnviron(environ...)),
-		interp.OpenHandler(openHandler),
-		interp.StdIO(opts.Stdin, opts.Stdout, opts.Stderr),
-	)
-	if err != nil {
-		return err
-	}
-	if opts.InitScript != "" {
-
-		pInit, err := syntax.NewParser().Parse(strings.NewReader(opts.InitScript), "")
+	// Create a new command runner if no runner was passed
+	if r == nil {
+		r, err = interp.New(
+			interp.Params("-e"),
+			interp.Dir(opts.Dir),
+			interp.Env(expand.ListEnviron(environ...)),
+			interp.OpenHandler(openHandler),
+			interp.StdIO(opts.Stdin, opts.Stdout, opts.Stderr),
+		)
 		if err != nil {
-			return err
+			return r, err
 		}
-		// TODO: error checking
-		r.Run(ctx, pInit)
 	}
-	return r.Run(ctx, p)
+	return r, r.Run(ctx, p)
 }
 
 // IsExitError returns the error code if the given error is an exit status error

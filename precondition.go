@@ -16,11 +16,11 @@ var (
 
 func (e *Executor) areTaskPreconditionsMet(ctx context.Context, t *taskfile.Task) (bool, error) {
 	for _, p := range t.Preconditions {
-		err := execext.RunCommand(ctx, &execext.RunCommandOptions{
+		_, err := execext.RunCommand(ctx, &execext.RunCommandOptions{
 			Command: p.Sh,
 			Dir:     t.Dir,
 			Env:     getEnviron(t),
-		})
+		}, nil)
 
 		if err != nil {
 			e.Logger.Errf(logger.Magenta, "task: %s", p.Msg)

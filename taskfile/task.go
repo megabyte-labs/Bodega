@@ -7,7 +7,7 @@ type Tasks map[string]*Task
 type Task struct {
 	Task          string
 	Alias         string
-	InitScript    string
+	ShellRc       string
 	Cmds          []*Cmd
 	Deps          []*Dep
 	Label         string
@@ -28,8 +28,8 @@ type Task struct {
 	IgnoreError   bool
 	Run           string
 	// TODO: Hide should be bool but we want Go templates
-	Hide string
-	Prompt        *Prompt
+	Hide   string
+	Prompt *Prompt
 }
 
 func (t *Task) Name() string {
@@ -54,7 +54,7 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	var task struct {
 		Alias         string
-		InitScript    string `yaml:"init_script"`
+		ShellRc       string `yaml:"shell_rc"`
 		Cmds          []*Cmd
 		Deps          []*Dep
 		Label         string
@@ -80,7 +80,7 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	if err := unmarshal(&task); err != nil {
 		return err
 	}
-	t.InitScript = task.InitScript
+	t.ShellRc = task.ShellRc
 	t.Cmds = task.Cmds
 	t.Deps = task.Deps
 	t.Alias = task.Alias

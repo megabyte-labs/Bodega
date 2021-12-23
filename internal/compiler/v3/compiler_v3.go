@@ -137,7 +137,7 @@ func (c *CompilerV3) HandleDynamicVar(v taskfile.Var, dir string) (string, error
 		Stderr:  c.Logger.Stderr,
 	}
 	u := time.Now()
-	if err := execext.RunCommand(context.Background(), opts); err != nil {
+	if _, err := execext.RunCommand(context.Background(), opts, nil); err != nil {
 		return "", fmt.Errorf(`task: Command "%s" failed: %s`, opts.Command, err)
 	}
 
