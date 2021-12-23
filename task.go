@@ -366,6 +366,7 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 
 	return e.startExecution(ctx, t, func(ctx context.Context) error {
 		e.Logger.VerboseErrf(logger.Magenta, `task: "%s" started`, call.Task)
+		e.Logger.VerboseErrf(logger.Magenta, `shell rc after CompiledTask: %s`, t.ShellRc)
 		if err := e.runDeps(ctx, t); err != nil {
 			return err
 		}
