@@ -241,7 +241,11 @@ func start(calledFromRepl bool) {
 		}
 	}
 	if list {
-		e.PrintTasksHelp()
+		if e.FancyLogger != nil {
+			e.FancyPrintTasksHelp()
+		} else {
+			e.PrintTasksHelp()
+		}
 		return
 	}
 

@@ -38,6 +38,24 @@ func (e *Executor) PrintTasksHelp() {
 	w.Flush()
 }
 
+// TODO: refgactor me into PrintTasksHelp()
+func (e *Executor) FancyPrintTasksHelp() {
+	tasks := e.tasksWithDesc()
+	if len(tasks) == 0 {
+		e.Logger.Outf(logger.Yellow, "task: No tasks with description available")
+		return
+	}
+	w := new(strings.Builder)
+	w.WriteString("Task | Description |\n-----|:-----------|\n")
+
+	for _, task := range tasks {
+		fmt.Fprintf(w, "%s|%s|\n", task.Name(), task.Desc)
+	}
+	if out, err := e.FancyLogger.Render(w.String()); err == nil {
+		fmt.Print(out)
+	}
+}
+
 func (e *Executor) tasksWithDesc() (tasks []*taskfile.Task) {
 	tasks = make([]*taskfile.Task, 0, len(e.Taskfile.Tasks))
 	for _, task := range e.Taskfile.Tasks {
