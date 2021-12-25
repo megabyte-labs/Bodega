@@ -1,6 +1,7 @@
 package task
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/AlecAivazis/survey/v2"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/go-task/task/v3/internal/compiler"
 	compilerv2 "github.com/go-task/task/v3/internal/compiler/v2"
@@ -395,6 +397,11 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 			e.Logger.Errf(logger.Red, "task: cannot make directory %q: %v", t.Dir, err)
 		}
 
+		if t.Prompt != nil {
+			if err := e.runPrompt(ctx, t); err != nil {
+				e.Logger.Errf(logger.Red, "task: prompt execution failed: %v", err)
+			}
+		}
 		// Execute all commands in the task
 		for i := range t.Cmds {
 			if err := e.runCommand(ctx, t, i); err != nil {
@@ -594,4 +601,185 @@ func (e *Executor) startExecution(ctx context.Context, t *taskfile.Task, execute
 	e.executionHashesMutex.Unlock()
 
 	return execute(ctx)
+}
+
+// Run the Prompt setup based on the YAML configuration
+func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
+	// Set the Answer Task
+	if t.Prompt.Answer != nil {
+		t.Prompt.Answer.Task = fmt.Sprintf("%s.%s", t.Task, "Answer")
+		e.Taskfile.Tasks[t.Prompt.Answer.Task] = t.Prompt.Answer
+		e.taskCallCount[t.Prompt.Answer.Task] = new(int32)
+		e.mkdirMutexMap[t.Prompt.Answer.Task] = &sync.Mutex{}
+	}
+
+	switch t.Prompt.Type {
+	//	case "Input":
+	//		returned := ""
+	//		prompt := &survey.Input{
+	//			Message: t.Prompt.Message,
+	//		}
+	//		survey.AskOne(prompt, &returned)
+	//
+	//		(*e.Taskfile.Tasks[t.Task]).Vars.Set("ANSWER", taskfile.Var{Static: returned})
+	//
+	//		temp, _ := e.CompiledTask(taskfile.Call{Task: t.Task})
+	//
+	//		err := execext.RunCommand(ctx, &execext.RunCommandOptions{
+	//			Command: temp.Prompt.Validate.Sh,
+	//			Env:     getEnviron(t),
+	//		})
+	//
+	//		if err != nil {
+	//			e.Logger.Errf(nil, "Validation failed")
+	//		} else {
+	//			v := taskfile.Vars{}
+	//			v.Set("ANSWER", taskfile.Var{Static: returned})
+	//			e.RunTask(ctx, taskfile.Call{Task: t.Prompt.Answer.Task, Vars: &v})
+	//		}
+	//	case "Multiline":
+	//		returned := ""
+	//		prompt := &survey.Multiline{
+	//			Message: t.Prompt.Message,
+	//		}
+	//		survey.AskOne(prompt, &returned)
+	//
+	//		(*e.Taskfile.Tasks[t.Task]).Vars.Set("ANSWER", taskfile.Var{Static: returned})
+	//
+	//		temp, _ := e.CompiledTask(taskfile.Call{Task: t.Task})
+	//
+	//		err := execext.RunCommand(ctx, &execext.RunCommandOptions{
+	//			Command: temp.Prompt.Validate.Sh,
+	//			Env:     getEnviron(t),
+	//		})
+	//
+	//		if err != nil {
+	//			e.Logger.Errf(nil, "Validation failed")
+	//		} else {
+	//			v := taskfile.Vars{}
+	//			v.Set("ANSW:ER", taskfile.Var{Static: returned})
+	//			e.RunTask(ctx, taskfile.Call{Task: t.Prompt.Answer.Task, Vars: &v})
+	//		}
+	//	case "Password":
+	//		password := ""
+	//		prompt := &survey.Multiline{
+	//			Message: t.Prompt.Message,
+	//		}
+	//		survey.AskOne(prompt, &password)
+	//
+	//		(*e.Taskfile.Tasks[t.Task]).Vars.Set("ANSWER", taskfile.Var{Static: password})
+	//
+	//		temp, _ := e.CompiledTask(taskfile.Call{Task: t.Task})
+	//
+	//		err := execext.RunCommand(ctx, &execext.RunCommandOptions{
+	//			Command: temp.Prompt.Validate.Sh,
+	//			Env:     getEnviron(t),
+	//		})
+	//
+	//		if err != nil {
+	//			e.Logger.Errf(nil, "Validation failed")
+	//		} else {
+	//			v := taskfile.Vars{}
+	//			v.Set("ANSWER", taskfile.Var{Static: password})
+	//			e.RunTask(ctx, taskfile.Call{Task: t.Prompt.Answer.Task, Vars: &v})
+	//		}
+	//	case "Confirm":
+	//		yes := false
+	//		prompt := &survey.Confirm{
+	//			Message: t.Prompt.Message,
+	//		}
+	//		survey.AskOne(prompt, &yes)
+	//		if yes {
+	//			e.RunTask(ctx, taskfile.Call{Task: t.Prompt.Answer.Task})
+	//		}
+	case "Select":
+		selected := ""
+		// Used to represent a set to store unique options
+		var optionsMap = make(map[string]bool)
+		options := []string{}
+		for _, option := range t.Prompt.Options {
+			if option.Value == "" && option.Msg != nil {
+				if option.Msg.Value != "" {
+					option.Value = option.Msg.Value
+				} else {
+					// Execute the command(s) within "sh:" field and capture the output
+					var out bytes.Buffer
+					err := execext.RunCommand(context.Background(), &execext.RunCommandOptions{
+						Command: option.Msg.Sh,
+						Dir:     t.Dir,
+						Env:     getEnviron(t),
+						Stdout:  &out,
+					})
+					if err != nil {
+						e.Logger.VerboseOutf(logger.Yellow, "command %s at prompt %s exited abnormally: %v", option.Msg.Sh, t.Name(), err)
+						return err
+					}
+					option.Value = strings.TrimRight(out.String(), " \n")
+				}
+			}
+			if _, ok := optionsMap[option.Value]; !ok {
+				optionsMap[option.Value] = true
+				options = append(options, option.Value)
+			}
+		}
+		prompt := &survey.Select{
+			Message: t.Prompt.Message,
+			Options: options,
+		}
+		survey.AskOne(prompt, &selected)
+
+		// Set the variable into the Task and compile the task to extract the variable
+		if t.Vars != nil {
+			t.Vars.Set("ANSWER", taskfile.Var{Static: selected})
+		} else {
+			v := taskfile.Vars{}
+			v.Set("ANSWER", taskfile.Var{Static: selected})
+			t.Vars = &v
+		}
+		// FIXME: do we have to compile the while task ?
+		temp, _ := e.CompiledTask(taskfile.Call{Task: t.Task, Vars: t.Vars})
+
+		err := execext.RunCommand(ctx, &execext.RunCommandOptions{
+			Command: temp.Prompt.Validate.Sh,
+			Env:     getEnviron(t),
+		})
+
+		if err != nil {
+			return fmt.Errorf("validation failed: %v", err)
+		} else {
+			e.RunTask(ctx, taskfile.Call{Task: t.Prompt.Answer.Task, Vars: t.Vars})
+		}
+
+		//	case "MultiSelect":
+		//		selected := []string{}
+		//		var optionsMap = make(map[string]bool)
+		//		options := []string{}
+		//		for _, option := range t.Prompt.Options {
+		//			if option.Value == "" && option.Msg != nil {
+		//				if option.Msg.Value != "" {
+		//					option.Value = option.Msg.Value
+		//				} else {
+		//					c := strings.Split(option.Msg.Sh, " ")
+		//					out, err := exec.Command(c[0], c[1:]...).Output()
+		//					if err != nil {
+		//						fmt.Println(err)
+		//						return err
+		//					}
+		//					option.Value = strings.TrimRight(string(out), " \n")
+		//				}
+		//			}
+		//			if _, ok := optionsMap[option.Value]; !ok {
+		//				optionsMap[option.Value] = true
+		//				options = append(options, option.Value)
+		//			}
+		//		}
+		//		prompt := &survey.MultiSelect{
+		//			Message: t.Prompt.Message,
+		//			Options: options,
+		//		}
+		//		survey.AskOne(prompt, &selected)
+	default:
+		e.Logger.Errf(nil, "`Invalid option`")
+	}
+	return nil
 }
