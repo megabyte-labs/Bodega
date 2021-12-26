@@ -613,6 +613,27 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 		e.mkdirMutexMap[t.Prompt.Answer.Task] = &sync.Mutex{}
 	}
 
+	funcValidateAndRunAnswer := func(answer string) error {
+		if t.Vars != nil {
+			t.Vars.Set("ANSWER", taskfile.Var{Static: answer})
+		} else {
+			v := taskfile.Vars{}
+			v.Set("ANSWER", taskfile.Var{Static: answer})
+			t.Vars = &v
+		}
+		// FIXME: do we have to compile the whole task ?
+		temp, _ := e.CompiledTask(taskfile.Call{Task: t.Task, Vars: t.Vars})
+
+		err := execext.RunCommand(ctx, &execext.RunCommandOptions{
+			Command: temp.Prompt.Validate.Sh,
+			Env:     getEnviron(t),
+		})
+
+		if err != nil {
+			return fmt.Errorf("validation failed: %v", err)
+		}
+		return e.RunTask(ctx, taskfile.Call{Task: t.Prompt.Answer.Task, Vars: t.Vars})
+	}
 	selectItemsFunc := func(isMultiSelection bool) error {
 		var (
 			options  []string
@@ -646,28 +667,8 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 				options = append(options, option.Value)
 			}
 		}
+
 		// Use either Select or MultiSelect
-		runAnswerFunc := func(selected string) error {
-			if t.Vars != nil {
-				t.Vars.Set("ANSWER", taskfile.Var{Static: selected})
-			} else {
-				v := taskfile.Vars{}
-				v.Set("ANSWER", taskfile.Var{Static: selected})
-				t.Vars = &v
-			}
-			// FIXME: do we have to compile the while task ?
-			temp, _ := e.CompiledTask(taskfile.Call{Task: t.Task, Vars: t.Vars})
-
-			err := execext.RunCommand(ctx, &execext.RunCommandOptions{
-				Command: temp.Prompt.Validate.Sh,
-				Env:     getEnviron(t),
-			})
-
-			if err != nil {
-				return fmt.Errorf("validation failed: %v", err)
-			}
-			return e.RunTask(ctx, taskfile.Call{Task: t.Prompt.Answer.Task, Vars: t.Vars})
-		}
 		var prompt survey.Prompt
 		if isMultiSelection {
 			prompt = &survey.MultiSelect{
@@ -685,7 +686,7 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 			selected = append(selected, s)
 		}
 		for i := 0; i < len(selected); i++ {
-			if err := runAnswerFunc(selected[i]); err != nil {
+			if err := funcValidateAndRunAnswer(selected[i]); err != nil {
 				return err
 			}
 
@@ -717,29 +718,16 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 	//			v.Set("ANSWER", taskfile.Var{Static: returned})
 	//			e.RunTask(ctx, taskfile.Call{Task: t.Prompt.Answer.Task, Vars: &v})
 	//		}
-	//	case "Multiline":
-	//		returned := ""
-	//		prompt := &survey.Multiline{
-	//			Message: t.Prompt.Message,
-	//		}
-	//		survey.AskOne(prompt, &returned)
-	//
-	//		(*e.Taskfile.Tasks[t.Task]).Vars.Set("ANSWER", taskfile.Var{Static: returned})
-	//
-	//		temp, _ := e.CompiledTask(taskfile.Call{Task: t.Task})
-	//
-	//		err := execext.RunCommand(ctx, &execext.RunCommandOptions{
-	//			Command: temp.Prompt.Validate.Sh,
-	//			Env:     getEnviron(t),
-	//		})
-	//
-	//		if err != nil {
-	//			e.Logger.Errf(nil, "Validation failed")
-	//		} else {
-	//			v := taskfile.Vars{}
-	//			v.Set("ANSW:ER", taskfile.Var{Static: returned})
-	//			e.RunTask(ctx, taskfile.Call{Task: t.Prompt.Answer.Task, Vars: &v})
-	//		}
+	case "multiline":
+		var lines string
+		prompt := &survey.Multiline{
+			Message: t.Prompt.Message,
+		}
+		survey.AskOne(prompt, &lines)
+
+		if err := funcValidateAndRunAnswer(lines); err != nil {
+			return err
+		}
 	//	case "Password":
 	//		password := ""
 	//		prompt := &survey.Multiline{
@@ -772,13 +760,13 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 	//		if yes {
 	//			e.RunTask(ctx, taskfile.Call{Task: t.Prompt.Answer.Task})
 	//		}
-	case "Select":
+	case "select":
 
 		if err := selectItemsFunc(false); err != nil {
 			return err
 		}
 
-	case "MultiSelect":
+	case "multi_select":
 		if err := selectItemsFunc(true); err != nil {
 			return err
 		}
