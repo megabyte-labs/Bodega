@@ -1,8 +1,11 @@
 package logger
 
 import (
+	"fmt"
 	"io"
+	"os"
 
+	"github.com/charmbracelet/glamour"
 	"github.com/fatih/color"
 )
 
@@ -30,6 +33,66 @@ type Logger struct {
 	Stderr  io.Writer
 	Verbose int
 	Color   bool
+}
+
+// A logger which renders markdown with fancy colors thanks to charmbracelet/glamour
+// TODO: refactor to one logger interface
+type FancyLogger struct {
+	stdout io.Writer
+	stderr io.Writer
+	// TODO: Verbose should indicate with verbosity levels
+	Verbose bool
+	// TODO: keeping this for now although it's no use
+	Color   bool
+	glamour *glamour.TermRenderer
+}
+
+// Initializes and returns a fancy logger backed with charmbracelet/glamour
+func NewFancyLogger() *FancyLogger {
+	fl, err := glamour.NewTermRenderer(
+		// detect background color and pick either the default dark or light theme
+		glamour.WithAutoStyle(),
+	)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error initializing fancy logger: %v", err)
+	}
+	return &FancyLogger{
+		stdout:  os.Stdout,
+		stderr:  os.Stderr,
+		Verbose: true,
+		Color:   false,
+		glamour: fl,
+	}
+}
+
+func (fl *FancyLogger) SetStderr(fd io.Writer) *FancyLogger {
+	fl.stderr = fd
+	return fl
+}
+
+func (fl *FancyLogger) SetStdout(fd io.Writer) *FancyLogger {
+	fl.stdout = fd
+	return fl
+}
+
+func (fl *FancyLogger) Err(s string) {
+	out, err := fl.glamour.Render(s)
+	if err != nil {
+		fmt.Fprint(fl.stderr, err)
+		return
+	}
+	fmt.Fprint(fl.stderr, out)
+
+}
+
+func (fl *FancyLogger) Out(s string) {
+	out, err := fl.glamour.Render(s)
+	if err != nil {
+		fmt.Fprint(fl.stderr, err)
+		return
+	}
+	fmt.Fprint(fl.stdout, out)
+
 }
 
 // Outf prints stuff to STDOUT.

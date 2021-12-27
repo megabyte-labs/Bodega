@@ -46,14 +46,12 @@ func (e *Executor) FancyPrintTasksHelp() {
 		return
 	}
 	w := new(strings.Builder)
-	w.WriteString("Task | Description |\n-----|:-----------|\n")
+	w.WriteString("# Tasks\nTask | Description |\n-----|:-----------|\n")
 
 	for _, task := range tasks {
 		fmt.Fprintf(w, "%s|%s|\n", task.Name(), task.Desc)
 	}
-	if out, err := e.FancyLogger.Render(w.String()); err == nil {
-		fmt.Print(out)
-	}
+	e.FancyLogger.Out(w.String())
 }
 
 func (e *Executor) tasksWithDesc() (tasks []*taskfile.Task) {
