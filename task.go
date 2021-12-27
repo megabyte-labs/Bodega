@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -78,14 +79,24 @@ func (e *Executor) Run(ctx context.Context, calls ...taskfile.Call) error {
 	}
 
 	if e.Summary {
+		var summaryBuilder strings.Builder
+		// In order to keep compatability, each method in the summary packages prints
+		// AND returns the output suited for markdown rendering. To prevent repeated
+		// printing, output is temporarily redirected to /dev/null
+		// if void := os.NewFile(0, os.DevNull); void != nil {
+		defer func() { e.Logger.Stdout = e.Stdout }()
+		// No need to close DevNull
+		e.Logger.Stdout = execext.NewDevNull()
+
 		for i, c := range calls {
 			compiledTask, err := e.FastCompiledTask(c)
 			if err != nil {
 				return nil
 			}
-			summary.PrintSpaceBetweenSummaries(e.Logger, i)
-			summary.PrintTask(e.Logger, compiledTask)
+			summaryBuilder.WriteString(summary.PrintSpaceBetweenSummaries(e.Logger, i))
+			summaryBuilder.WriteString(summary.PrintTask(e.Logger, compiledTask))
 		}
+		e.FancyLogger.Out(summaryBuilder.String())
 		return nil
 	}
 
