@@ -10,6 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/go-task/task/v3/internal/compiler"
 	compilerv2 "github.com/go-task/task/v3/internal/compiler/v2"
 	compilerv3 "github.com/go-task/task/v3/internal/compiler/v3"
@@ -17,6 +18,7 @@ import (
 	"github.com/go-task/task/v3/internal/logger"
 	"github.com/go-task/task/v3/internal/output"
 	"github.com/go-task/task/v3/internal/summary"
+	"github.com/go-task/task/v3/internal/ui"
 	"github.com/go-task/task/v3/taskfile"
 	"github.com/go-task/task/v3/taskfile/read"
 
@@ -102,6 +104,31 @@ func (e *Executor) Run(ctx context.Context, calls ...taskfile.Call) error {
 		}
 	}
 	return g.Wait()
+}
+
+// RunUI shows up a terminal interface. This must be called after Setup()
+// Currently this is quite hacky
+func (e *Executor) RunUI(ctx context.Context) error {
+	// Temporary use-once channel receiving the task to run
+	tChan := make(chan string, 1)
+	model := ui.NewTasksModel(e.Taskfile.Tasks, tChan)
+	f := func(call taskfile.Call) error {
+		if err := e.RunTask(ctx, call); err != nil {
+			e.Logger.Errf(logger.Red, "%v", err)
+			return err
+		}
+		return nil
+	}
+
+	if err := tea.NewProgram(model, tea.WithAltScreen()).Start(); err != nil {
+		return err
+	}
+	fmt.Println("quit from bubbletea")
+	deleteme := <-model.TChan
+	if err := f(taskfile.Call{Task: deleteme}); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Setup setups Executor's internal state

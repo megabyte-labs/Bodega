@@ -282,6 +282,16 @@ func start(calledFromRepl bool) {
 		return
 	}
 
+	if list {
+		// e.PrintTasksHelp()
+		// return
+		if err := e.RunUI(ctx); err != nil {
+			fmt.Println("error running interface:", err)
+		}
+		fmt.Println("returned from bubbleteam")
+		return
+	}
+
 	if err := e.Run(ctx, calls...); err != nil {
 		e.Logger.Errf(logger.Red, "%v", err)
 		if !calledFromRepl {
