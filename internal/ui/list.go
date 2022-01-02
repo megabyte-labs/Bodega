@@ -3,6 +3,8 @@
 package ui
 
 import (
+	"sort"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -56,6 +58,14 @@ func NewTasksModel(tasks taskfile.Tasks, c chan string) *tasksModel {
 		// TODO: add alias here after the alias feature branch ios merged
 		items = append(items, taskItem{name: t.Name(), alias: ""})
 	}
+	// NOTE: this sorting seems painful, but what else to do ?
+	var k, p taskItem
+	sort.Slice(items, func(i, j int) bool {
+		k = items[i].(taskItem)
+		p = items[j].(taskItem)
+		return k.name < p.name
+	})
+
 	// TODO: custom delegate
 	delegate := list.NewDefaultDelegate()
 	tlist := list.NewModel(items, delegate, 0, 0)
