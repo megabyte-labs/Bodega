@@ -804,7 +804,7 @@ func TestSummary(t *testing.T) {
 	assert.NoError(t, e.Setup())
 	assert.NoError(t, e.Run(context.Background(), taskfile.Call{Task: "task-with-summary"}, taskfile.Call{Task: "other-task-with-summary"}))
 
-	data, err := ioutil.ReadFile(filepath.Join(dir, "task-with-summary.txt"))
+	data, err := ioutil.ReadFile(filepath.Join(dir, "task-with-summary-fancy.txt"))
 	assert.NoError(t, err)
 
 	expectedOutput := string(data)
