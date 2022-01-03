@@ -22,7 +22,7 @@ func PrintSpaceBetweenSummaries(l *logger.Logger, i int) string {
 
 	l.Outf(logger.Default, "")
 	l.Outf(logger.Default, "")
-	return "\n\n"
+	return "\n---\n"
 }
 
 // Prints a summarized form of a task t. In addition, returns
@@ -57,14 +57,14 @@ func printTaskSummary(l *logger.Logger, t *taskfile.Task) string {
 		notLastLine := i+1 < len(lines)
 		if notLastLine || line != "" {
 			l.Outf(logger.Default, line)
-			out += line
+			out += "\n" + line + "\n"
 		}
 	}
 	return out
 }
 
 func printTaskName(l *logger.Logger, t *taskfile.Task) string {
-	out := "## Task\n"
+	out := "## Task " + t.Name() + "\n"
 	l.Outf(logger.Default, "task: %s", t.Name())
 	l.Outf(logger.Default, "")
 	return out
@@ -90,7 +90,7 @@ func printTaskDependencies(l *logger.Logger, t *taskfile.Task) string {
 		return ""
 	}
 
-	out := "\n##Dependencies:\n"
+	out := "\n## Dependencies\n"
 	l.Outf(logger.Default, "")
 	l.Outf(logger.Default, "dependencies:")
 
@@ -116,7 +116,7 @@ func printTaskCommands(l *logger.Logger, t *taskfile.Task) string {
 			out += "- " + c.Cmd + "\n"
 		} else {
 			l.Outf(logger.Default, " - Task: %s", c.Task)
-			out += "- " + c.Task + "\n"
+			out += "- `" + c.Task + "`\n"
 		}
 	}
 	return out

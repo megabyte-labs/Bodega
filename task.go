@@ -88,10 +88,13 @@ func (e *Executor) Run(ctx context.Context, calls ...taskfile.Call) error {
 		// No need to close DevNull
 		e.Logger.Stdout = execext.NewDevNull()
 
+		if len(calls) > 1 {
+			summaryBuilder.WriteString("# Tasks\n")
+		}
 		for i, c := range calls {
 			compiledTask, err := e.FastCompiledTask(c)
 			if err != nil {
-				return nil
+				return err
 			}
 			summaryBuilder.WriteString(summary.PrintSpaceBetweenSummaries(e.Logger, i))
 			summaryBuilder.WriteString(summary.PrintTask(e.Logger, compiledTask))
