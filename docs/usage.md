@@ -513,6 +513,72 @@ tasks:
       - sleep 5 # long operation like installing packages
 ```
 
+### Control task execution via user input
+
+A prompt field provides an interactive method of getting user data.
+In addition, it controls execution with the `validate` sub-field
+which, on correct desired input, executes the task `answer`.
+The user's selection (or input) is available as the {{.ANSWER}} template variable
+
+#### Confirmation
+A prompt of type `confirm` pops up a yes/no confirmation message
+```yaml
+  prompt_confirm:
+    prompt:
+      type: confirm
+      message: "Confirming this action ?"
+      answer: 
+        cmds:
+          - echo "true"
+          - task: prompt_confirm
+```
+
+#### Selection 
+
+A prompt of type `select` or `multi_select` allows the selection of (an) items.
+The options sub-field is used to list the possible selections. You may use a 
+dynamic option as well
+```yaml
+  test_prompt:
+    prompt:
+      type: select
+      # type: multi_select
+      message: What day is it?
+      options:
+        - msg: Sunday
+        - Tuesday
+        - msg:
+            sh: date +%A
+        - Wednesday
+      validate:
+        sh: '[[ "{{.ANSWER}}" == "Wednesday" ]]'
+      answer:
+        desc: "a task executed on valid input only"
+        cmds:
+          - echo "It is Wednesday my dudes!"
+```
+The `{{.ANSWER}}` for the `multi_select` will expand as an array of choices. You can
+use Go's template constructs to operate on the array.
+
+#### Text input
+
+A prompt of type `input` provides one line of text as input. To hide characters from 
+being displayed, choose type `password`. For multi-line input, use `multiline`.
+```yaml
+  prompt_input:
+    prompt:
+      type: password
+      # type: multiline
+      # type: input
+      message: "Password is ?"
+      validate:
+        sh: ' [[ "{{.ANSWER}}" == "pass" ]] '
+      answer: 
+        cmds:
+          - echo "Password is correct. Proceeding..."
+          - task: prompt_confirm
+```
+
 ## Variables
 
 When doing interpolation of variables, Task will look for the below.
