@@ -99,6 +99,46 @@ tasks:
       - echo "Using $KEYNAME and endpoint $ENDPOINT"
 ```
 
+## Grouping common commands
+
+Common commands across the Taskfile or across task commands can be grouped
+together under the `shell_rc` field. A command or task will execute the
+contents of the `shell_rc` before starting
+
+```yaml
+version: '3'
+
+# Global common scripts or functions
+shell_rc: |
+    func(){
+      echo "global function called!"
+    }
+
+tasks:
+  default:
+    cmds:
+      - task: init-script-global
+      - task: init-script
+
+  init-script-global:
+    cmds:
+    - echo "trying out the global shell_rc field"
+    - func
+
+  init-script:
+    # Local common scripts of functions. Override the global one
+    shell_rc: |
+      export VAR_INSIDE_INIT_SCRIPT="Hello from init script"
+      func(){
+        echo "local function called!"
+      }
+    cmds:
+      - echo "This is a var inside the local script: $VAR_INSIDE_INIT_SCRIPT"
+      - func
+```
+Executing `task default` on the command line executes the tasks `init-script-global`
+and `init-script`, which calls the global `func` first then the local one
+
 ## Including other Taskfiles
 
 If you want to share tasks between different projects (Taskfiles), you can use
