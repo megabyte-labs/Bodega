@@ -111,7 +111,7 @@ func (e *Executor) Run(ctx context.Context, calls ...taskfile.Call) error {
 func (e *Executor) RunUI(ctx context.Context) error {
 	// Temporary use-once channel receiving the task to run
 	tChan := make(chan string, 1)
-	model := ui.NewTasksModel(e.Taskfile.Tasks, tChan)
+	model := ui.NewTasksModel(e.tasksWithDesc(), tChan)
 	f := func(call taskfile.Call) error {
 		if err := e.RunTask(ctx, call); err != nil {
 			e.Logger.Errf(logger.Red, "%v", err)

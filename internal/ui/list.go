@@ -3,8 +3,6 @@
 package ui
 
 import (
-	"sort"
-
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -14,7 +12,10 @@ import (
 
 var (
 	appStyle   = lipgloss.NewStyle().Padding(1, 2)
-	titleStyle = lipgloss.NewStyle().MarginLeft(2)
+	titleStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#FFFDF5")).
+			Background(lipgloss.Color("#25A065")).
+			MarginLeft(2)
 	// itemStyle          = lipgloss.NewStyle().PaddingLeft(4)
 	selectedItemStyle = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("170"))
 	// paginationStyle    = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
@@ -34,6 +35,7 @@ var (
 type taskItem struct {
 	name  string
 	alias string
+	desc  string
 }
 
 // func (d itemDelegate) Height() int                               { return 1 }
@@ -44,27 +46,22 @@ func (i taskItem) FilterValue() string { return i.name }
 
 // Both Title() and Description() are required for an item to work with DefaultDelegate
 func (i taskItem) Title() string       { return i.name }
-func (i taskItem) Description() string { return i.alias }
+func (i taskItem) Description() string { return i.desc }
 
 type tasksModel struct {
 	lst   list.Model
-	tasks taskfile.Tasks
+	tasks []*taskfile.Task
 	TChan chan string
 }
 
-func NewTasksModel(tasks taskfile.Tasks, c chan string) *tasksModel {
+// Returns a pre-defined model to be used with bubbletea.
+// NewTasksModel() expects an instance of tasks with description
+func NewTasksModel(tasks []*taskfile.Task, c chan string) *tasksModel {
 	var items = make([]list.Item, 0, len(tasks))
 	for _, t := range tasks {
 		// TODO: add alias here after the alias feature branch ios merged
-		items = append(items, taskItem{name: t.Name(), alias: ""})
+		items = append(items, taskItem{name: t.Name(), alias: "", desc: t.Desc})
 	}
-	// NOTE: this sorting seems painful, but what else to do ?
-	var k, p taskItem
-	sort.Slice(items, func(i, j int) bool {
-		k = items[i].(taskItem)
-		p = items[j].(taskItem)
-		return k.name < p.name
-	})
 
 	// TODO: custom delegate
 	delegate := list.NewDefaultDelegate()
