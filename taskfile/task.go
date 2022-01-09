@@ -10,6 +10,7 @@ type Task struct {
 	Cmds          []*Cmd
 	Deps          []*Dep
 	Label         string
+	LogMsg        *LogMsg
 	Desc          string
 	Summary       string
 	Sources       []string
@@ -52,6 +53,7 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Cmds          []*Cmd
 		Deps          []*Dep
 		Label         string
+		LogMsg        *LogMsg `yaml:"log_msg"`
 		Desc          string
 		Summary       string
 		Sources       []string
@@ -75,6 +77,7 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	t.Deps = task.Deps
 	t.Alias = task.Alias
 	t.Label = task.Label
+	t.LogMsg = task.LogMsg
 	t.Desc = task.Desc
 	t.Summary = task.Summary
 	t.Sources = task.Sources
