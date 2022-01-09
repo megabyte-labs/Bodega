@@ -312,7 +312,7 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 
 	return e.startExecution(ctx, t, func(ctx context.Context) error {
 		if t.LogMsg != nil && t.LogMsg.Start != "" {
-			e.Logger.VerboseErrf(logger.Magenta, t.LogMsg.Start)
+			e.Logger.Outf(logger.Magenta, t.LogMsg.Start)
 		} else {
 			e.Logger.VerboseErrf(logger.Magenta, `task: "%s" started`, call.Task)
 		}
@@ -364,7 +364,7 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 				}
 
 				if t.LogMsg != nil && t.LogMsg.Error != "" {
-					e.Logger.VerboseErrf(logger.Magenta, t.LogMsg.Error)
+					e.Logger.Outf(logger.Magenta, t.LogMsg.Error)
 				}
 				return &taskRunError{t.Task, err}
 			}
