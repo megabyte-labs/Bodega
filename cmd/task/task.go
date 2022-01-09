@@ -26,7 +26,7 @@ var (
 	version = ""
 )
 
-const usage = `Usage: task [-ilfwvsd] [--init] [--list] [--force] [--watch] [--verbose] [--silent] [--dir] [--taskfile] [--dry] [--summary] [task...]
+const usage = `Usage: task [-ilfwvsdm] [--init] [--list] [--force] [--watch] [--verbose] [--silent] [--dir] [--taskfile] [--dry] [--menu] [--summary] [task...]
 
 Runs the specified task(s). Runs a built-in shell if no task name
 was specified, or lists all tasks if an unknown task name was specified.
@@ -125,6 +125,7 @@ func start(calledFromRepl bool) {
 		init        bool
 		list        bool
 		status      bool
+		menu        bool
 		force       bool
 		watch       bool
 		silent      bool
@@ -156,6 +157,7 @@ func start(calledFromRepl bool) {
 	pflag.BoolVarP(&init, "init", "i", false, "creates a new Taskfile.yml in the current folder")
 	pflag.BoolVarP(&list, "list", "l", false, "lists tasks with description of current Taskfile")
 	pflag.BoolVar(&status, "status", false, "exits with non-zero exit code if any of the given tasks is not up-to-date")
+	pflag.BoolVarP(&menu, "menu", "m", false, "runs an interactive listing of tasks")
 	pflag.BoolVarP(&force, "force", "f", false, "forces execution even when the task is up-to-date")
 	pflag.BoolVarP(&watch, "watch", "w", false, "enables watch of the given task")
 	pflag.CountVarP(&verbose, "verbose", "v", "enables verbose mode (repeat option for more output)")
@@ -282,13 +284,17 @@ func start(calledFromRepl bool) {
 		return
 	}
 
-	if list {
-		// e.PrintTasksHelp()
-		// return
+	if menu {
+
+		// TODO: run normal listing within REPL
 		if err := e.RunUI(ctx); err != nil {
 			fmt.Println("error running interface:", err)
 		}
-		fmt.Println("returned from bubbleteam")
+		return
+	}
+	if list {
+		// TODO: do not forget fancy logger
+		e.PrintTasksHelp()
 		return
 	}
 
