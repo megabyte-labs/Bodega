@@ -106,14 +106,20 @@ func printTaskCommands(l *logger.Logger, t *taskfile.Task) string {
 		return ""
 	}
 
-	out := "\n### Commands\n"
+	out := "\n## Commands\n"
 	l.Outf(logger.Default, "")
 	l.Outf(logger.Default, "commands:")
 	for _, c := range t.Cmds {
 		isCommand := c.Cmd != ""
 		if isCommand {
 			l.Outf(logger.Default, " - %s", c.Cmd)
-			out += "- " + c.Cmd + "\n"
+			if strings.Contains(c.Cmd, "\n") {
+				// Assume a code block with indendation embedded
+				// This is quite hacky if you ask me
+				out += "- \n```bash\n" + c.Cmd + "```\n"
+			} else {
+				out += "- " + c.Cmd + "\n"
+			}
 		} else {
 			l.Outf(logger.Default, " - Task: %s", c.Task)
 			out += "- `" + c.Task + "`\n"
