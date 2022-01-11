@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/go-task/task/v3/internal/compiler"
 	"github.com/go-task/task/v3/internal/execext"
@@ -135,6 +136,7 @@ func (c *CompilerV3) HandleDynamicVar(v taskfile.Var, dir string) (string, error
 		Stdout:  &stdout,
 		Stderr:  c.Logger.Stderr,
 	}
+	u := time.Now()
 	if err := execext.RunCommand(context.Background(), opts); err != nil {
 		return "", fmt.Errorf(`task: Command "%s" failed: %s`, opts.Command, err)
 	}
@@ -144,7 +146,8 @@ func (c *CompilerV3) HandleDynamicVar(v taskfile.Var, dir string) (string, error
 	result := strings.TrimSuffix(stdout.String(), "\n")
 
 	c.dynamicCache[v.Sh] = result
-	c.Logger.VerboseErrf(logger.Magenta, `task: dynamic variable: '%s' result: '%s'`, v.Sh, result)
+	t := time.Now()
+	c.Logger.DebugErrf(logger.Magenta, `task: dynamic variable: '%s' took %d ms with result: '%s'`, v.Sh, t.Sub(u).Milliseconds(), result)
 
 	return result, nil
 }

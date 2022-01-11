@@ -299,6 +299,13 @@ func (e *Executor) Setup() error {
 
 // RunTask runs a task by its name
 func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
+	t := e.Taskfile.Tasks[call.Task]
+	if t.LogMsg != nil && t.LogMsg.Start != "" {
+		e.Logger.Outf(logger.Magenta, t.LogMsg.Start)
+	} else {
+		e.Logger.VerboseErrf(logger.Magenta, `task: "%s" started`, call.Task)
+	}
+	u := time.Now()
 	t, err := e.CompiledTask(call)
 	if err != nil {
 		return err
@@ -311,12 +318,6 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 	defer release()
 
 	return e.startExecution(ctx, t, func(ctx context.Context) error {
-		if t.LogMsg != nil && t.LogMsg.Start != "" {
-			e.Logger.Outf(logger.Magenta, t.LogMsg.Start)
-		} else {
-			e.Logger.VerboseErrf(logger.Magenta, `task: "%s" started`, call.Task)
-		}
-		timeBefore := time.Now()
 		if err := e.runDeps(ctx, t); err != nil {
 			return err
 		}
@@ -370,7 +371,7 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 			}
 		}
 		// The task execution time is accurate to a couple of milliseconds
-		timeAfter := time.Now().Sub(timeBefore)
+		timeAfter := time.Now().Sub(u)
 		e.Logger.VerboseErrf(logger.Magenta, `task: "%s" finished in %f seconds`, call.Task, timeAfter.Seconds())
 		return nil
 	})
