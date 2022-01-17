@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -672,7 +673,7 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 				}
 			}
 			if _, ok := optionsMap[option.Value]; !ok {
-				optionsMap[option.Value] = true
+				optionsMap[option.Value] = struct{}{}
 				options = append(options, option.Value)
 			}
 		}
@@ -702,6 +703,7 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 
 		return nil
 	}
+
 	switch t.Prompt.Type {
 	case "input":
 		prompt := &survey.Input{
@@ -737,10 +739,8 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 			Message: t.Prompt.Message,
 		}
 		survey.AskOne(prompt, &yes)
-		if yes {
-			if err := e.RunTask(ctx, taskfile.Call{Task: t.Prompt.Answer.Task}); err != nil {
-				return err
-			}
+		if err := funcValidateAndRunAnswer(strconv.FormatBool(yes)); err != nil {
+			return err
 		}
 
 	case "select":
