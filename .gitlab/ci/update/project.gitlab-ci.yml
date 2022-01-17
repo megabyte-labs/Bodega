@@ -20,11 +20,15 @@ update:project:
   before_script:
     - find . -print0 | xargs -0 sudo chown crovax:crovax
     - bash .config/scripts/start.sh
-    - task ci:before
+    - |
+      if [ -f "$HOME/.profile" ]; then source "$HOME/.profile"; fi
+      if [ -f "$HOME/.bashrc" ]; then source "$HOME/.bashrc"; fi
+      task ci:before
   script:
     - |
       OPTIMIZED_IMAGE=false
-      source "$HOME/.profile"
+      if [ -f "$HOME/.profile" ]; then source "$HOME/.profile"; fi
+      if [ -f "$HOME/.bashrc" ]; then source "$HOME/.bashrc"; fi
       task ci:submodules
       task start
       if [ "$REPOSITORY_UPDATE" == 'true' ]; then task services; fi
