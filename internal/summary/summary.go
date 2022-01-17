@@ -64,7 +64,7 @@ func printTaskSummary(l *logger.Logger, t *taskfile.Task) string {
 }
 
 func printTaskName(l *logger.Logger, t *taskfile.Task) string {
-	out := "## Task " + t.Name() + "\n"
+	out := "## Task `" + t.Name() + "`\n"
 	l.Outf(logger.Default, "task: %s", t.Name())
 	l.Outf(logger.Default, "")
 	return out
