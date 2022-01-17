@@ -105,7 +105,7 @@ You can install the CLI by compiling it from the source as long as you have a re
 git clone https://github.com/ProfessorManhattan/Bodega.git
 cd {{#withLast (split repository.github "/")}}this}}{{/withLast
 .build_command
-sudo mv ./task /usr/local/bin
+sudo mv ./dist/task /usr/local/bin
 ```
 
 After you compile the program, you should then move the binary file to a location that is in your `PATH` (which is what the last line does in the snippet above).

@@ -2,7 +2,7 @@
   "private": false,
   "name": "go-bodega",
   "version": "0.0.1",
-  "description": "A gorgeous, feature-packed (yet minimal) version of the go-task project",
+  "description": "A gorgeous, feature-packed drop-in replacement for the go-task project",
   "license": "MIT",
   "author": "Brian Zalewski <brian@megabyte.space> (https://megabyte.space)",
   "homepage": "https://megabyte.space",
@@ -60,6 +60,8 @@
     "customPackageName": "go-bodega",
     "description": "A gorgeous, feature-packed drop-in replacement for the go-task project",
     "github_id": "R_kgDOGpnAMA",
+    "gitlab_group_id": "14342540",
+    "gitlab_project_id": "28755315",
     "group": "go",
     "name": "Bodega",
     "overview": "[go-task](https://github.com/go-task/task) is a task runner / Make alternative written in Go. It allows you to define bash script snippets in YML files and provides some advanced features. Some of the features it includes is the ability to define dependencies, running tasks conditionally, caching values, and a built-in method of housing CLI documentation. **Bodega** takes go-task to the next level by improving the TUI experience and including features that allow you to use the project as a CLI-generator.",
@@ -69,9 +71,7 @@
     },
     "slug": "bodega",
     "subgroup": "cli",
-    "title": "Bodega - An Invaluable Task Runner",
-    "gitlab_project_id": "28755315",
-    "gitlab_group_id": "14342540"
+    "title": "Bodega - An Invaluable Task Runner"
   },
   "commitlint": {
     "extends": [
