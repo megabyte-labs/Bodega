@@ -23,6 +23,7 @@ update:project:
     - if [ -f "$HOME/.bashrc" ]; then source "$HOME/.bashrc"; fi
     - task ci:before
   script:
+    - if [ -f "$HOME/.bashrc" ]; then source "$HOME/.bashrc"; fi
     - task ci:submodules
     - task start
     - if [ "$REPOSITORY_UPDATE" == 'true' ]; then task services; fi
