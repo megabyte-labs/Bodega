@@ -19,6 +19,7 @@ update:project:
       - .venv/
   before_script:
     - find . -print0 | xargs -0 sudo chown crovax:crovax
+    - bash .config/scripts/start.sh
     - task ci:before
   script:
     - |
