@@ -59,6 +59,7 @@ tasks:
     cmds:
       - |
         .config/log info 'Running `poetry install`'
+        if [ -f "$HOME/.profile" ]; then . "$HOME/.profile"; fi
         if [ '{{.PYTHON_VIRTUALENV}}' != 'true' ]; then
           poetry config virtualenvs.create false
         fi
