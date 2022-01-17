@@ -45,6 +45,7 @@ func (e *Executor) compiledTask(call taskfile.Call, evaluateShVars bool) (*taskf
 		return nil, err
 	}
 
+	vars.Set("BODEGA", taskfile.Var{Static: "true"})
 	r := templater.Templater{Vars: vars, RemoveNoValue: v >= 3.0}
 
 	newT := taskfile.Task{
