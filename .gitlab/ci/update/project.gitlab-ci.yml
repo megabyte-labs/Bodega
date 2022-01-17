@@ -19,8 +19,6 @@ update:project:
       - .venv/
   before_script:
     - find . -print0 | xargs -0 sudo chown crovax:crovax
-    - if [ "${UPDATER_IMAGE:0:20}" != 'megabytelabs/updater' ]; then bash .config/scripts/start.sh; fi
-    - if [ -n "$UPDATE_INIT_SCRIPT" ]; then curl -s "$UPDATE_INIT_SCRIPT" | bash; fi
     - task ci:before
   script:
     - |
