@@ -1,37 +1,3 @@
-# original go-task .gitignore
-# Binaries for programs and plugins
-*.exe
-*.dll
-*.so
-*.dylib
-
-# Test binary, build with `go test -c`
-*.test
-
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.out
-
-# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
-.glide/
-
-./task
-.task
-dist/
-
-.DS_Store
-
-# editors
-.idea/
-.vscode/
-
-# exuberant ctags
-tags
-
-/bin
-/testdata/vars/v1
-/tmp
-
-# custom .gitignore
 *~
 ._*
 *$py.class
@@ -45,6 +11,7 @@ ansible_variables.json
 .autodoc/
 *.box
 build/
+!*ci/build/
 .c9/
 .cache
 .cache/
@@ -129,4 +96,3 @@ venv.bak/
 !.vscode/settings.json
 !.vscode/tasks.json
 yarn-error.log
->>>>>>> cc40f0a (Adding seed files.)

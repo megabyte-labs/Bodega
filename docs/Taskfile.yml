@@ -1,6 +1,11 @@
+---
 version: '3'
 
 tasks:
+  ico:
+    desc: Generate favicon.ico from Logo.png
+    cmds:
+      - convert -background transparent "Logo.png" -define icon:auto-resize=16,24,32,48,64,72,96,128,256 "favicon.ico"
   install:
     desc: Installs docsify to work the on the documentation site
     cmds:
@@ -10,8 +15,3 @@ tasks:
     desc: Serves the documentation site locally
     cmds:
       - docsify serve .
-
-  ico:
-    desc: Generate favicon.ico from Logo.png
-    cmds:
-      - convert -background transparent "Logo.png" -define icon:auto-resize=16,24,32,48,64,72,96,128,256 "favicon.ico"

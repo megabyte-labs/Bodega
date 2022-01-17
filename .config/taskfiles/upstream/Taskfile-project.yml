@@ -7,6 +7,9 @@ vars:
 
 tasks:
   boilerplate:
+    deps:
+      - :install:software:coreutils
+      - :install:software:jq
     env:
       PATH:
         sh: echo "$(brew --prefix)/opt/coreutils/libexec/gnubin:$PATH"
@@ -37,11 +40,20 @@ tasks:
 
   clone:
     cmds:
-      - rm -rf {{.SHARED_FOLDER}}
+      - |
+        if [ -w "$PWD/{{.SHARED_FOLDER}}" ]; then
+          rm -rf {{.SHARED_FOLDER}}
+        else
+          if [ -d "$PWD/{{.SHARED_FOLDER}}" ] && type sudo > /dev/null; then
+            sudo rm -rf {{.SHARED_FOLDER}}
+          fi
+        fi
       - git clone --depth=1 {{.PROJECT_COMMON_URL}} {{.SHARED_FOLDER}}
       - rm -rf ./{{.SHARED_FOLDER}}/.git
 
   copy:
+    deps:
+      - :install:software:coreutils
     env:
       PATH:
         sh: echo "$(brew --prefix)/opt/coreutils/libexec/gnubin:$PATH"
@@ -53,6 +65,8 @@ tasks:
       - task: save:common:keywords
 
   merge:package:overrides:
+    deps:
+      - :install:software:jq
     summary: |
       # Merge data from package.json's '.blueprint.jsonOverrides' key
 
@@ -88,6 +102,8 @@ tasks:
         fi
 
   save:common:keywords:
+    deps:
+      - :install:software:jq
     cmds:
       - |
         KEYWORDS="$(jq -r '.keywords' package.json.liquid)"
