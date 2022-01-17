@@ -631,13 +631,15 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 		// FIXME: do we have to compile the whole task ?
 		temp, _ := e.CompiledTask(taskfile.Call{Task: t.Task, Vars: t.Vars})
 
-		err := execext.RunCommand(ctx, &execext.RunCommandOptions{
-			Command: temp.Prompt.Validate.Sh,
-			Env:     getEnviron(t),
-		})
+		if temp.Prompt.Validate != nil {
+			err := execext.RunCommand(ctx, &execext.RunCommandOptions{
+				Command: temp.Prompt.Validate.Sh,
+				Env:     getEnviron(t),
+			})
 
-		if err != nil {
-			return fmt.Errorf("validation failed: %v", err)
+			if err != nil {
+				return fmt.Errorf("validation failed: %v", err)
+			}
 		}
 		return e.RunTask(ctx, taskfile.Call{Task: t.Prompt.Answer.Task, Vars: t.Vars})
 	}
@@ -646,7 +648,7 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 	selectItemsFunc := func(isMultiSelection bool) error {
 		var (
 			options  []string
-			selected []string
+			selected string
 			// Used to represent a set to store unique options
 			optionsMap = make(map[string]struct{}, len(t.Prompt.Options))
 		)
@@ -680,24 +682,26 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 
 		// Use either Select or MultiSelect and validate each selection
 		if isMultiSelection {
+			var m []string
 			prompt = &survey.MultiSelect{
 				Message: t.Prompt.Message,
 				Options: options,
 			}
-			survey.AskOne(prompt, &selected)
+			survey.AskOne(prompt, &m)
+			for i := range m {
+				// Build a string to be looped on for {{.ANSWER}}
+				selected += "\"" + m[i] + "\" "
+			}
 		} else {
-			var s string
 			prompt = &survey.Select{
 				Message: t.Prompt.Message,
 				Options: options,
 			}
-			survey.AskOne(prompt, &s)
-			selected = append(selected, s)
+			survey.AskOne(prompt, &selected)
 		}
-		for i := 0; i < len(selected); i++ {
-			if err := funcValidateAndRunAnswer(selected[i]); err != nil {
-				return err
-			}
+		// The answer task runs only once, even for multi_select
+		if err := funcValidateAndRunAnswer(selected); err != nil {
+			return err
 
 		}
 
