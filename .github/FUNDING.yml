@@ -1,2 +1,5 @@
-open_collective: task
-custom: 'https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=GSVDU63RKG45A&currency_code=USD&source=url'
+---
+github: ProfessorManhattan
+open_collective: megabytelabs
+patreon: ProfessorManhattan
+custom: [donate.givedirectly.org]
