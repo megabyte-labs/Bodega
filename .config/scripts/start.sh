@@ -60,6 +60,7 @@ function ensureLocalPath() {
   if [[ "$OSTYPE" == 'darwin'* ]] || [[ "$OSTYPE" == 'linux-gnu'* ]]; then
     # shellcheck disable=SC2016
     local PATH_STRING='PATH="$HOME/.local/bin:$PATH"'
+    mkdir -p "$HOME/.local/bin"
     if grep -L "$PATH_STRING" "$SHELL_PROFILE"; then
       echo -e "export ${PATH_STRING}\n" >> "$SHELL_PROFILE"
       echo "$SHELL_PROFILE" > "$TMP_PROFILE_PATH"
@@ -70,7 +71,7 @@ function ensureLocalPath() {
   elif [[ "$OSTYPE" == 'freebsd'* ]]; then
     .config/log error "FreeBSD support not added yet" && exit 1
   else
-    .config/log error "System type not recognized" && exit 1
+    .config/log error "System type not recognized"
   fi
 }
 ensureLocalPath
@@ -87,21 +88,42 @@ if [ -d .git ] && type git &> /dev/null; then
   git submodule update --init --recursive
 fi
 
-# @description Ensures Task is installed and properly configured and then runs the `start` task
+# @description Ensures Task is installed and properly configured
 if [ "$GITLAB_CI" != 'true' ] || ! type task &> /dev/null; then
   bash "$INSTALL_TASK_SCRIPT"
   SHELL_PROFILE_PATH="$(cat "$TMP_PROFILE_PATH")"
   if [ -n "$SHELL_PROFILE_PATH" ]; then
     # shellcheck disable=SC1090
-    source "$SHELL_PROFILE_PATH"
+    . "$SHELL_PROFILE_PATH"
   fi
 fi
-bash "$VALID_TASKFILE_SCRIPT"
+
+# @description Ensure profile is sourced (in case of error with SHELL_PROFILE_PATH)
+case "${SHELL}" in
+  */bash*)
+    if [[ -r "${HOME}/.bash_profile" ]]; then
+      . "${HOME}/.bash_profile"
+    else
+      . "${HOME}/.profile"
+    fi
+    ;;
+  */zsh*)
+    . "${HOME}/.zshrc"
+    ;;
+  *)
+    . "${HOME}/.profile"
+    ;;
+esac
+
+# @description Ensure Taskfile.yml is valid
 cd "$PROJECT_BASE_DIR" || exit
+bash "$VALID_TASKFILE_SCRIPT"
+
+# @description Run the start logic, if appropriate
 if [ -z "$GITLAB_CI" ]; then
   task start
   if [ -f .config/log ] && [ -n "$SHELL_PROFILE_PATH" ]; then
     .config/log info 'There may have been changes to your PATH variable. You may have to run:\n'
-    .config/log info '`source '"$SHELL_PROFILE_PATH"'`'
+    .config/log info '`. '"$SHELL_PROFILE_PATH"'`'
   fi
 fi

@@ -76,7 +76,7 @@ tasks:
         .config/log info 'Ensuring Homebrew is installed and available'
         function ensureSource() {
           if ! (grep "/bin/brew shellenv" < "$1" &> /dev/null); then
-            echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> "$1"
+            echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$1"
           fi
         }
         case "${SHELL}" in
@@ -95,10 +95,13 @@ tasks:
             ;;
         esac
         if ! type brew &> /dev/null; then
-          rm -rf ~/.local/homebrew
-          mkdir -p ~/.local/homebrew
-          git clone https://github.com/Homebrew/brew ~/.local/homebrew
-          eval "$(~/.local/homebrew/bin/brew shellenv)"
+          echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          EXIT_CODE=$?
+          if [ "$EXIT_CODE" == '1' ]; then
+            .config/log warn 'Failed to install Homebrew headlessly, running again allowing prompt..'
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          fi
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew update --force --quiet
           ensureSource "$SHELL_PROFILE"
           .config/log warn 'Homebrew was installed and requires a terminal profile reload'
@@ -277,7 +280,7 @@ tasks:
         vars:
           PATH_STRING: $(brew --prefix)/opt/coreutils/libexec/gnubin
     status:
-      - '[[ "{{OS}}" != "darwin" ]] && type gsed > /dev/null'
+      - '[[ "{{OS}}" != "darwin" ]] || type gsed > /dev/null'
 
   docker:
     run: once
@@ -462,8 +465,29 @@ tasks:
 
   poetry:linux:
     deps:
+      - brew
       - pipx
     cmds:
+      - |
+        if ! type python3.10 > /dev/null; then
+          brew install python@3.10
+          case "${SHELL}" in
+            */bash*)
+              if [[ -r "${HOME}/.bash_profile" ]]; then
+                SHELL_PROFILE="${HOME}/.bash_profile"
+              else
+                SHELL_PROFILE="${HOME}/.profile"
+              fi
+              ;;
+            */zsh*)
+              SHELL_PROFILE="${HOME}/.zshrc"
+              ;;
+            *)
+              SHELL_PROFILE="${HOME}/.profile"
+              ;;
+          esac
+          echo 'export PATH="/home/linuxbrew/.linuxbrew/opt/python@3.10/bin:$PATH"' >> "$SHELL_PROFILE"
+        fi
       - pipx install poetry
       - task: :install:path:add
         vars:

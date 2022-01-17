@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "run"
-version = "0.01"
+name = "bodega"
+version = "0.0.1"
 description = "A gorgeous, feature-packed (yet minimal) version of the go-task project"
 authors = ["Brian Zalewski <brian@megabyte.space>"]
 license = "MIT"

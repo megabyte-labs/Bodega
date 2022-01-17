@@ -1,3 +1,4 @@
+---
 build:
   binary: task
   main: ./cmd/task
@@ -24,7 +25,7 @@ gomod:
   proxy: true
 
 archives:
-  - name_template: "{{.Binary}}_{{.Os}}_{{.Arch}}"
+  - name_template: '{{.Binary}}_{{.Os}}_{{.Arch}}'
     files:
       - README.md
       - LICENSE
@@ -37,10 +38,10 @@ release:
   draft: true
 
 snapshot:
-  name_template: "{{.Tag}}"
+  name_template: '{{.Tag}}'
 
 checksum:
-  name_template: "task_checksums.txt"
+  name_template: task_checksums.txt
 
 nfpms:
   - vendor: Task
@@ -53,7 +54,7 @@ nfpms:
     formats:
       - deb
       - rpm
-    file_name_template: "{{.ProjectName}}_{{.Os}}_{{.Arch}}"
+    file_name_template: '{{.ProjectName}}_{{.Os}}_{{.Arch}}'
 
 brews:
   - name: go-task
@@ -64,8 +65,7 @@ brews:
     tap:
       owner: go-task
       name: homebrew-tap
-    test:
-      system "#{bin}/task", "--help"
+    test: system "#{bin}/task", "--help"
     install: |-
       bin.install "task"
       bash_completion.install "completion/bash/task.bash" => "task"

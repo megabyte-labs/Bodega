@@ -1,32 +1,25 @@
 {
+  "private": false,
+  "name": "go-bodega",
+  "version": "0.0.1",
+  "description": "A gorgeous, feature-packed (yet minimal) version of the go-task project",
+  "license": "MIT",
   "author": "Brian Zalewski <brian@megabyte.space> (https://megabyte.space)",
-  "blueprint": {
-    "binName": "task",
-    "build_command": "go build cmd/task/task.go",
-    "build_command_output": "./task",
-    "customPackageName": "go-bodega",
-    "description": "A gorgeous, feature-packed (yet minimal) version of the go-task project",
-    "github_id": "",
-    "group": "go",
-    "name": "Bodega",
-    "overview": "[go-task](https://github.com/go-task/task) is a task runner / Make alternative written in Go. It allows you to define bash script snippets in YML files and provides some advanced features. Some of the features it includes is the ability to define dependencies, running tasks conditionally, caching values, and a built-in method of housing CLI documentation. **Bodega** takes go-task to the next level by improving the TUI experience and including features that allow you to use the project as a CLI-generator.",
-    "repository": {
-      "github": "https://github.com/ProfessorManhattan/Bodega",
-      "gitlab": "https://gitlab.com/megabyte-labs/go/cli/bodega"
-    },
-    "slug": "bodega",
-    "subgroup": "cli",
-    "title": "Bodega - An Invaluable Task Runner"
+  "homepage": "https://megabyte.space",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ProfessorManhattan/Bodega.git"
   },
   "bugs": {
     "email": "help@megabyte.space",
     "url": "https://gitlab.com/megabyte-labs/go/cli/bodega/-/issues"
   },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ],
-    "helpUrl": "https://megabyte.space/docs/contributing/commits"
+  "type": "module",
+  "scripts": {
+    "help": "task --list",
+    "prepare": "task common:husky",
+    "repair": "bash <(curl -sS https://install.doctor/repair)",
+    "start": "bash .config/start.sh"
   },
   "config": {
     "commitizen": {
@@ -34,7 +27,7 @@
     }
   },
   "dependencies": {},
-  "description": "A gorgeous, feature-packed (yet minimal) version of the go-task project",
+  "optionalDependencies": {},
   "devDependencies": {
     "@washingtondc/development": "^1.0.2",
     "@washingtondc/prettier": "^1.0.0",
@@ -42,23 +35,6 @@
     "eslint-config-strict-mode": "^1.0.0",
     "sleekfast": "^0.0.1"
   },
-  "engines": {
-    "node": ">=14.18.0"
-  },
-  "eslintConfig": {
-    "extends": "eslint-config-strict-mode"
-  },
-  "funding": [
-    {
-      "type": "opencollective",
-      "url": "https://opencollective.com/megabytelabs"
-    },
-    {
-      "type": "patreon",
-      "url": "https://www.patreon.com/ProfessorManhattan"
-    }
-  ],
-  "homepage": "https://megabyte.space",
   "keywords": [
     "automation",
     "cli",
@@ -71,7 +47,54 @@
     "terminal",
     "washingtondc"
   ],
-  "license": "MIT",
+  "engines": {
+    "node": ">=14.18.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "blueprint": {
+    "binName": "task",
+    "build_command": "go build -o dist/task cmd/task/task.go",
+    "build_command_output": "./dist/task",
+    "customPackageName": "go-bodega",
+    "description": "A gorgeous, feature-packed drop-in replacement for the go-task project",
+    "github_id": "R_kgDOGpnAMA",
+    "group": "go",
+    "name": "Bodega",
+    "overview": "[go-task](https://github.com/go-task/task) is a task runner / Make alternative written in Go. It allows you to define bash script snippets in YML files and provides some advanced features. Some of the features it includes is the ability to define dependencies, running tasks conditionally, caching values, and a built-in method of housing CLI documentation. **Bodega** takes go-task to the next level by improving the TUI experience and including features that allow you to use the project as a CLI-generator.",
+    "repository": {
+      "github": "https://github.com/ProfessorManhattan/Bodega",
+      "gitlab": "https://gitlab.com/megabyte-labs/go/cli/bodega"
+    },
+    "slug": "bodega",
+    "subgroup": "cli",
+    "title": "Bodega - An Invaluable Task Runner",
+    "gitlab_project_id": "28755315",
+    "gitlab_group_id": "14342540"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
+    "helpUrl": "https://megabyte.space/docs/contributing/commits"
+  },
+  "eslintConfig": {
+    "extends": "eslint-config-strict-mode",
+    "ignorePatterns": [
+      "testdata/**/*"
+    ]
+  },
+  "funding": [
+    {
+      "type": "opencollective",
+      "url": "https://opencollective.com/megabytelabs"
+    },
+    {
+      "type": "patreon",
+      "url": "https://www.patreon.com/ProfessorManhattan"
+    }
+  ],
   "lint-staged": {
     "**/!(logo).(jpg|png)": [
       "task image:compress --"
@@ -108,7 +131,6 @@
       "task image:compress --"
     ]
   },
-  "name": "go-bodega",
   "ntl": {
     "descriptions": {
       "help": "Display a list of tasks that can be run via the Taskfile.yml",
@@ -117,29 +139,12 @@
       "start": "Entrypoint for new developers that installs requirements and then runs 'task start'"
     }
   },
-  "optionalDependencies": {},
   "prettier": "@washingtondc/prettier",
-  "private": false,
-  "publishConfig": {
-    "access": "public"
-  },
   "release": {
     "branches": [
       "master",
       "next"
     ],
     "extends": "@washingtondc/release"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ProfessorManhattan/Bodega.git"
-  },
-  "scripts": {
-    "help": "task --list",
-    "prepare": "task common:husky",
-    "repair": "bash <(curl -sS https://install.doctor/repair)",
-    "start": "bash .config/start.sh"
-  },
-  "type": "module",
-  "version": "0.0.1"
+  }
 }
