@@ -7,8 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"strings"
+	"path/filepath"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -596,15 +598,35 @@ func getEnviron(t *taskfile.Task) []string {
 	return environ
 }
 
-// startExecution is a helper fucntion used inside Executor.RunTask to execute commands
+// Decide whether to run task t or not based on t.Run value
 func (e *Executor) startExecution(ctx context.Context, t *taskfile.Task, execute func(ctx context.Context) error) error {
 	h, err := e.GetHash(t)
 	if err != nil {
 		return err
 	}
 
+	// Always run the task
 	if h == "" {
 		return execute(ctx)
+	}
+
+	// Persist running the task as an empty file
+	if t.Run == "once_system" {
+		c, _ := os.UserCacheDir()
+		f := filepath.Join(c, "bodega", h)
+		// TODO: os.Stat might return false positinves or suffer from TOCTOU race condition
+		if _, err := os.Stat(f); os.IsNotExist(err) {
+			e.executionHashesMutex.Lock()
+			dummyCtx, cancel := context.WithCancel(context.TODO())
+			e.executionHashes[h] = dummyCtx
+			e.executionHashesMutex.Unlock()
+			cancel()
+		} else {
+			_ = os.MkdirAll(filepath.Join(c, "bodega"), 0755)
+			if err := ioutil.WriteFile(f, []byte{}, 0644); err != nil {
+				e.Logger.Errf(logger.Red, "task: error writing file: %v", err)
+			}
+		}
 	}
 
 	e.executionHashesMutex.Lock()

@@ -20,7 +20,7 @@ func (e *Executor) GetHash(t *taskfile.Task) (string, error) {
 	switch r {
 	case "always":
 		h = hash.Empty
-	case "once":
+	case "once", "once_system":
 		h = hash.Name
 	case "when_changed":
 		h = hash.Hash
