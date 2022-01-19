@@ -54,7 +54,7 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	var task struct {
 		Alias         string
-		ShellRc       string `yaml:"shell_rc"`
+		ShellRc       string `yaml:"profile"`
 		Cmds          []*Cmd
 		Deps          []*Dep
 		Label         string

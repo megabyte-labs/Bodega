@@ -35,7 +35,7 @@ func (tf *Taskfile) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Silent     bool
 		Dotenv     []string
 		Run        string
-		ShellRc    string `yaml:"shell_rc"`
+		ShellRc    string `yaml:"profile"`
 	}
 	if err := unmarshal(&taskfile); err != nil {
 		return err
