@@ -307,6 +307,11 @@
       "command": "bash .config/scripts/start.sh && task lint:yaml"
     },
     {
+      "label": "(livereload): Start the project with live-reloading (i.e. watch mode)",
+      "type": "shell",
+      "command": "bash .config/scripts/start.sh && task livereload"
+    },
+    {
       "label": "(nest:benchmark): Initiate a web server benchmarking session (with `clinic`)",
       "type": "shell",
       "command": "bash .config/scripts/start.sh && task nest:benchmark"
