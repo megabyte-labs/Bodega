@@ -232,6 +232,11 @@
       "command": "bash .config/scripts/start.sh && task lint:eslint"
     },
     {
+      "label": "(lint:eslint:warn-all): Convert ESLint errors into warnings in `package.json`",
+      "type": "shell",
+      "command": "bash .config/scripts/start.sh && task lint:eslint:warn-all"
+    },
+    {
       "label": "(lint:esprint:esprint): Lint with `eslint` across multiple threads",
       "type": "shell",
       "command": "bash .config/scripts/start.sh && task lint:esprint:esprint"

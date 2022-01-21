@@ -93,6 +93,52 @@
     "twitter": "MegabyteLabs",
     "vagrant": "https://app.vagrantup.com"
   },
+  "releaseRules": [
+    {
+      "release": "patch",
+      "type": "build"
+    },
+    {
+      "release": "patch",
+      "type": "ci"
+    },
+    {
+      "release": false,
+      "type": "chore"
+    },
+    {
+      "release": false,
+      "type": "docs"
+    },
+    {
+      "release": "patch",
+      "type": "fix"
+    },
+    {
+      "release": "minor",
+      "type": "feat"
+    },
+    {
+      "release": "patch",
+      "type": "refactor"
+    },
+    {
+      "release": "patch",
+      "type": "revert"
+    },
+    {
+      "release": "patch",
+      "type": "perf"
+    },
+    {
+      "release": false,
+      "type": "style"
+    },
+    {
+      "release": false,
+      "type": "test"
+    }
+  ],
   "repository": {
     "github": "",
     "gitlab": "",

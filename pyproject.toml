@@ -8,7 +8,7 @@ readme = "README.md"
 homepage = "https://megabyte.space"
 documentation = "https://megabyte.space/docs/common/go"
 keywords = ["automation", "cli", "go", "go-lang", "golang", "mblabs", "megabytelabs", "professormanhattan", "terminal", "washingtondc"]
-include = ["CHANGELOG.md", "LICENSE"]
+include = ["docs/CHANGELOG.md", "LICENSE"]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Development Status :: 5 - Production/Stable",
