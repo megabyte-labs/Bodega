@@ -1,7 +1,7 @@
 ---
 update:project:
   stage: update
-  image: megabytelabs/linux-molecule:latest
+  image: $UPDATER_IMAGE
   rules:
     - if: $DO_CI == 'false'
       when: never
@@ -18,19 +18,12 @@ update:project:
       - .pnpm-store/
       - .venv/
   before_script:
-    - find . -print0 | xargs -0 sudo chown crovax:crovax
-    - bash .config/scripts/start.sh
-    - |
-      if [ -f "$HOME/.profile" ]; then source "$HOME/.profile"; fi
-      if [ -f "$HOME/.bashrc" ]; then source "$HOME/.bashrc"; fi
-      task ci:before
+    - if [ "${UPDATER_IMAGE:0:20}" != 'megabytelabs/updater' ]; then bash .config/scripts/start.sh; fi
+    - if [ -n "$UPDATE_INIT_SCRIPT" ]; then curl -s "$UPDATE_INIT_SCRIPT" | bash; fi
+    - task ci:before
   script:
-    - |
-      OPTIMIZED_IMAGE=false
-      if [ -f "$HOME/.profile" ]; then source "$HOME/.profile"; fi
-      if [ -f "$HOME/.bashrc" ]; then source "$HOME/.bashrc"; fi
-      task ci:submodules
-      task start
-      if [ "$REPOSITORY_UPDATE" == 'true' ]; then task services; fi
-      task ci:commit
-      task ci:synchronize
+    - task ci:submodules
+    - task start
+    - if [ "$REPOSITORY_UPDATE" == 'true' ]; then task services; fi
+    - task ci:commit
+    - task ci:synchronize
