@@ -204,6 +204,10 @@ tasks:
           wait
         {{end}}
 
+    log:
+      error: Error while running `black` auto-fixer
+      start: Fixing Python with `black`
+      success: Fixed {{if .CLI_ARGS}}`{{.CLI_ARGS}}`{{else}}project{{end}} with `black`
   shell:
     cmds:
       - task: shellcheck
@@ -244,6 +248,10 @@ tasks:
             -print0 | xargs -0 {{.NPX_HANDLE}}shellcheck -e {{.SHELLCHECK_EXCLUDE}} -f diff | git apply
         {{end}}
 
+    log:
+      error: Encountered an error while linting with `shellcheck` on {{if .CLI_ARGS}}`{{.CLI_ARGS}}`{{else}}project{{end}}
+      start: Running `shellcheck` auto-fixer
+      success: Autofixed {{if .CLI_ARGS}}`{{.CLI_ARGS}}`{{else}}project{{end}} with `shellcheck`
   xml:
     deps:
       - :install:npm:eslint
