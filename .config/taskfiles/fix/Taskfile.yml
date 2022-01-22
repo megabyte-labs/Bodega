@@ -105,6 +105,10 @@ tasks:
           wait
         {{end}}
 
+    log:
+      error: Encountered an error while performing miscellaneous fixes{{if .CLI_ARGS}} on `{{.CLI_ARGS}}`{{end}}
+      start: Performing miscellaneous fixes such as removing BOM and ensuring LF line endings
+      success: Finished performing miscellaneous fixes{{if .CLI_ARGS}} on `{{.CLI_ARGS}}`{{end}}
   packer:
     deps:
       - :install:software:packer
@@ -140,6 +144,10 @@ tasks:
           wait
         {{end}}
 
+    log:
+      start: Attempting to fix Packer template{{if .CLI_ARGS}}{{else}}s{{end}}
+      stop: Error running `packer fix`
+      success: Successfully ran `packer fix` on the template(s)
   prettier:
     deps:
       - :install:modules:local
@@ -165,6 +173,8 @@ tasks:
     cmds:
       - '{{.NPX_HANDLE}}prettier --ignore-path {{.PRETTIERIGNORE_CONFIG}} --write {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}.{{end}}'
 
+    log:
+      start: Running Prettier on {{if .CLI_ARGS}}`{{.CLI_ARGS}}`{{else}}project{{end}}
   python:
     deps:
       - :install:python:requirements

@@ -18,13 +18,13 @@ tasks:
     deps:
       - :install:software:docker
     cmds:
-      - echo "$DOCKERHUB_PASSWORD" | docker login -u {{.DOCKERHUB_USER}} --password-stdin
+      - echo "$DOCKERHUB_REGISTRY_PASSWORD" | docker login -u {{.DOCKERHUB_USER}} --password-stdin
     log:
       error: Failed to authenticate `{{.DOCKERHUB_USER}}` with the DockerHub registry
       start: Logging into DockerHub registry with `{{.DOCKERHUB_USER}}`
       success: Authenticated to DockerHub registry with `{{.DOCKERHUB_USER}}`
     preconditions:
-      - test -n "$DOCKERHUB_PASSWORD"
+      - test -n "$DOCKERHUB_REGISTRY_PASSWORD"
 
   prepare:
     cmds:
