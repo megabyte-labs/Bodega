@@ -99,12 +99,12 @@ tasks:
       success: Finished setting up `.venv`. Run `. .venv/bin/activate` to load the environment into your shell.
     cmds:
       - |
-        REQUIREMENTS_PATH="$PWD/requirements.txt"
+        REQUIREMENTS_PATH="$PWD/.config/requirements.txt"
         cd "$INIT_CWD" || exit
-        if [ ! -d .venv ]; then
+        if [ ! -f .venv/bin/activate ]; then
           python3 -m venv .env
         else
-          .config/log warn 'The `.venv` folder is already present so a fresh virtualenv cannot be installed'
+          .config/log warn 'The `.venv` folder is already present so a fresh virtualenv cannot be installed (there is a small chance of a conflict)'
         fi
         . .venv/bin/activate
         pip3 install -U pip setuptools
