@@ -308,6 +308,10 @@ tasks:
 
       **Example usage for one specific file:**
       `task fix:yaml:dashes -- path/filename.yml`
+    log:
+      error: Error encountered while ensuring YML dashes
+      start: Ensuring {{if .CLI_ARGS}}`{{.CLI_ARGS}}`{{else}}project{{end}} has YML files that start with `---`
+      success: Successfully ensured {{if .CLI_ARGS}}`{{.CLI_ARGS}}`{{else}}project{{end}} has YML files that start with `---`
     cmds:
       - |
         function yamlDashes() {
@@ -345,6 +349,10 @@ tasks:
 
       **Example fixing specific `.yml` file(s):**
       `task fix:yaml:order -- 'file_name.{yml,yaml}'`
+    log:
+      error: There are still some errors. Try running the command again.
+      start: Ensuring YML file(s) are in order specified in configuration
+      success: Successfully ensured YML file order
     cmds:
       - '{{.NPX_HANDLE}}eslint -c package.json --no-eslintrc --format pretty --fix --cache
         --cache-location .cache/eslintcache --ext yml,yaml {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}.{{end}}'
