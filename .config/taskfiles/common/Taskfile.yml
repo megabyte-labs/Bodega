@@ -17,6 +17,10 @@ tasks:
       CLEAN_TARGETS: .autodoc .task .venv node_modules
       RANDOM_STRING:
         sh: openssl rand -hex 14
+    log:
+      error: Error removing `{{.CLEAN_TARGETS}}`
+      start: Removing `{{.CLEAN_TARGETS}}`
+      success: Removed `{{.CLEAN_TARGETS}}`
     cmds:
       - mkdir -p '/tmp/{{.RANDOM_STRING}}'
       - mkdir -p '/tmp/{{.RANDOM_STRING}}-empty'
@@ -29,10 +33,6 @@ tasks:
         done
         wait
 
-    log:
-      error: Error removing `{{.CLEAN_TARGETS}}`
-      start: Removing `{{.CLEAN_TARGETS}}`
-      success: Removed `{{.CLEAN_TARGETS}}`
   commit:
     deps:
       - :install:modules:local
@@ -52,12 +52,12 @@ tasks:
       It is very important that you use this task to commit rather than the conventional approach
       using `git commit -m`. However, if you really need to, you can add the flag `--no-verify`
       to your regular `git commit -m` command to bypass the pre-commit hook.
+    log:
+      start: Initiating commit dialog
     cmds:
       - . ./.config/husky/pre-commit
       - exec < /dev/tty && git cz --hook || true
 
-    log:
-      start: Initiating commit dialog
   husky:
     deps:
       - :install:modules:local
@@ -79,6 +79,9 @@ tasks:
   husky:install:
     deps:
       - :install:npm:husky
+    log:
+      error: Error installing Husky git hooks
+      start: Installing Husky git hooks
     cmds:
       - |
         if [ -d .git ] && [ "${container:=}" != 'docker' ]; then
@@ -87,13 +90,14 @@ tasks:
         else
           .config/log warn 'Cannot run `husky install` because there is no `.git/` folder (or this is a Docker container)'
         fi
-    log:
-      error: Error installing Husky git hooks
-      start: Installing Husky git hooks
     status:
       - '[ ! -d .git ] || [[ "${container:=} == "docker" ]]'
 
   husky:permissions:
+    log:
+      error: Encountered error while ensuring git hook scripts have the appropriate permissions
+      start: Ensuring git hook scripts are executable
+      success: Ensured git hook scripts are executable
     cmds:
       - |
         chmod +x .config/log
@@ -103,10 +107,6 @@ tasks:
         done < <(find ./.config/husky/* -maxdepth 0 -type f)
         .config/log success 'Ensured git hook scripts are executable'
 
-    log:
-      error: Encountered error while ensuring git hook scripts have the appropriate permissions
-      start: Ensuring git hook scripts are executable
-      success: Ensured git hook scripts are executable
   prepare-release:
     deps:
       - :install:npm:standard-version
@@ -166,6 +166,10 @@ tasks:
       If using `task common:reset` does not fix your issues, you can run this task
       to completely wipe out uncommitted work, clear all the caches, and sync
       with the master branch of both this project and its upstream repositories.
+    log:
+      error: Failed to reset project back to its HEAD
+      start: Forcing project to reset aggressively
+      success: Successfully reset project back to its HEAD
     cmds:
       - task: clean
       - git reset --hard HEAD
@@ -174,10 +178,6 @@ tasks:
       - git pull origin master --no-rebase
       - bash .config/scripts/start.sh
 
-    log:
-      error: Failed to reset project back to its HEAD
-      start: Forcing project to reset aggressively
-      success: Successfully reset project back to its HEAD
   shell:
     deps:
       - :install:software:docker
@@ -188,13 +188,13 @@ tasks:
     vars:
       WORKDIR:
         sh: basename $PWD
+    log:
+      start: Starting a Docker container for `{{.CLI_ARGS}}` and attaching to `/bin/bash`
     cmds:
       - .config/log info 'Running `docker run -it -v "$PWD:/{{.WORKDIR}}" -w /{{.WORKDIR}} --rm megabytelabs/ansible-molecule-{{.CLI_ARGS}}:latest /bin/bash`'
       - cmd: docker run -it -v "$PWD:/{{.WORKDIR}}" -w /{{.WORKDIR}} --rm megabytelabs/ansible-molecule-{{.CLI_ARGS}}:latest /bin/bash
         ignore_error: true
 
-    log:
-      start: Starting a Docker container for `{{.CLI_ARGS}}` and attaching to `/bin/bash`
   shell:prompt:
     deps:
       - :install:modules:local

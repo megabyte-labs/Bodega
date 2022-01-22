@@ -232,6 +232,8 @@ tasks:
 
       **Example using `task --watch`:**
       `task --watch mytask`
+    log:
+      start: Starting `nodemon` live-reload session
     cmds:
       - |
         if [ ! -f Taskfile-project.yml ]; then
@@ -239,8 +241,6 @@ tasks:
         fi
       - nodemon --config {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}.config/nodemon.json{{end}}
 
-    log:
-      start: Starting `nodemon` live-reload session
   preload:
     deps:
       - install:brewfile

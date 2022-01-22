@@ -56,14 +56,14 @@ tasks:
     deps:
       - :install:software:poetry
     run: once
-    cmds:
-      - poetry config virtualenvs.create {{.PYTHON_VIRTUALENV}}
-      - poetry config virtualenvs.in-project true
-      - poetry install
     log:
       error: Failed to configure / install via `poetry`
       start: Configuring Poetry and running `poetry install`
       success: Successfully ran `poetry install`
+    cmds:
+      - poetry config virtualenvs.create {{.PYTHON_VIRTUALENV}}
+      - poetry config virtualenvs.in-project true
+      - poetry install
     sources:
       - pyproject.toml
     preconditions:
@@ -93,6 +93,10 @@ tasks:
   venv:node:
     deps:
       - :install:software:python
+    log:
+      error: Encountered error while setting up `.venv` environment
+      start: Setting up a Python 3 `.venv`
+      success: Finished setting up `.venv`. Run `. .venv/bin/activate` to load the environment into your shell.
     cmds:
       - |
         REQUIREMENTS_PATH="$PWD/requirements.txt"
@@ -105,9 +109,5 @@ tasks:
         . .venv/bin/activate
         pip3 install -U pip setuptools
         pip3 install -r "$REQUIREMENTS_PATH"
-    log:
-      error: Encountered error while setting up `.venv` environment
-      start: Setting up a Python 3 `.venv`
-      success: Finished setting up `.venv`. Run `. .venv/bin/activate` to load the environment into your shell.
     sources:
       - requirements.txt
