@@ -53,7 +53,7 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Cmds          []*Cmd
 		Deps          []*Dep
 		Label         string
-		LogMsg        *LogMsg `yaml:"log_msg"`
+		LogMsg        *LogMsg `yaml:"log"`
 		Desc          string
 		Summary       string
 		Sources       []string
