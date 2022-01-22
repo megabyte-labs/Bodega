@@ -72,6 +72,7 @@ output: interleaved
 
 vars:
   DOCKERHUB_PROFILE: megabytelabs
+  DOCKERHUB_USER: professormanhattan
   GITHUB_ORG: ProfessorManhattan
   GITHUB_USER: ProfessorManhattan
   IGNORE_FOLDERS: -path './.autodoc/*' -o -path './.cache/*' -o -path './.common*' -o -path './.config/*' -o -path './.git/*'

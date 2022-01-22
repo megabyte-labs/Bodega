@@ -8,27 +8,30 @@ tasks:
       - task: :docker:build:fat
       - task: :docker:build:slim
 
-  standard-version:prebump:
+  login:
+    deps:
+      - :install:software:docker
+    cmds:
+      - echo "$DOCKERHUB_PASSWORD" | docker login -u {{.DOCKERHUB_USER}} --password-stdin
+    log:
+      error: Failed to authenticate `{{.DOCKERHUB_USER}}` with the DockerHub registry
+      start: Logging into DockerHub registry with `{{.DOCKERHUB_USER}}`
+      success: Authenticated to DockerHub registry with `{{.DOCKERHUB_USER}}`
+    preconditions:
+      - test -n "$DOCKERHUB_PASSWORD"
+
+  version:software:
+    vars:
+      DOCKER_IMAGE:
+        sh: jq -r '.name' package.json | sed 's/^@//'
     cmds:
       - |
         if grep -q "CMD.\[\"--version\"\]" Dockerfile; then
-          VERSION=$(docker run --cap-drop=ALL -e PY_COLORS=0 --rm megabytelabs/shellcheck:latest | perl \
+          VERSION=$(docker run --cap-drop=ALL -e PY_COLORS=0 --rm {{.DOCKER_IMAGE}}:latest | perl \
             -pe 'if(($v)=/([0-9]+([.][0-9]+)+)/){print"$v";exit}$_=""')
           if [[ $VERSION == *.*.* ]]; then
             echo $VERSION
           elif [[ $VERSION == *.* ]]; then
             echo $VERSION.0
           fi
-        fi
-
-  standard-version:prerelease: git add --all
-
-  standard-version:pretag:
-    vars:
-      PACKAGE_VERSION:
-        sh: grep version < package.json | head -1 | awk -F':' '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]'
-    cmds:
-      - |
-        if git show-ref --tags 'v{{.PACKAGE_VERSION}}' --quiet; then
-          git tag -d 'v{{.PACKAGE_VERSION}}'
         fi
