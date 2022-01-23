@@ -39,6 +39,12 @@
     }
   ],
   "group": "none",
+  "homebrew": {
+    "folder": "Formula",
+    "name": "homebrew-tap",
+    "owner": "installdoc"
+  },
+  "idPost": "megabyte.space",
   "json_top_keys": "",
   "license": "MIT",
   "link": {
