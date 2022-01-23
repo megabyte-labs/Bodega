@@ -11,6 +11,9 @@ includes:
   ci: ./.config/taskfiles/ci/Taskfile.yml
   ci:github: ./.config/taskfiles/ci/Taskfile-github.yml
   common: ./.config/taskfiles/common/Taskfile.yml
+  project:
+    taskfile: Taskfile-project.yml
+    optional: true
   common:code: ./.config/taskfiles/common/Taskfile-code.yml
   common:update: ./.config/taskfiles/common/Taskfile-update.yml
   docker: ./.config/taskfiles/docker/Taskfile.yml
@@ -23,6 +26,7 @@ includes:
   git:gitlab: ./.config/taskfiles/git/Taskfile-gitlab.yml
   git:hook: ./.config/taskfiles/git/Taskfile-hook.yml
   go: ./.config/taskfiles/go/Taskfile.yml
+  go:goreleaser: ./.config/taskfiles/go/Taskfile-goreleaser.yml
   go:test: ./.config/taskfiles/go/Taskfile-test.yml
   image: ./.config/taskfiles/image/Taskfile.yml
   install: ./.config/taskfiles/install/Taskfile.yml
@@ -41,9 +45,6 @@ includes:
   packer: ./.config/taskfiles/packer/Taskfile.yml
   packer:build: ./.config/taskfiles/packer/Taskfile-build.yml
   packer:update: ./.config/taskfiles/packer/Taskfile-update.yml
-  project:
-    taskfile: Taskfile-project.yml
-    optional: true
   publish: ./.config/taskfiles/publish/Taskfile.yml
   publish:android: ./.config/taskfiles/publish/Taskfile-android.yml
   publish:brew: ./.config/taskfiles/publish/Taskfile-brew.yml
@@ -54,6 +55,7 @@ includes:
   publish:opera: ./.config/taskfiles/publish/Taskfile-opera.yml
   python: ./.config/taskfiles/python/Taskfile.yml
   python:test: ./.config/taskfiles/python/Taskfile-test.yml
+  release: ./.config/taskfiles/release/Taskfile.yml
   security: ./.config/taskfiles/security/Taskfile.yml
   symlink: ./.config/taskfiles/symlink/Taskfile.yml
   upstream: ./.config/taskfiles/upstream/Taskfile.yml
@@ -103,12 +105,13 @@ profile: |
     fi
   fi
   if [[ "$OSTYPE" == 'darwin'* ]] && type brew > /dev/null; then
-    PATH="$PATH:$(brew --prefix)/opt/coreutils/libexec/gnubin"
-    PATH="$PATH:$(brew --prefix)/opt/findutils/libexec/gnubin"
-    PATH="$PATH:$(brew --prefix)/opt/gnu-sed/libexec/gnubin"
-    PATH="$PATH:$(brew --prefix)/opt/grep/libexec/gnubin"
-    PATH="$PATH:$(brew --prefix)/opt/gnu-tar/libexec/gnubin"
-    PATH="$PATH:$(brew --prefix)/opt/gawk/libexec/gnubin"
+    BREW_PREFIX="$(brew --prefix)"
+    PATH="$PATH:$BREW_PREFIX/opt/coreutils/libexec/gnubin"
+    PATH="$PATH:$BREW_PREFIX/opt/findutils/libexec/gnubin"
+    PATH="$PATH:$BREW_PREFIX/opt/gnu-sed/libexec/gnubin"
+    PATH="$PATH:$BREW_PREFIX/opt/grep/libexec/gnubin"
+    PATH="$PATH:$BREW_PREFIX/opt/gnu-tar/libexec/gnubin"
+    PATH="$PATH:$BREW_PREFIX/opt/gawk/libexec/gnubin"
   fi
   if [ -f .venv/bin/activate ]; then
     . .venv/bin/activate
@@ -129,8 +132,39 @@ tasks:
     cmds:
       - task: go:build
 
-  donothing: 'true'
+  cmds:
+    - |
+      {{if .CLI_ARGS}}
+      git add --all
+      HUSKY=0 git commit -m "{{.CLI_ARGS}}" --no-verify
+      {{else}}
+      git add --all
+      git commit
+      {{end}}
 
+  commit:
+    deps:
+      - install:software:git
+    desc: Add all and commit
+    summary: |
+      # Commit the code
+
+      By default, this task is an alias for:
+
+      ```
+      git add --all
+      git commit
+      ```
+
+      If you pass a commit message as a CLI argument, then the pre-commit
+      logic will be bypassed. By bypassing the hooks, the commit message will be
+      excluded from the automatic CHANGELOG.md entry generated during commits.
+      Passing the commit message as a CLI argument can be done like so:
+
+      ```
+      task commit -- "Added new files that do not need to show up in CHANGELOG.md"
+      ```
+  donothing: 'true'
   fix:
     desc: Run code auto-fixers
     summary: |
