@@ -136,6 +136,10 @@ func (c *CompilerV3) HandleDynamicVar(v taskfile.Var, dir string) (string, error
 		Stdout:  &stdout,
 		Stderr:  c.Logger.Stderr,
 	}
+	// A hack to make HandleDynamicVar stop before command execution
+	if _, ok := c.TaskfileEnv.Mapping["__DEBUG__"]; ok {
+		opts.Debug = true
+	}
 	u := time.Now()
 	if _, err := execext.RunCommand(context.Background(), opts, nil); err != nil {
 		return "", fmt.Errorf(`task: Command "%s" failed: %s`, opts.Command, err)

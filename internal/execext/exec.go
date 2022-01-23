@@ -64,8 +64,14 @@ func RunCommand(ctx context.Context, opts *RunCommandOptions, r *interp.Runner) 
 		}
 	}
 	if opts.Debug {
-		fmt.Fprint(opts.Stdout, "Executing the above command. Type enter to continue")
-		r := bufio.NewReader(opts.Stdin)
+		// Why not use opts.Stdout ? Because dynamic vars result is opts.Stdout
+		// Printing to opts.Stdout will pollute the results
+		fmt.Fprintln(os.Stdout, "Executing a shell command. Type enter to continue")
+		b := opts.Stdin
+		if b == nil {
+			b = os.Stdin
+		}
+		r := bufio.NewReader(b)
 		r.ReadString('\n')
 	}
 	return r, r.Run(ctx, p)

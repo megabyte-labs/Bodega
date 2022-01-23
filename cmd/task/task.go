@@ -252,6 +252,11 @@ func start(calledFromRepl bool) {
 		return
 	}
 
+	if debug {
+		// A hack to make HandleDynamicVar stop before command execution
+		e.Taskfile.Env.Set("__DEBUG__", taskfile.Var{Static: "true"})
+	}
+
 	var (
 		calls   []taskfile.Call
 		globals *taskfile.Vars
