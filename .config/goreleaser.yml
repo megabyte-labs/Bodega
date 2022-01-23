@@ -1,0 +1,94 @@
+---
+build:
+  binary: '{{binName}}'
+  main: '{{buildMain}}'
+  goos:
+    - windows
+    - darwin
+    - linux
+  goarch:
+    - 386
+    - amd64
+    - arm
+    - arm64
+  goarm:
+    - 6
+  ignore:
+    - goos: darwin
+      goarch: 386
+  env:
+    - CGO_ENABLED=0
+  ldflags:
+    - '{{buildLdflags}}'
+
+gomod:
+  proxy: true
+
+archives:
+  - name_template: '\{{.Binary}}-\{{.Os}}-\{{.Arch}}'
+    files:
+      - docs/*
+      - README.md
+      - LICENSE
+      - completion/**/*
+    format_overrides:
+      - goos: windows
+        format: zip
+    replacements:
+      amd64: 64-bit
+      darwin: macOS
+
+universal_binaries:
+  - replace: true
+
+release:
+  disable: true
+
+snapshot:
+  name_template: '\{{.Tag}}'
+
+checksum:
+  name_template: CHECKSUMS.txt
+
+nfpms:
+  - id: '{{binName}}.{{idPost}}'
+    vendor: '{{company}}'
+    homepage: '{{link.home}}'
+    maintainer: '{{organization}} <{{email.help}}>'
+    description: '{{description}}'
+    license: '{{license}}'
+    formats:
+      - apk
+      - deb
+      - rpm
+    file_name_template: '\{{.ProjectName}}-\{{.Os}}-\{{.Arch}}'
+
+snapcrafts:
+  - id: \{{.Binary}}
+    publish: true
+    summary: '{{description}}'
+    description: '{{overview}}'
+
+dockers:
+  - image_templates:
+      - '{{profile.dockerhub}}/\{{.ProjectName}}'
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - --platform=linux/amd64
+
+brews:
+  - name: '{{binName}}'
+    description: '{{description}}'
+    license: '{{license}}'
+    homepage: '{{link.home}}'
+    folder: '{{homebrew.folder}}'
+    tap:
+      owner: '{{homebrew.owner}}'
+      name: '{{homebrew.name}}'
+    test: '{{homebrew.test}}'
+    install: |-
+      bin.install "{{binName}}"
+      bash_completion.install "completion/bash/{{binName}}.bash" => "{{binName}}"
+      zsh_completion.install "completion/zsh/_{{binName}}" => "_{{binName}}"
+      fish_completion.install "completion/fish/{{binName}}.fish"

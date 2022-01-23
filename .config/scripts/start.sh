@@ -46,6 +46,7 @@ function ensureRootPackageInstalled() {
 }
 
 if [ "$EUID" -eq 0 ]; then
+  # shellcheck disable=SC2016
   .config/log info 'Running as root - creating seperate user named `megabyte` to run script with'
   echo 'megabyte ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
   useradd -m -s "$(which bash)" -c "Megabyte Labs Homebrew Account" megabyte
