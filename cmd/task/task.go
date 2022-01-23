@@ -26,7 +26,7 @@ var (
 	version = ""
 )
 
-const usage = `Usage: task [-ilfwvsdm] [--init] [--list] [--force] [--watch] [--verbose] [--silent] [--dir] [--taskfile] [--dry] [--menu] [--summary] [task...]
+const usage = `Usage: task [-ilfwvsdm] [--init] [--list] [--force] [--watch] [--verbose] [--silent] [--dir] [--taskfile] [--dry] [--menu] [--debug] [--summary] [task...]
 
 Runs the specified task(s). Runs a built-in shell if no task name
 was specified, or lists all tasks if an unknown task name was specified.
@@ -131,6 +131,7 @@ func start(calledFromRepl bool) {
 		silent      bool
 		dry         bool
 		summary     bool
+		debug       bool
 		parallel    bool
 		concurrency int
 		verbose     int
@@ -165,6 +166,7 @@ func start(calledFromRepl bool) {
 	pflag.BoolVarP(&parallel, "parallel", "p", false, "executes tasks provided on command line in parallel")
 	pflag.BoolVar(&dry, "dry", false, "compiles and prints tasks in the order that they would be run, without executing them")
 	pflag.BoolVar(&summary, "summary", false, "show summary about a task")
+	pflag.BoolVar(&debug, "debug", false, "stop before each command execution")
 	pflag.StringVarP(&dir, "dir", "d", "", "sets directory of execution")
 	pflag.StringVarP(&entrypoint, "taskfile", "t", "", `choose which Taskfile to run. Defaults to "Taskfile.yml"`)
 	pflag.StringVarP(&output, "output", "o", "", "sets output style: [interleaved|group|prefixed]")
@@ -214,6 +216,7 @@ func start(calledFromRepl bool) {
 		Dry:         dry,
 		Entrypoint:  entrypoint,
 		Summary:     summary,
+		Debug:       debug,
 		Parallel:    parallel,
 		Color:       color,
 		Concurrency: concurrency,

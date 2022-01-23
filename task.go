@@ -40,14 +40,16 @@ const (
 type Executor struct {
 	Taskfile *taskfile.Taskfile
 
-	Dir         string
-	Entrypoint  string
-	Force       bool
-	Watch       bool
-	Verbose     int
-	Silent      bool
-	Dry         bool
-	Summary     bool
+	Dir        string
+	Entrypoint string
+	Force      bool
+	Watch      bool
+	Verbose    int
+	Silent     bool
+	Dry        bool
+	Summary    bool
+	// Stop before every command execution. Might rename this later
+	Debug       bool
 	Parallel    bool
 	Color       bool
 	Concurrency int
@@ -554,6 +556,7 @@ func (e *Executor) runCommand(ctx context.Context, t *taskfile.Task, call taskfi
 			Command: cmd.Cmd,
 			Dir:     t.Dir,
 			Env:     getEnviron(t),
+			Debug:   e.Debug,
 			Stdin:   e.Stdin,
 			Stdout:  stdOut,
 			Stderr:  stdErr,

@@ -1,8 +1,10 @@
 package execext
 
 import (
+	"bufio"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -19,9 +21,11 @@ type RunCommandOptions struct {
 	Command string
 	Dir     string
 	Env     []string
-	Stdin   io.Reader
-	Stdout  io.Writer
-	Stderr  io.Writer
+	// Stop before each command execution
+	Debug  bool
+	Stdin  io.Reader
+	Stdout io.Writer
+	Stderr io.Writer
 }
 
 var (
@@ -58,6 +62,11 @@ func RunCommand(ctx context.Context, opts *RunCommandOptions, r *interp.Runner) 
 		if err != nil {
 			return r, err
 		}
+	}
+	if opts.Debug {
+		fmt.Fprint(opts.Stdout, "Executing the above command. Type enter to continue")
+		r := bufio.NewReader(opts.Stdin)
+		r.ReadString('\n')
 	}
 	return r, r.Run(ctx, p)
 }
