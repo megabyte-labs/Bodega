@@ -51,12 +51,13 @@ profile: |
     fi
   fi
   if [[ "$OSTYPE" == 'darwin'* ]] && type brew > /dev/null; then
-    PATH="$PATH:$(brew --prefix)/opt/coreutils/libexec/gnubin"
-    PATH="$PATH:$(brew --prefix)/opt/findutils/libexec/gnubin"
-    PATH="$PATH:$(brew --prefix)/opt/gnu-sed/libexec/gnubin"
-    PATH="$PATH:$(brew --prefix)/opt/grep/libexec/gnubin"
-    PATH="$PATH:$(brew --prefix)/opt/gnu-tar/libexec/gnubin"
-    PATH="$PATH:$(brew --prefix)/opt/gawk/libexec/gnubin"
+    BREW_PREFIX="$(brew --prefix)"
+    PATH="$PATH:$BREW_PREFIX/opt/coreutils/libexec/gnubin"
+    PATH="$PATH:$BREW_PREFIX/opt/findutils/libexec/gnubin"
+    PATH="$PATH:$BREW_PREFIX/opt/gnu-sed/libexec/gnubin"
+    PATH="$PATH:$BREW_PREFIX/opt/grep/libexec/gnubin"
+    PATH="$PATH:$BREW_PREFIX/opt/gnu-tar/libexec/gnubin"
+    PATH="$PATH:$BREW_PREFIX/opt/gawk/libexec/gnubin"
   fi
   if [ -f .venv/bin/activate ]; then
     . .venv/bin/activate
@@ -108,7 +109,7 @@ tasks:
       git add --all
       git commit
       {{end}}
-  
+
   donothing: 'true'
 
 {{#eq group "ansible"}}
