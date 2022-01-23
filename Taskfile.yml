@@ -21,9 +21,6 @@ includes:
   git: ./.config/taskfiles/git/Taskfile.yml
   git:github: ./.config/taskfiles/git/Taskfile-github.yml
   git:gitlab: ./.config/taskfiles/git/Taskfile-gitlab.yml
-  project:
-    taskfile: Taskfile-project.yml
-    optional: true
   git:hook: ./.config/taskfiles/git/Taskfile-hook.yml
   go: ./.config/taskfiles/go/Taskfile.yml
   go:test: ./.config/taskfiles/go/Taskfile-test.yml
@@ -34,6 +31,9 @@ includes:
   install:python: ./.config/taskfiles/install/Taskfile-python.yml
   install:software: ./.config/taskfiles/install/Taskfile-software.yml
   lint: ./.config/taskfiles/lint/Taskfile.yml
+  project:
+    taskfile: Taskfile-project.yml
+    optional: true
   lint:esprint: ./.config/taskfiles/lint/Taskfile-esprint.yml
   lint:markdown: ./.config/taskfiles/lint/Taskfile-markdown.yml
   lint:prose: ./.config/taskfiles/lint/Taskfile-prose.yml
