@@ -168,12 +168,11 @@ function ensureTaskInstalled() {
     else
       echo "INFO:    A new version of Task is available (version $LATEST_VERSION)"
       echo "INFO:    The current version of Task installed is $CURRENT_VERSION"
-      if [ ! -w "$(which task)" ]; then
-        MSG_A="ERROR: Task is currently installed in a location the current user does not have write permissions for."
-        MSG_B="Manually remove Task from its current location ($(which task)) and then run this script again."
-        echo "ERROR: ""$MSG_A"" ""$MSG_B""" && exit 1
+      if rm "$(which task)" &> /dev/null; then
+        installTask
+      else
+        echo "WARNING: Unable to remove previous version of Task"
       fi
-      installTask
     fi
   fi
 }

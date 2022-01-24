@@ -48,14 +48,14 @@ function ensureRootPackageInstalled() {
 # @description If the user is running this script as root, then create a new user named
 # megabyte and restart the script with that user. This is required because Homebrew
 # can only be invoked by non-root users.
-if [ "$EUID" -eq 0 ]; then
+if [ "$EUID" -eq 0 ] && [ -z "$INIT_CWD" ] && type useradd &> /dev/null; then
   # shellcheck disable=SC2016
-  .config/log info 'Running as root - creating seperate user named `megabyte` to run script with'
-  echo 'megabyte ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+  echo 'INFO:    Running as root - creating seperate user named `megabyte` to run script with'
+  echo "megabyte ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
   useradd -m -s "$(which bash)" -c "Megabyte Labs Homebrew Account" megabyte
   ensureRootPackageInstalled "sudo"
   # shellcheck disable=SC2016
-  .config/log info 'Reloading the script with the `megabyte` user'
+  echo 'INFO:    Reloading the script with the `megabyte` user'
   exec su megabyte "$0" -- "$@"
 fi
 
@@ -82,11 +82,11 @@ PROJECT_BASE_DIR="$SOURCE_PATH/../.."
 function ensureLocalPath() {
   if [[ "$OSTYPE" == 'darwin'* ]] || [[ "$OSTYPE" == 'linux'* ]]; then
     # shellcheck disable=SC2016
-    local PATH_STRING='PATH="$HOME/.local/bin:$PATH"'
+    PATH_STRING='PATH="$HOME/.local/bin:$PATH"'
     mkdir -p "$HOME/.local/bin"
     if grep -L "$PATH_STRING" "$HOME/.profile" > /dev/null; then
       echo -e "${PATH_STRING}\n" >> "$HOME/.profile"
-      .config/log info "Updated the PATH variable to include ~/.local/bin in $HOME/.profile"
+      echo "INFO:    Updated the PATH variable to include ~/.local/bin in $HOME/.profile"
     fi
   elif [[ "$OSTYPE" == 'cygwin' ]] || [[ "$OSTYPE" == 'msys' ]] || [[ "$OSTYPE" == 'win32' ]]; then
     echo "Windows is not directly supported. Use WSL or Docker." && exit 1
@@ -124,14 +124,14 @@ function ensurePackageInstalled() {
         apk update
         apk add -y "$1"
       else
-        .config/log error "$1 is missing. Please install $1 to continue." && exit 1
+        echo "ERROR: $1 is missing. Please install $1 to continue." && exit 1
       fi
     elif [[ "$OSTYPE" == 'cygwin' ]] || [[ "$OSTYPE" == 'msys' ]] || [[ "$OSTYPE" == 'win32' ]]; then
-      .config/log error "Windows is not directly supported. Use WSL or Docker." && exit 1
+      echo "ERROR: Windows is not directly supported. Use WSL or Docker." && exit 1
     elif [[ "$OSTYPE" == 'freebsd'* ]]; then
-      .config/log error "FreeBSD support not added yet" && exit 1
+      echo "ERROR: FreeBSD support not added yet" && exit 1
     else
-      .config/log error "System type not recognized"
+      echo "ERROR: System type not recognized"
     fi
   fi
 }
@@ -153,27 +153,27 @@ function ensureTaskInstalled() {
     if [[ "$OSTYPE" == 'darwin'* ]] || [[ "$OSTYPE" == 'linux-gnu'* ]] || [[ "$OSTYPE" == 'linux-musl' ]]; then
       installTask
     elif [[ "$OSTYPE" == 'cygwin' ]] || [[ "$OSTYPE" == 'msys' ]] || [[ "$OSTYPE" == 'win32' ]]; then
-      .config/log error "Windows is not directly supported. Use WSL or Docker." && exit 1
+      echo "ERROR: Windows is not directly supported. Use WSL or Docker." && exit 1
     elif [[ "$OSTYPE" == 'freebsd'* ]]; then
-      .config/log error "FreeBSD support not added yet" && exit 1
+      echo "ERROR: FreeBSD support not added yet" && exit 1
     else
-      .config/log error "System type not recognized. You must install task manually." && exit 1
+      echo "ERROR: System type not recognized. You must install task manually." && exit 1
     fi
   else
+    echo "INFO:    Checking for latest version of Task"
     CURRENT_VERSION="$(task --version | cut -d' ' -f3 | cut -c 2-)"
     LATEST_VERSION="$(curl -s "$TASK_RELEASE_API" | grep tag_name | cut -c 17- | sed 's/\",//')"
-    if printf '%s\n%s\n' "$LATEST_VERSION" "$CURRENT_VERSION" | sort -V -C; then
-      .config/log info "Task is already up-to-date"
+    if printf '%s\n%s\n' "$LATEST_VERSION" "$CURRENT_VERSION" | sort -V -c &> /dev/null; then
+      echo "INFO:    Task is already up-to-date"
     else
-      .config/log info "A new version of Task is available (version $LATEST_VERSION)"
-      if [ ! -w "$(which task)" ]; then
-        local MSG_A
-        MSG_A="ERROR: Task is currently installed in a location the current user does not have write permissions for."
-        local MSG_B
-        MSG_B="Manually remove Task from its current location ($(which task)) and then run this script again."
-        .config/log error """$MSG_A"" ""$MSG_B""" && exit 1
+      echo "INFO:    A new version of Task is available (version $LATEST_VERSION)"
+      echo "INFO:    The current version of Task installed is $CURRENT_VERSION"
+      # Replace with rm "$(which task)" &> /dev/null when ready
+      if ! type task &> /dev/null; then
+        installTask
+      else
+        echo "WARNING: Unable to remove previous version of Task"
       fi
-      installTask
     fi
   fi
 }
@@ -191,42 +191,39 @@ function ensureTaskInstalled() {
 # @exitcode 1+ If the installation fails
 function installTask() {
   # @description Release URL to use when downloading [Task](https://github.com/go-task/task)
-  local TASK_RELEASE_URL="https://github.com/go-task/task/releases/latest"
-  local CHECKSUM_DESTINATION=/tmp/megabytelabs/task_checksums.txt
-  local CHECKSUMS_URL="$TASK_RELEASE_URL/download/task_checksums.txt"
-  local DOWNLOAD_DESTINATION=/tmp/megabytelabs/task.tar.gz
-  local TMP_DIR=/tmp/megabytelabs
+  TASK_RELEASE_URL="https://github.com/go-task/task/releases/latest"
+  CHECKSUM_DESTINATION=/tmp/megabytelabs/task_checksums.txt
+  CHECKSUMS_URL="$TASK_RELEASE_URL/download/task_checksums.txt"
+  DOWNLOAD_DESTINATION=/tmp/megabytelabs/task.tar.gz
+  TMP_DIR=/tmp/megabytelabs
   if [[ "$OSTYPE" == 'darwin'* ]]; then
-    local DOWNLOAD_URL="$TASK_RELEASE_URL/download/task_darwin_amd64.tar.gz"
+    DOWNLOAD_URL="$TASK_RELEASE_URL/download/task_darwin_amd64.tar.gz"
   else
-    local DOWNLOAD_URL="$TASK_RELEASE_URL/download/task_linux_amd64.tar.gz"
+    DOWNLOAD_URL="$TASK_RELEASE_URL/download/task_linux_amd64.tar.gz"
   fi
   mkdir -p "$(dirname "$DOWNLOAD_DESTINATION")"
-  .config/log info 'Downloading latest version of Task'
+  echo "INFO:    Downloading latest version of Task"
   curl -sSL "$DOWNLOAD_URL" -o "$DOWNLOAD_DESTINATION"
   curl -sSL "$CHECKSUMS_URL" -o "$CHECKSUM_DESTINATION"
-  local DOWNLOAD_BASENAME
   DOWNLOAD_BASENAME="$(basename "$DOWNLOAD_URL")"
-  local DOWNLOAD_SHA256
   DOWNLOAD_SHA256="$(grep "$DOWNLOAD_BASENAME" < "$CHECKSUM_DESTINATION" | cut -d ' ' -f 1)"
-  sha256 "$DOWNLOAD_DESTINATION" "$DOWNLOAD_SHA256"
-  .config/log success 'Validated checksum'
+  sha256 "$DOWNLOAD_DESTINATION" "$DOWNLOAD_SHA256" > /dev/null
+  echo "SUCCESS: Validated checksum"
   mkdir -p "$TMP_DIR/task"
-  tar -xzvf "$DOWNLOAD_DESTINATION" -C "$TMP_DIR/task"
+  tar -xzvf "$DOWNLOAD_DESTINATION" -C "$TMP_DIR/task" > /dev/null
   if type task &> /dev/null && [ -w "$(which task)" ]; then
-    local TARGET_DEST
     TARGET_DEST="$(which task)"
   else
     if [ -w /usr/local/bin ]; then
-      local TARGET_BIN_DIR='/usr/local/bin'
+      TARGET_BIN_DIR='/usr/local/bin'
     else
-      local TARGET_BIN_DIR="$HOME/.local/bin"
+      TARGET_BIN_DIR="$HOME/.local/bin"
     fi
-    local TARGET_DEST="$TARGET_BIN_DIR/task"
+    TARGET_DEST="$TARGET_BIN_DIR/task"
+    mkdir -p "$TARGET_BIN_DIR"
   fi
-  mkdir -p "$TARGET_BIN_DIR"
-  mv "$TMP_DIR/task/task" "$TARGET_BIN_DIR/"
-  .config/log success "Successfully installed Task to $TARGET_DEST"
+  mv "$TMP_DIR/task/task" "$TARGET_DEST"
+  echo "SUCCESS: Installed Task to $TARGET_DEST"
   rm "$CHECKSUM_DESTINATION"
   rm "$DOWNLOAD_DESTINATION"
 }
@@ -242,11 +239,13 @@ function installTask() {
 # @exitcode 0 The checksum is valid or the system is unrecognized
 # @exitcode 1+ The OS is unsupported or if the checksum is invalid
 function sha256() {
+  echo "$2"
+  echo "$1"
   if [[ "$OSTYPE" == 'darwin'* ]]; then
     if type brew &> /dev/null && ! type sha256sum &> /dev/null; then
       brew install coreutils
     else
-      .config/log warn "Brew is not installed - this may cause issues"
+      echo "WARNING: Brew is not installed - this may cause issues"
     fi
     if type brew &> /dev/null; then
       PATH="$(brew --prefix)/opt/coreutils/libexec/gnubin:$PATH"
@@ -254,26 +253,26 @@ function sha256() {
     if type sha256sum &> /dev/null; then
       echo "$2 $1" | sha256sum -c
     else
-      .config/log warn "Checksum validation is being skipped for $1 because the sha256sum program is not available"
+      echo "WARNING: Checksum validation is being skipped for $1 because the sha256sum program is not available"
     fi
   elif [[ "$OSTYPE" == 'linux-gnu'* ]]; then
     if ! type shasum &> /dev/null; then
-      .config/log warn "Checksum validation is being skipped for $1 because the shasum program is not installed"
+      echo "WARNING: Checksum validation is being skipped for $1 because the shasum program is not installed"
     else
       echo "$2  $1" | shasum -s -a 256 -c
     fi
   elif [[ "$OSTYPE" == 'linux-musl' ]]; then
     if ! type sha256sum &> /dev/null; then
-      .config/log warn "Checksum validation is being skipped for $1 because the sha256sum program is not available"
+      echo "WARNING: Checksum validation is being skipped for $1 because the sha256sum program is not available"
     else
-      echo "$2 $1" | sha256sum -c
+      echo "$2  $1" | sha256sum -c
     fi
   elif [[ "$OSTYPE" == 'cygwin' ]] || [[ "$OSTYPE" == 'msys' ]] || [[ "$OSTYPE" == 'win32' ]]; then
-    .config/log error "Windows is not directly supported. Use WSL or Docker." && exit 1
+    echo "ERROR: Windows is not directly supported. Use WSL or Docker." && exit 1
   elif [[ "$OSTYPE" == 'freebsd'* ]]; then
-    .config/log error "FreeBSD support not added yet" && exit 1
+    echo "ERROR: FreeBSD support not added yet" && exit 1
   else
-    .config/log warn "System type not recognized. Skipping checksum validation."
+    echo "WARNING: System type not recognized. Skipping checksum validation."
   fi
 }
 
@@ -288,18 +287,18 @@ ensureLocalPath
 
 # @description Ensures base dependencies are installed
 if [[ "$OSTYPE" == 'darwin'* ]]; then
-  if ! type curl > /dev/null && type brew > /dev/null; then
+  if ! type curl &> /dev/null && type brew &> /dev/null; then
     brew install curl
   else
-    .config/log error 'Neither curl nor brew are installed. Install one of them manually and try again.'
+    echo "ERROR: Neither curl nor brew are installed. Install one of them manually and try again."
   fi
-  if ! type git > /dev/null; then
+  if ! type git &> /dev/null; then
     # shellcheck disable=SC2016
-    .config/log info 'Git is not present. A password may be required to run `sudo xcode-select --install`'
+    echo 'INFO:    Git is not present. A password may be required to run `sudo xcode-select --install`'
     sudo xcode-select --install
   fi
 elif [[ "$OSTYPE" == 'linux-gnu'* ]] || [[ "$OSTYPE" == 'linux-musl'* ]]; then
-  if ! type curl > /dev/null || ! type git > /dev/null; then
+  if ! type curl &> /dev/null || ! type git &> /dev/null; then
     ensurePackageInstalled "curl"
     ensurePackageInstalled "git"
   fi
@@ -307,8 +306,8 @@ fi
 
 # @description Ensures Homebrew and Poetry are installed
 if [[ "$OSTYPE" == 'darwin'* ]] || [[ "$OSTYPE" == 'linux-gnu'* ]] || [[ "$OSTYPE" == 'linux-musl'* ]]; then
-  if ! type brew > /dev/null; then
-    .config/log warn 'Homebrew is not installed. The script will attempt to install Homebrew and you might be prompted for your password.'
+  if ! type brew &> /dev/null && [ -z "$INIT_CWD" ]; then
+    echo "WARNING: Homebrew is not installed. The script will attempt to install Homebrew and you might be prompted for your password."
     bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
 fi
@@ -330,5 +329,6 @@ if [ -z "$GITLAB_CI" ] && [ -z "$INIT_CWD" ]; then
   # shellcheck disable=SC1091
   . "$HOME/.profile"
   task start
-  .config/log info 'There may have been changes to your PATH variable. You may have to reload your terminal or run:\n\n`. '"$HOME/.profile"'`'
+  # shellcheck disable=SC2028
+  echo 'INFO:    There may have been changes to your PATH variable. You may have to reload your terminal or run:\n\n`. '"$HOME/.profile"'`'
 fi
