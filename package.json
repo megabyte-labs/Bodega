@@ -84,7 +84,10 @@
     "extends": "eslint-config-strict-mode",
     "ignorePatterns": [
       "testdata/**/*"
-    ]
+    ],
+    "rules": {
+      "max-len": "warn"
+    }
   },
   "funding": [
     {
