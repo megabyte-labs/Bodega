@@ -18,6 +18,7 @@ func (e *Executor) areTaskPreconditionsMet(ctx context.Context, t *taskfile.Task
 	for _, p := range t.Preconditions {
 		_, err := execext.RunCommand(ctx, &execext.RunCommandOptions{
 			Command: p.Sh,
+			Debug:   e.Debug,
 			Dir:     t.Dir,
 			Env:     getEnviron(t),
 		}, nil)

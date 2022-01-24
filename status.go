@@ -108,6 +108,7 @@ func (e *Executor) isTaskUpToDateStatus(ctx context.Context, t *taskfile.Task) (
 	for _, s := range t.Status {
 		_, err := execext.RunCommand(ctx, &execext.RunCommandOptions{
 			Command: s,
+			Debug:   e.Debug,
 			Dir:     t.Dir,
 			Env:     getEnviron(t),
 		}, nil)
