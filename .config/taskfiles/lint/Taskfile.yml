@@ -467,10 +467,12 @@ tasks:
       is using valid syntax.
 
       For more information on `vagrant validate`, see the [Vagrant website](https://www.vagrantup.com/docs/cli/validate).
+    log:
+      error: '`vagrant validate` detected one or more issues with the Vagrantfile'
+      start: Validating the Vagrantfile
+      success: The Vagrantfile passed `vagrant validate`
     cmds:
-      - |
-        .config/log info 'Validating the Vagrantfile'
-        vagrant validate
+      - vagrant validate
 
   xml:
     deps:
@@ -487,10 +489,12 @@ tasks:
 
       **Example scanning specific file:**
       `task lint:xml -- myfile.xml`
+    log:
+      error: Possible issues were detected with the XML{{if .CLI_ARGS}}(`{{.CLI_ARGS}}`){{end}}
+      start: Ensuring {{if .CLI_ARGS}}{{.CLI_ARGS}} is valid XML{{else}}the project contains only valid XML{{end}}
+      success: The XML appears to be valid
     cmds:
-      - |
-        .config/log info 'Ensuring {{if .CLI_ARGS}}{{.CLI_ARGS}} is valid XML{{else}}the project contains only valid XML{{end}}'
-        {{.PYTHON_HANDLE}}check-xml {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}.{{end}}
+      - '{{.PYTHON_HANDLE}}check-xml {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}.{{end}}'
 
   yaml:
     deps:
@@ -516,7 +520,9 @@ tasks:
       `task lint:yaml -- myfile.sh`
 
       For more information, see the [YAML Lint GitHub page](https://github.com/adrienverge/yamllint).
+    log:
+      error: Possible issues were detected by `yamllint`
+      start: Linting {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}the project{{end}} with `yamllint`
+      success: No issues were detected by `yamllint`
     cmds:
-      - |
-        .config/log info 'Linting {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}the project{{end}} with `yamllint`'
-        {{.PYTHON_HANDLE}}yamllint -c {{.YAMLLINT_CONFIG}} -s {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}.{{end}}
+      - '{{.PYTHON_HANDLE}}yamllint -c {{.YAMLLINT_CONFIG}} -s {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}.{{end}}'
