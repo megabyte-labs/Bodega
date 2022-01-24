@@ -86,7 +86,8 @@
       "testdata/**/*"
     ],
     "rules": {
-      "max-len": "warn"
+      "max-len": "warn",
+      "max-lines": "warn"
     }
   },
   "funding": [
