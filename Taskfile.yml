@@ -94,6 +94,7 @@ vars:
   NPX_PACKAGE: pnpx
   PYTHON_HANDLE:
     sh: if [ -z "$GITLAB_CI" ] || [[ "$OPTIMIZED_IMAGE" == 'false' ]]; then echo 'poetry run '; fi
+  PYTHON_KEEP_UPDATED: ansibler
   PYTHON_VIRTUALENV: true
   REPOSITORY_SUBTYPE: cli
   REPOSITORY_TYPE: go

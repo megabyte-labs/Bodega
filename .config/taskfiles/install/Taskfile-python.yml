@@ -63,6 +63,7 @@ tasks:
     cmds:
       - poetry config virtualenvs.create {{.PYTHON_VIRTUALENV}}
       - poetry config virtualenvs.in-project true
+      - poetry update {{.PYTHON_KEEP_UPDATED}}
       - poetry install
     sources:
       - pyproject.toml
