@@ -168,7 +168,8 @@ function ensureTaskInstalled() {
     else
       echo "INFO:    A new version of Task is available (version $LATEST_VERSION)"
       echo "INFO:    The current version of Task installed is $CURRENT_VERSION"
-      if rm "$(which task)" &> /dev/null; then
+      # Replace with rm "$(which task)" &> /dev/null when ready
+      if ! type task &> /dev/null; then
         installTask
       else
         echo "WARNING: Unable to remove previous version of Task"
