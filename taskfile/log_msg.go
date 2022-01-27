@@ -1,11 +1,21 @@
 package taskfile
 
+// Message to output on task error. Ideally, the end message should not be used if this is set
+type LogMsgError struct {
+		// Default message to output
+		Default string
+		// Custom messages for each status code
+		Codes []struct {
+			Code    uint8
+			Message string
+		}
+}
+
 // LogMsg represent a custom log message to print upon start/end of a task
 type LogMsg struct {
 	// Message to output on task start
 	Start string
-	// Message to output on task error. Ideally, the end message should not be used if this is set
-	Error string
+	Error *LogMsgError
 	// Message to output on task end
 	Success string
 }
@@ -13,7 +23,7 @@ type LogMsg struct {
 func (l *LogMsg) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var msgs struct {
 		Start   string
-		Error   string
+		Error   *LogMsgError
 		Success string
 	}
 	if err := unmarshal(&msgs); err != nil {

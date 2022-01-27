@@ -135,7 +135,7 @@ func (e *Executor) compiledTask(call taskfile.Call, evaluateShVars bool) (*taskf
 	if origTask.LogMsg != nil {
 		new.LogMsg = &taskfile.LogMsg{
 			Start:   r.Replace(origTask.LogMsg.Start),
-			Error:   r.Replace(origTask.LogMsg.Error),
+			Error:   origTask.LogMsg.Error,
 			Success: r.Replace(origTask.LogMsg.Success),
 		}
 	}

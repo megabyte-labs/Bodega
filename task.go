@@ -359,13 +359,29 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 					e.Logger.VerboseErrf(logger.Yellow, "task: error cleaning status on error: %v", err2)
 				}
 
-				if execext.IsExitError(err) && t.IgnoreError {
+				if _, ok := execext.IsExitError(err); ok && t.IgnoreError {
 					e.Logger.VerboseErrf(logger.Yellow, "task: task error ignored: %v", err)
 					continue
 				}
 
-				if t.LogMsg != nil && t.LogMsg.Error != "" {
-					e.Logger.Outf(logger.Magenta, t.LogMsg.Error)
+				// Print exit status custom messages if found
+				// Urgh this is a bit... ugly
+				if t.LogMsg != nil && t.LogMsg.Error != nil {
+					var customExitMsg bool
+					code, ok := execext.IsExitError(err)
+					if ok && t.LogMsg.Error.Codes != nil {
+						for _, c := range t.LogMsg.Error.Codes {
+							if c.Code == code {
+								e.Logger.Outf(logger.Magenta, c.Message)
+								customExitMsg = true
+								break
+							}
+						}
+					}
+					// No custom exit codes defined and this is an exit code
+					if !customExitMsg {
+						e.Logger.Outf(logger.Magenta, t.LogMsg.Error.Default)
+					}
 				}
 				return &taskRunError{t.Task, err}
 			}
@@ -474,7 +490,7 @@ func (e *Executor) runCommand(ctx context.Context, t *taskfile.Task, i int) erro
 		})
 		timeAfter := time.Now().Sub(timeBefore)
 		e.Logger.DebugOutf(logger.Cyan, "task: [%s] command %s took %v ms", t.Name(), cmd.Cmd, timeAfter.Milliseconds())
-		if execext.IsExitError(err) && cmd.IgnoreError {
+		if _, ok := execext.IsExitError(err); ok && cmd.IgnoreError {
 			e.Logger.VerboseErrf(logger.Yellow, "task: [%s] command error ignored: %v", t.Name(), err)
 			return nil
 		}
