@@ -114,6 +114,17 @@ tasks:
 ```
 On running `task default` from the command line, only the first execution of task `generate-files` is done
 
+### Stop commands before execution
+Passing the `--debug` makes Task stop before each command execution, even for commands within a variable.
+```
+$ ./task --debug simple
+task: [simple] echo 'hi'
+Executing a shell command. Type enter to continue
+
+hi
+
+```
+
 ### Aliases
 From the command line, you may call a task by its alias instead of its name
 ```yaml
