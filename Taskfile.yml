@@ -98,6 +98,7 @@ vars:
   PYTHON_VIRTUALENV: true
   REPOSITORY_SUBTYPE: cli
   REPOSITORY_TYPE: go
+  SEMANTIC_CONFIG: semantic-release-config
   TIMEZONE: America/New_York
 
 profile: |
