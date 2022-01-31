@@ -5,12 +5,11 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
-	"strings"
 	"time"
 
 	// "golang.org/x/time/rate"
 	"nhooyr.io/websocket"
+	"nhooyr.io/websocket/wsjson"
 )
 
 // Implements a server with basic authentication and request rate
@@ -35,7 +34,7 @@ func (b *BasicServer) Start() error {
 
 	log.Printf("starting websockets server on %s", srv.Addr)
 	// Use FiloSottile's [mkcert](https://github.com/FiloSottile/mkcert) utility
-	err := srv.ListenAndServeTLS("./localhost.pem", "./localhost-key.pem")
+	err := srv.ListenAndServeTLS("localhost.pem", "localhost-key.pem")
 	// err := srv.ListenAndServe()
 	if err != nil {
 		log.Fatal("server error ", err)
@@ -47,33 +46,19 @@ func (b *BasicServer) Start() error {
 
 func (b *BasicServer) startExecution(ctx context.Context, c *websocket.Conn) error {
 
-	// msgType, r, err := c.Reader(ctx)
-	// if err != nil {
-	// 	log.Println("reader err")
-	// 	return err
-	// }
-	//
-	// w, err := c.Writer(ctx, msgType)
-	// if err != nil {
-	// 	log.Println("writer err")
-	// 	return err
-	// }
-	//
-	var cmd []byte
-	_, cmd, err := c.Read(ctx)
-	if err != nil {
-		log.Fatal("read error")
+	r := TaskReq{}
+	if err := wsjson.Read(ctx, c, &r); err != nil {
+		// TODO: EOF received but this check fails
 		if err == io.EOF {
 			return nil
 		}
+		log.Fatal("read error: ", err)
 		return err
 	}
-	// log.Printf("read command %s of message type %s ", cmd, msgType)
-        // TODO: input is treated like a REPL command. this should change
-        // to a JSON API that slightly exposes Task
-	args := strings.Split(string(cmd), " ") // naiive. remove me
-	os.Args = append([]string{"task"}, args...)
-	b.TaskEntryPoint(true)
+
+	if err := ParseAndRun(ctx, c, r); err != nil {
+		return err
+	}
 
 	return nil
 
@@ -84,18 +69,11 @@ func (b *BasicServer) startExecution(ctx context.Context, c *websocket.Conn) err
 // https://github.com/nhooyr/websocket/blob/v1.8.7/examples/echo/server.go
 func (b *BasicServer) serveWSS(w http.ResponseWriter, r *http.Request) {
 	c, err := websocket.Accept(w, r, &websocket.AcceptOptions{})
-	// 	Subprotocols: []string{"echo"},
-	// })
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
 	defer c.Close(websocket.StatusInternalError, "internal error")
-
-	// if c.Subprotocol() != "echo" {
-	// 	c.Close(websocket.StatusPolicyViolation, "client must speak the echo subprotocol")
-	// 	return
-	// }
 
 	// l := rate.NewLimiter(rate.Every(time.Millisecond*100), 10)
 	for {
