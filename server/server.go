@@ -21,9 +21,9 @@ type BasicServer struct {
 	TaskEntryPoint func(calledFromRepl bool)
 }
 
-func (b *BasicServer) Start() error {
+func (b *BasicServer) Start(useTLS bool) error {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", b.serveWSS)
+	mux.HandleFunc("/", b.serveWS)
 
 	srv := &http.Server{
 		Addr:         "localhost:9090",
@@ -35,8 +35,12 @@ func (b *BasicServer) Start() error {
 
 	log.Printf("starting websockets server on %s", srv.Addr)
 	// Use FiloSottile's [mkcert](https://github.com/FiloSottile/mkcert) utility
-	err := srv.ListenAndServeTLS("localhost.pem", "localhost-key.pem")
-	// err := srv.ListenAndServe()
+	var err error
+	if useTLS {
+		err = srv.ListenAndServeTLS("localhost.pem", "localhost-key.pem")
+	} else {
+		err = srv.ListenAndServe()
+	}
 	if err != nil {
 		log.Fatal("server error ", err)
 		return err
@@ -63,10 +67,10 @@ func (b *BasicServer) startExecution(ctx context.Context, c *websocket.Conn) err
 
 }
 
-// Listens for wss:// connections
+// Listens for ws:// or wss:// connections
 // Example modified from the official documentation for nhooyr.io/websocket
 // https://github.com/nhooyr/websocket/blob/v1.8.7/examples/echo/server.go
-func (b *BasicServer) serveWSS(w http.ResponseWriter, r *http.Request) {
+func (b *BasicServer) serveWS(w http.ResponseWriter, r *http.Request) {
 	c, err := websocket.Accept(w, r, &websocket.AcceptOptions{})
 	if err != nil {
 		log.Fatalf("failed to upgrade connection to websockets: %v", err)

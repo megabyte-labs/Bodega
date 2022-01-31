@@ -135,6 +135,7 @@ func start(calledFromRepl bool) {
 		debug       bool
 		parallel    bool
 		basicServer bool
+		useTLS      bool
 		concurrency int
 		verbose     int
 		dir         string
@@ -175,6 +176,7 @@ func start(calledFromRepl bool) {
 	pflag.BoolVarP(&color, "color", "c", true, "colored output. Enabled by default. Set flag to false or use NO_COLOR=1 to disable")
 	pflag.IntVarP(&concurrency, "concurrency", "C", 0, "limit number tasks to run concurrently")
 	pflag.BoolVar(&basicServer, "server", false, "runs as a server")
+	pflag.BoolVar(&useTLS, "use-tls", false, "enable server to use TLS")
 
 	pflag.Parse()
 
@@ -201,7 +203,7 @@ func start(calledFromRepl bool) {
 
 	if basicServer {
 		s := &server.BasicServer{TaskEntryPoint: start}
-		if err := s.Start(); err != nil {
+		if err := s.Start(useTLS); err != nil {
 			log.Fatal("task: error running server: ", err)
 		}
 		return
