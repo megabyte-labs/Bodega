@@ -62,10 +62,12 @@
 - [}A global shell_rc](#a-global-shell_rc)
   _ [Hide tasks from being listed](#hide-tasks-from-being-listed)
   _ [Initial Status](#initial-status)
+  _ [Stop commands before execution](#stop-commands-before-execution)
   _ [Aliases](#aliases)
   _ [More output messages](#more-output-messages)
   _ [Interactive Prompt](#interactive-prompt)
-  _ [Fancy listing](#fancy-listing) \* [[WIP] Progress bar](#wip-progress-bar)
+  _ [Fancy listing](#fancy-listing)
+  _ [[WIP] Progress bar](#wip-progress-bar)
   - [Installation](#installation)
     - [Quick Method](#quick-method)
     - [Compile Program with Go](#compile-program-with-go)
@@ -207,6 +209,19 @@ tasks:
 ```
 
 On running `task default` from the command line, only the first execution of task `generate-files` is done
+
+### Stop commands before execution
+
+Passing the `--debug` makes Task stop before each command execution, even for commands within a variable.
+
+```
+$ ./task --debug simple
+task: [simple] echo 'hi'
+Executing a shell command. Type enter to continue
+
+hi
+
+```
 
 ### Aliases
 
