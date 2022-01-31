@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -48,11 +49,9 @@ func (b *BasicServer) startExecution(ctx context.Context, c *websocket.Conn) err
 
 	r := TaskReq{}
 	if err := wsjson.Read(ctx, c, &r); err != nil {
-		// TODO: EOF received but this check fails
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			return nil
 		}
-		log.Fatal("read error: ", err)
 		return err
 	}
 
@@ -70,7 +69,7 @@ func (b *BasicServer) startExecution(ctx context.Context, c *websocket.Conn) err
 func (b *BasicServer) serveWSS(w http.ResponseWriter, r *http.Request) {
 	c, err := websocket.Accept(w, r, &websocket.AcceptOptions{})
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Fatalf("failed to upgrade connection to websockets: %v", err)
 		return
 	}
 	defer c.Close(websocket.StatusInternalError, "internal error")
@@ -82,7 +81,7 @@ func (b *BasicServer) serveWSS(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if err != nil {
-			log.Fatalf("host %v request errored: %v", r.RemoteAddr, err)
+			log.Printf("host %v request errored: %v", r.RemoteAddr, err)
 			return
 		}
 	}
