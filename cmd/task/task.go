@@ -19,6 +19,7 @@ import (
 	"github.com/go-task/task/v3"
 	"github.com/go-task/task/v3/args"
 	"github.com/go-task/task/v3/internal/logger"
+	"github.com/go-task/task/v3/server"
 	"github.com/go-task/task/v3/taskfile"
 )
 
@@ -133,6 +134,7 @@ func start(calledFromRepl bool) {
 		summary     bool
 		debug       bool
 		parallel    bool
+		basicServer bool
 		concurrency int
 		verbose     int
 		dir         string
@@ -172,6 +174,7 @@ func start(calledFromRepl bool) {
 	pflag.StringVarP(&output, "output", "o", "", "sets output style: [interleaved|group|prefixed]")
 	pflag.BoolVarP(&color, "color", "c", true, "colored output. Enabled by default. Set flag to false or use NO_COLOR=1 to disable")
 	pflag.IntVarP(&concurrency, "concurrency", "C", 0, "limit number tasks to run concurrently")
+	pflag.BoolVar(&basicServer, "server", false, "runs as a server")
 
 	pflag.Parse()
 
@@ -194,6 +197,15 @@ func start(calledFromRepl bool) {
 			log.Fatal(err)
 		}
 		return
+	}
+
+	if basicServer {
+		s := &server.BasicServer{TaskEntryPoint: start}
+		if err := s.Start(); err != nil {
+			log.Fatal("task: error running server: ", err)
+		}
+		return
+
 	}
 
 	if dir != "" && entrypoint != "" {
