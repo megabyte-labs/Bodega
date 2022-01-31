@@ -13,6 +13,7 @@ require (
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0
 	github.com/joho/godotenv v1.4.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
+	github.com/klauspost/compress v1.14.2 // indirect
 	github.com/mattn/go-zglob v0.0.3
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/radovskyb/watcher v1.0.7
@@ -23,6 +24,7 @@ require (
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 	mvdan.cc/sh/v3 v3.4.2-0.20211202103622-5ae9d64e1402
+	nhooyr.io/websocket v1.8.7
 )
 
 go 1.16
