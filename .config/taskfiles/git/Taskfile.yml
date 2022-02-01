@@ -260,4 +260,8 @@ tasks:
       - :git:gitlab:update
       - :git:github:update
     cmds:
-      - git push -u origin master
+      - |
+        if ! git push -u origin master; then
+          git pull origin master --allow-unrelated-histories
+          git push origin -u origin master
+        fi

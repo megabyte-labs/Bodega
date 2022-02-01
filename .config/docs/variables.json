@@ -192,16 +192,16 @@
         "gitlab_e2e": "/-/commits/e2e"
       },
       "conduct": {
-        "github": "/blob/master/CODE_OF_CONDUCT.md",
-        "gitlab": "/-/blob/master/CODE_OF_CONDUCT.md"
+        "github": "/blob/master/docs/CODE_OF_CONDUCT.md",
+        "gitlab": "/-/blob/master/docs/CODE_OF_CONDUCT.md"
       },
       "contributing": {
-        "github": "/blob/master/CONTRIBUTING.md",
-        "gitlab": "/-/blob/master/CONTRIBUTING.md"
+        "github": "/blob/master/docs/CONTRIBUTING.md",
+        "gitlab": "/-/blob/master/docs/CONTRIBUTING.md"
       },
       "demo": {
-        "github": "/raw/master/.demo.gif",
-        "gitlab": "/-/raw/master/.demo.gif"
+        "github": "/raw/master/docs/demo.gif",
+        "gitlab": "/-/raw/master/docs/demo.gif"
       },
       "issues": {
         "github": "/issues",
