@@ -14,9 +14,7 @@ tasks:
       start: Building with project with GoReleaser
       success: Completed building the project with GoReleaser
     cmds:
-      - |
-        unset GITHUB_TOKEN
-        goreleaser build --config {{.GORELEASER_CONFIG}}
+      - goreleaser build --config {{.GORELEASER_CONFIG}}
 
   check:
     deps:
