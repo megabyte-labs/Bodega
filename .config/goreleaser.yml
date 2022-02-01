@@ -1,7 +1,7 @@
 ---
 build:
-  binary: '{{binName}}'
-  main: '{{buildMain}}'
+  binary: 'task'
+  main: 'cmd/task/task.go'
   goos:
     - windows
     - darwin
@@ -19,7 +19,7 @@ build:
   env:
     - CGO_ENABLED=0
   ldflags:
-    - '{{buildLdflags}}'
+    - -s -w -X "main.version={{.Version}}" -X "main.commit={{.Commit}}" -X "main.date={{.Date}}" -X "main.builtBy='Megabyte Labs'" -X "main.goversion={{.Env.GOVERSION}}"
 
 gomod:
   proxy: true
