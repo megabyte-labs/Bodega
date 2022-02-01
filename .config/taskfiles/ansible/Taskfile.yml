@@ -12,6 +12,12 @@ vars:
   VARIABLES_PATH: .variables.json
 
 tasks:
+  build:none:
+    log:
+      start: Skipping build stage because Ansible project's do not require building
+    cmds:
+      - task: :donothing
+
   collection-dependencies:
     deps:
       - :install:software:jq

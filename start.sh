@@ -304,11 +304,26 @@ elif [[ "$OSTYPE" == 'linux-gnu'* ]] || [[ "$OSTYPE" == 'linux-musl'* ]]; then
   fi
 fi
 
-# @description Ensures Homebrew and Poetry are installed
+# @description Ensures Homebrew, Poetry, jq, and yq are installed
 if [[ "$OSTYPE" == 'darwin'* ]] || [[ "$OSTYPE" == 'linux-gnu'* ]] || [[ "$OSTYPE" == 'linux-musl'* ]]; then
-  if ! type brew &> /dev/null && [ -z "$INIT_CWD" ]; then
-    echo "WARNING: Homebrew is not installed. The script will attempt to install Homebrew and you might be prompted for your password."
-    bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  if [ -z "$INIT_CWD" ]; then
+    if ! type brew &> /dev/null; then
+      echo "WARNING: Homebrew is not installed. The script will attempt to install Homebrew and you might be prompted for your password."
+      bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+    if [ -f "$HOME/.profile" ]; then
+      # shellcheck disable=SC1091
+      . "$HOME/.profile"
+    fi
+    if ! type poetry &> /dev/null; then
+      brew install poetry
+    fi
+    if ! type jq &> /dev/null; then
+      brew install jq
+    fi
+    if ! type yq &> /dev/null; then
+      brew install yq
+    fi
   fi
 fi
 

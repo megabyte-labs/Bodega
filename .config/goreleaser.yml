@@ -1,7 +1,16 @@
 ---
+project_name: bodega
+
+env:
+  - GOVERSION="$(go version)"
+
+before:
+  hooks:
+    - go mod tidy
+
 build:
-  binary: '{{binName}}'
-  main: '{{buildMain}}'
+  binary: task
+  main: cmd/task
   goos:
     - windows
     - darwin
@@ -19,15 +28,14 @@ build:
   env:
     - CGO_ENABLED=0
   ldflags:
-    - '{{buildLdflags}}'
+    # yamllint disable-line rule:line-length
+    - '-s -w -X "main.version={{.Version}}" -X "main.commit={{.Commit}}" -X "main.date={{.Date}}" -X "main.builtBy=Megabyte Labs" -X "main.goversion={{.Env.GOVERSION}}"'
 
 gomod:
   proxy: true
 
 archives:
-  - name_template: '\{{.Binary}}-\{{.Os}}-\{{.Arch}}'
-    files:
-      - docs/*
+  - files:
       - README.md
       - LICENSE
       - completion/**/*
@@ -36,7 +44,9 @@ archives:
         format: zip
     replacements:
       amd64: 64-bit
+      386: 32-bit
       darwin: macOS
+      linux: Linux
 
 universal_binaries:
   - replace: true
@@ -45,50 +55,103 @@ release:
   disable: true
 
 snapshot:
-  name_template: '\{{.Tag}}'
+  name_template: '{{.Tag}}'
 
 checksum:
   name_template: CHECKSUMS.txt
 
 nfpms:
-  - id: '{{binName}}.{{idPost}}'
-    vendor: '{{company}}'
-    homepage: '{{link.home}}'
-    maintainer: '{{organization}} <{{email.help}}>'
-    description: '{{description}}'
-    license: '{{license}}'
+  - id: default
+    vendor: Megabyte LLC
+    homepage: 'https://megabyte.space'
+    maintainer: Megabyte Labs <help@megabyte.space>
+    description: 'A gorgeous, feature-packed drop-in replacement for the go-task project'
+    license: MIT
     formats:
       - apk
       - deb
       - rpm
-    file_name_template: '\{{.ProjectName}}-\{{.Os}}-\{{.Arch}}'
+    recommends:
+      - git
+    suggests:
+      - docker
+      - jq
+      - yq
+    replacements:
+      amd64: 64-bit
+      386: 32-bit
+      darwin: macOS
+      linux: Linux
 
 snapcrafts:
-  - id: \{{.Binary}}
+  - id: default
     publish: true
-    summary: '{{description}}'
-    description: '{{overview}}'
+    summary: 'A gorgeous, feature-packed drop-in replacement for the go-task project'
+    # yamllint disable-line rule:line-length
+    description: '**Bodega** is a fork of [go-task](https://github.com/go-task/task) that adds powerful UX features and functional improvements while retaining backwards compatibility. For those of you who do not know, Task is a task runner / Make alternative written in Go. It allows you to define bash script snippets in YML files and provides some advanced features. Some of the features it includes is the ability to define dependencies, running tasks conditionally, caching values, and a built-in method of housing CLI documentation. **Bodega** takes go-task to the next level by improving the TUI experience and including features that allow you to use the project as a CLI-generator.'
+    replacements:
+      amd64: 64-bit
+      386: 32-bit
+      darwin: macOS
+      linux: Linux
+    confinement: classic
+    license: MIT
+    extra_files:
+      - source: completion
+        destination: completion
+        mode: 0755
 
 dockers:
-  - image_templates:
-      - '{{profile.dockerhub}}/\{{.ProjectName}}'
-    dockerfile: Dockerfile
+  - goos: linux
+    goarch: amd64
+    image_templates:
+      - 'megabytelabs/{{.ProjectName}}'
+      - 'megabytelabs/{{.ProjectName}}:{{.Tag}}'
+      - 'megabytelabs/{{.ProjectName}}:v{{ .Major }}'
+    dockerfile: .config/Dockerfile
     use: buildx
     build_flag_templates:
       - --platform=linux/amd64
 
 brews:
-  - name: '{{binName}}'
-    description: '{{description}}'
-    license: '{{license}}'
-    homepage: '{{link.home}}'
-    folder: '{{homebrew.folder}}'
+  - name: task
+    description: 'A gorgeous, feature-packed drop-in replacement for the go-task project'
+    license: MIT
+    homepage: 'https://megabyte.space'
+    folder: Formula
     tap:
-      owner: '{{homebrew.owner}}'
-      name: '{{homebrew.name}}'
-    test: '{{homebrew.test}}'
+      owner: installdoc
+      name: homebrew-tap
+    test: ''
     install: |-
-      bin.install "{{binName}}"
-      bash_completion.install "completion/bash/{{binName}}.bash" => "{{binName}}"
-      zsh_completion.install "completion/zsh/_{{binName}}" => "_{{binName}}"
-      fish_completion.install "completion/fish/{{binName}}.fish"
+      bin.install "task"
+      bash_completion.install "completion/bash/task.bash" => "task"
+      zsh_completion.install "completion/zsh/_task" => "_task"
+      fish_completion.install "completion/fish/task.fish"
+
+announce:
+  skip: '{{gt .Patch 0}}'
+  linkedin:
+    enabled: false
+    message_template: 'Bodega {{ .Tag }} is out! Check it out at {{ .ReleaseURL }}.'
+  reddit:
+    enabled: false
+    application_id: O3UxD7HlPpcN88gpEkPIXQ
+    username: tsgangster
+    url_template: 'https://github.com/ProfessorManhattan/Bodega/releases/tag/{{ .Tag }}'
+    title_template: 'Bodega {{ .Tag }} was just released!'
+  slack:
+    enabled: true
+    message_template: '**[Bodega](https://github.com/ProfessorManhattan/Bodega)** {{.Tag}} is out! Check it out at {{.ReleaseURL}}.'
+    channel: '#go-lang'
+    username: Megabyte Labs Release Notification Bot
+    icon_url: 'https://gitlab.com/megabyte-labs/misc/assets/-/raw/master/logo/megabytelabs-color-icon-350x350.png'
+  teams:
+    enabled: false
+    title_template: 'Bodega {{ .Tag }} has been released!'
+    message_template: 'Bodega {{ .Tag }} is out! Check it out at {{ .ReleaseURL }}.'
+    color: '#1DA1F2'
+    icon_url: 'https://gitlab.com/megabyte-labs/misc/assets/-/raw/master/logo/megabytelabs-color-icon-350x350.png'
+  twitter:
+    enabled: false
+    message_template: 'Bodega {{ .Tag }} is out with new features! Check it out at {{ .ReleaseURL }}.'

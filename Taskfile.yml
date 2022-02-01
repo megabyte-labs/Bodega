@@ -8,12 +8,13 @@ includes:
   ansible:populate: ./.config/taskfiles/ansible/Taskfile-populate.yml
   ansible:test: ./.config/taskfiles/ansible/Taskfile-test.yml
   boilerplate: ./.config/taskfiles/boilerplate/Taskfile.yml
+  boilerplate:prompt: ./.config/taskfiles/boilerplate/Taskfile-prompt.yml
   ci: ./.config/taskfiles/ci/Taskfile.yml
   ci:github: ./.config/taskfiles/ci/Taskfile-github.yml
-  common: ./.config/taskfiles/common/Taskfile.yml
   project:
     taskfile: Taskfile-project.yml
     optional: true
+  common: ./.config/taskfiles/common/Taskfile.yml
   common:code: ./.config/taskfiles/common/Taskfile-code.yml
   common:update: ./.config/taskfiles/common/Taskfile-update.yml
   docker: ./.config/taskfiles/docker/Taskfile.yml
@@ -53,6 +54,7 @@ includes:
   publish:ios: ./.config/taskfiles/publish/Taskfile-ios.yml
   publish:menubar: ./.config/taskfiles/publish/Taskfile-menubar.yml
   publish:opera: ./.config/taskfiles/publish/Taskfile-opera.yml
+  publish:snap: ./.config/taskfiles/publish/Taskfile-snap.yml
   python: ./.config/taskfiles/python/Taskfile.yml
   python:test: ./.config/taskfiles/python/Taskfile-test.yml
   release: ./.config/taskfiles/release/Taskfile.yml
@@ -84,10 +86,10 @@ vars:
     -o -path './.pnpm-store/*' -o -path './.shared/*' -o -path './.task/*' -o -path './.venv/*' -o -path './.vscode/*'
     -o -path './build/*' -o -path './dist/*' -o -path './node_modules/*' -o -path './roles/*' -o -name pnpm-lock.yaml
     -o -name package-lock.json -o -name poetry.lock -o -name '.variables.json'
-  INIT_SCRIPT: https://gitlab.com/megabyte-labs/common/shared/-/raw/master/common/.gitlab/ci/scripts/update-init.sh
+  INIT_SCRIPT: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/scripts/update-init.sh
   LOG_FIX:
     sh: chmod +x .config/log && echo "heyhey"
-  NPM_KEEP_UPDATED: '@washingtondc/* eslint-config-strict-mode semantic-release-config'
+  NPM_KEEP_UPDATED: ''
   NPM_PROGRAM: npm
   NPM_PROGRAM_LOCAL: pnpm
   NPX_HANDLE: 'pnpx '
@@ -124,19 +126,27 @@ profile: |
 tasks:
   build:
     deps:
-      - :install:software:node
+      - install:software:jq
+      - install:software:node
     desc: Build the project
     summary: |
       # Build the Project
 
       Use this command to build the project. It executes the command defined
       in `package.json` under the `.scripts.build` key.
+    vars:
+      NONINTERACTIVE_MISSING_BUILD_CMD: There must be a build command under `.scripts.build` in `package.json`!
     log:
       error: Encountered error while running `npm run build`
       start: Running `npm run build`
       success: Successfully ran `npm run build`
     cmds:
-      - npm run build
+      - |
+        if [ "$(jq '.scripts.build' package.json)" != 'null' ]; then
+          npm run build
+        else
+          [[ $- == *i* ]] && task prepare || (.config/log error '{{.NONINTERACTIVE_MISSING_BUILD_CMD}}' && exit 1)
+        fi
 
   cmds:
     - |
@@ -203,6 +213,9 @@ tasks:
       - task: git:gitlab:group:exec
 
   init:
+    deps:
+      - install:software:jq
+      - install:software:yq
     desc: Runs the initialization script
     summary: |
       # Initialize the Project and Run the Full Update Sequence
@@ -372,6 +385,8 @@ tasks:
       API keys be set. Generally, only project owners will use this task.
     cmds:
       - task: common:update:services
+    status:
+      - '[ -n "$GITLAB_CI" ] && [ "$REPOSITORY_UPDATE" != "true" ]'
 
   shell:
     desc: Start a terminal session using Docker with any Linux operating system
@@ -438,5 +453,12 @@ tasks:
 
       This task calls `npm run test` which functions differently based on the
       definition made in `package.json` under the `.scripts.test` key.
+    vars:
+      NONINTERACTIVE_MISSING_TEST_CMD: There must be a `.scripts.test` definition in `package.json`!
     cmds:
-      - npm run test
+      - |
+        if [ "$(jq '.scripts.test' package.json)" != 'null' ]; then
+          npm run test
+        else
+          [[ $- == *i* ]] && task prepare || (.config/log error '{{.NONINTERACTIVE_MISSING_TEST_CMD}}' && exit 1)
+        fi

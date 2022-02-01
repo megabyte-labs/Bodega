@@ -1,4 +1,3 @@
-# eslint-disable eslint-comments/disable-enable-pair, max-lines
 ---
 version: '3'
 
@@ -552,6 +551,15 @@ tasks:
           FORMULAE: rsync
     status:
       - type rsync &> /dev/null
+
+  snapcraft:
+    run: once
+    cmds:
+      - task: brew:formulae
+        vars:
+          FORMULAE: snapcraft
+    status:
+      - type snapcraft > /dev/null
 
   sshpass:
     run: once
