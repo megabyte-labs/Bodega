@@ -123,18 +123,20 @@ profile: |
 
 tasks:
   build:
+    deps:
+      - :install:software:node
     desc: Build the project
     summary: |
-      # Build the project
+      # Build the Project
 
       Use this command to build the project. It executes the command defined
-      in `package.json` under the `.blueprint.build_command` key.
-
-      You can ensure all the proper keys are setup in `.blueprint.build_command`
-      by running `task init` which will prompt you to enter required fields
-      that are not present.
+      in `package.json` under the `.scripts.build` key.
+    log:
+      error: Encountered error while running `npm run build`
+      start: Running `npm run build`
+      success: Successfully ran `npm run build`
     cmds:
-      - task: go:build
+      - npm run build
 
   cmds:
     - |
@@ -151,7 +153,7 @@ tasks:
       - install:software:git
     desc: Add all and commit
     summary: |
-      # Commit the code
+      # Commit Code
 
       By default, this task is an alias for:
 
@@ -178,12 +180,12 @@ tasks:
       auto-fixers. Although unlikely, it is possible that auto-fixing can introduce
       an error so the auto-fixes still have to be validated.
     cmds:
-      - fix:all
+      - task: fix:all
 
   group:exec:
     desc: Execute group commands on any GitLab group (including repositories in sub-groups)
     summary: |
-      # Run commands on multiple repositories in parallel
+      # Run Commands on Multiple GitLab Repositories
 
       This command requires that the `GITLAB_TOKEN` environment variable be set. With the
       token defined, you can use this task to run scripts on repositories that fall under
@@ -203,7 +205,7 @@ tasks:
   init:
     desc: Runs the initialization script
     summary: |
-      # Initialize the project and run the full update sequence
+      # Initialize the Project and Run the Full Update Sequence
 
       This command will mostly not be needed for pre-existing projects. This task begins
       by calling a script that:
@@ -216,19 +218,23 @@ tasks:
 
       If you are facing difficulties, you can try running this task to reset the project,
       perform common fixes, and run the whole start up routine.
+    log:
+      error: Failed to run initialization script
+      start: Initializing project by running initialization script
+      success: Successfully bootstrapped project by running initialization script
     cmds:
       - git init
       - |
         if [ -n "$GITLAB_CI" ]; then
-          if [ -n "$UPDATE_INIT_SCRIPT" ]; then curl -s "$UPDATE_INIT_SCRIPT" | bash; fi
+          if [ -n "$UPDATE_INIT_SCRIPT" ]; then bash <(curl -sSL "$UPDATE_INIT_SCRIPT"); fi
         else
-          bash <(curl -s https://gitlab.com/megabyte-labs/common/shared/-/raw/master/common/.gitlab/ci/scripts/update-init.sh)
+          bash <(curl -sSL {{.INIT_SCRIPT}})
         fi
 
   lint:
     desc: Lints the project using all error-prone linters
     summary: |
-      # Lint the project using most of the linters
+      # Lint the Project Using Most of the Linters
 
       This task will do a project-wide linting using all of the linters that commonly
       report errors. You can use this task to spot linting errors prior to running
@@ -244,7 +250,7 @@ tasks:
       - install:npm:nodemon
     desc: Start the project with live-reloading (i.e. watch mode)
     summary: |
-      # LiveReload the project
+      # LiveReload the Project
 
       Using LiveReload, you can automatically run the project any time you make
       changes to the project. The LiveReload feature uses [nodemon](https://github.com/remy/nodemon)
@@ -279,12 +285,16 @@ tasks:
         fi
       - nodemon --config {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}.config/nodemon.json{{end}}
 
+  log:
+    error: Error while running commit logic
+    start: Adding all changes and committing
+    success: Successfully commit changes
   preload:
     deps:
       - install:brewfile
     desc: Set up your workstation in advance by installing commonly used programs
     summary: |
-      # Speed up future development by preloading common system applications
+      # Speed Up Future Development by Preloading Common System Applications
 
       Just about every development task requires some sort of globally installed
       application. TypeScript requires Node.js to be installed. Ansible requires
@@ -308,23 +318,28 @@ tasks:
       level binary is installed. However, if you are missing something like git, then
       chances are you will be asked for a sudo password. In this case, we recommend
       you adopt the Megabyte Labs philosophy and inspect the code before running it.
+    log:
+      error: Encountered error while preloading system with common dependencies (REBOOT RECOMMENDED)
+      start: Preloading system with common dependencies
+      success: Successfully preloaded system with common dependencies (REBOOT RECOMMENDED)
     cmds:
       - task: install:brewfile
       - task: install:modules:global
       - task: install:pipx:global
-      - |
-        .config/log success 'Successfully preloaded commonly used system applications'
-        .config/log info 'Some software that requires a reboot may have been installed - rebooting would be prudent'
 
   prepare:
     desc: Prepares the project for the normal start command
     summary: |
-      # Prepare the project
+      # Prepare the Project
 
       This task ensures the project has all the required metadata. If a project
       is missing required metadata then this task will interactively prompt the user
       for the missing data. It also performs miscellaneous tasks that are sometimes
       required by the `start` task.
+    log:
+      error: Encountered error while preparing the project
+      start: Preparing the project
+      success: Successfully prepared the project
     cmds:
       - task: boilerplate:check:package
       - task: boilerplate:clean
@@ -335,19 +350,22 @@ tasks:
       - install:npm:ntl
     desc: Run and view descriptions for `npm scripts` via an interactive dialog
     summary: |
-      # Interactively select scripts defined in package.json
+      # Interactively Select Scripts Defined in package.json
 
       Our projects use `run` (a fork of task) to handle most of the task running.
       However, in some projects there may be scripts defined in package.json. This
       task is a convienience method that will present a list of scripts alongside
       their descriptions that you can interactively launch.
+    log:
+      error: Error running `NTL_RUNNER={{.NPM_PROGRAM}} {{.NPX_HANDLE}}ntl`
+      start: Running `NTL_RUNNER={{.NPM_PROGRAM}} {{.NPX_HANDLE}}ntl`
     cmds:
       - NTL_RUNNER={{.NPM_PROGRAM}} {{.NPX_HANDLE}}ntl
 
   services:
     desc: Update elements of the repository that require API access
     summary: |
-      # Update elements of the repository that require API access
+      # Update Elements of the Repository that Require API Access
 
       This task will ensure that the git repositories and other services related to the
       project are updated with the proper configurations. It requires that certain
@@ -357,8 +375,10 @@ tasks:
 
   shell:
     desc: Start a terminal session using Docker with any Linux operating system
+    compile: |
+      '.tasks.common.shell = $this' common/Taskfile.yml
     summary: |
-      # Start a Docker terminal session
+      # Start a Docker Terminal Session
 
       Use Docker to run commands on nearly any operating system. The operating
       systems are all stock distros with systemd added.
@@ -390,7 +410,7 @@ tasks:
   start:
     desc: Set up the project and refresh it with the latest changes
     summary: |
-      # Start the project
+      # Start the Project
 
       This task will scaffold the project with the latest upstream changes
       and ensure your development environment has all the dependencies installed.
@@ -401,5 +421,22 @@ tasks:
 
       **Example usage:**
       `task start`
+    log:
+      error: Error encountered while starting up the project
+      start: Synchronizing project with upstream file changes and bootstrapping
+      success: Successfully synchronized the project with upstream file changes and also bootstrapped the project
     cmds:
       - task: upstream:project
+
+  test:
+    deps:
+      - install:software:node
+    interactive: true
+    desc: Open an interactive dialog to select and run a Molecule test
+    summary: |
+      # Test the Project
+
+      This task calls `npm run test` which functions differently based on the
+      definition made in `package.json` under the `.scripts.test` key.
+    cmds:
+      - npm run test
