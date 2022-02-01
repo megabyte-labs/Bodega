@@ -56,7 +56,7 @@
     "binName": "task",
     "build_command": "go build -o dist/task cmd/task/task.go",
     "build_command_output": "./dist/task",
-    "buildMain": "cmd/task/task.go",
+    "buildMain": "cmd/task",
     "customPackageName": "go-bodega",
     "description": "A gorgeous, feature-packed drop-in replacement for the go-task project",
     "github_id": "",
