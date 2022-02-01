@@ -74,6 +74,16 @@
     "subgroup": "cli",
     "title": "Bodega - An Invaluable Task Runner"
   },
+  "changelog": {
+    "displayTypes": [
+      "feat",
+      "fix",
+      "perf",
+      "refactor",
+      "revert"
+    ],
+    "showAuthor": true
+  },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"

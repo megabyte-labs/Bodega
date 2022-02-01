@@ -111,11 +111,11 @@
   },
   "releaseRules": [
     {
-      "release": "patch",
+      "release": false,
       "type": "build"
     },
     {
-      "release": "patch",
+      "release": false,
       "type": "ci"
     },
     {
