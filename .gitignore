@@ -14,7 +14,6 @@ build/
 !*ci/build/
 .c9/
 .cache
-.config/goreleaser-test.yml
 .cache/
 .classpath
 *.code-workspace

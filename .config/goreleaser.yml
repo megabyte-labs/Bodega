@@ -1,7 +1,7 @@
 ---
 build:
-  binary: 'task'
-  main: 'cmd/task'
+  binary: '{{binName}}'
+  main: '{{buildMain}}'
   goos:
     - windows
     - darwin
@@ -19,12 +19,10 @@ build:
   env:
     - CGO_ENABLED=0
   ldflags:
-    # yamllint disable-line rule:line-length
-    - -s -w -X "main.version={{.Version}}" -X "main.commit={{.Commit}}" -X "main.date={{.Date}}"
-      -X "main.builtBy='Megabyte Labs'" -X "main.goversion={{.Env.GOVERSION}}"
+    - '{{buildLdflags}}'
 
-# gomod:
-#   proxy: true
+gomod:
+  proxy: true
 
 archives:
   - name_template: '\{{.Binary}}-\{{.Os}}-\{{.Arch}}'
