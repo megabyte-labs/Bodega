@@ -162,6 +162,12 @@ tasks:
       - :common:update:man-page
       - build:pkg
 
+  build:none:
+    log:
+      start: Skipping build step because project does not need building
+    cmds:
+      - task: :donothing
+
   build:pkg:
     deps:
       - :install:modules:local
@@ -380,6 +386,12 @@ tasks:
       success: Successfully ran `{{.NPX_HANDLE}}ndb nodemon --config .config/nodemon-jest.json`
     cmds:
       - '{{.NPX_HANDLE}}ndb nodemon --config .config/nodemon-jest.json'
+
+  test:none:
+    log:
+      start: No tests have been set up for this project
+    cmds:
+      - task: :donothing
 
   typesync:
     deps:
