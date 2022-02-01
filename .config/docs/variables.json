@@ -169,6 +169,8 @@
       "dockerfile_path": "megabyte-labs/docker",
       "documentation": "https://gitlab.com/megabyte-labs/documentation",
       "documentation_path": "megabyte-labs/documentation",
+      "go": "https://gitlab.com/megabyte-labs/go",
+      "go_path": "megabyte-labs/go",
       "kubernetes": "https://gitlab.com/megabyte-labs/kubernetes",
       "kubernetes_path": "megabyte-labs/kubernetes_path",
       "npm": "https://gitlab.com/megabyte-labs/npm",

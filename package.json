@@ -139,7 +139,7 @@
   },
   "ntl": {
     "descriptions": {
-      "help": "Display a list of tasks that can be run via the Taskfile.yml",
+      "help": "Display the Bodega Taskfile.yml interactive help menu",
       "prepare": "Hook, triggered by running npm install, that runs logic such as installing pre-commit hooks",
       "repair": "Fixes basic issues in projects that are having trouble running basic commands like 'task start'",
       "start": "Entrypoint for new developers that installs requirements and then runs 'task start'"

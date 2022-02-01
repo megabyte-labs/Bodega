@@ -5,7 +5,7 @@ specifiers:
   '@washingtondc/prettier': ^1.0.0
   '@washingtondc/release': ^0.0.2
   eslint-config-strict-mode: ^1.0.28
-  semantic-release-config: ^0.0.12
+  semantic-release-config: ^0.0.14
   sleekfast: ^0.0.1
 
 devDependencies:
@@ -13,7 +13,7 @@ devDependencies:
   '@washingtondc/prettier': 1.0.0
   '@washingtondc/release': 0.0.2
   eslint-config-strict-mode: 1.0.28
-  semantic-release-config: 0.0.12
+  semantic-release-config: 0.0.14
   sleekfast: 0.0.1
 
 packages:
@@ -3171,7 +3171,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001304
-      electron-to-chromium: 1.4.57
+      electron-to-chromium: 1.4.58
       escalade: 3.1.1
       node-releases: 2.0.1
       picocolors: 1.0.0
@@ -4771,8 +4771,8 @@ packages:
       sigmund: 1.0.1
     dev: true
 
-  /electron-to-chromium/1.4.57:
-    resolution: {integrity: sha512-FNC+P5K1n6pF+M0zIK+gFCoXcJhhzDViL3DRIGy2Fv5PohuSES1JHR7T+GlwxSxlzx4yYbsuzCZvHxcBSRCIOw==}
+  /electron-to-chromium/1.4.58:
+    resolution: {integrity: sha512-7LXwnKyqcEaMFVXOer+2JPfFs1D+ej7yRRrfZoIH1YlLQZ81OvBNwSCBBLtExVkoMQQgOWwO0FbZVge6U/8rhQ==}
     dev: true
 
   /elegant-spinner/1.0.1:
@@ -6554,10 +6554,6 @@ packages:
 
   /fs.realpath/1.0.0:
     resolution: {integrity: sha1-FQStJSMVjKpA20onh8sBQRmU6k8=}
-    dev: true
-
-  /fs/0.0.1-security:
-    resolution: {integrity: sha1-invTcYa23d84E/I4WLV+yq9eQdQ=}
     dev: true
 
   /fsevents/1.2.13:
@@ -11424,8 +11420,8 @@ packages:
     engines: {node: '>=0.12.0'}
     dev: true
 
-  /semantic-release-config/0.0.12:
-    resolution: {integrity: sha512-MOeM4dgxj4AoGEddS4/I7Rwylx27o2/fbbK7shfWSWlqmT1XOL3csAkWqg+3xhAHPAPRUtSSGQPRsO+mPmPAag==}
+  /semantic-release-config/0.0.14:
+    resolution: {integrity: sha512-sLj9k3hoZPIu1SINPOjMM8vHk6zKSdoNBnTeHrxH5/AIZeRlE/3LQQVQTg/Qqi6X5NeJN5aMsU+wq3XaAmI4jA==}
     engines: {node: '>=14.18.0'}
     dependencies:
       '@auto-it/all-contributors': 10.32.6
@@ -11452,9 +11448,9 @@ packages:
       conventional-changelog-gitmoji-config: 1.4.3
       semantic-release: 18.0.1
       semantic-release-firefox-add-on: 0.2.8_semantic-release@18.0.1
-      semantic-release-gh: 0.0.6_semantic-release@18.0.1
+      semantic-release-gh: 0.0.5_semantic-release@18.0.1
       semantic-release-npm-deprecate-old-versions: 1.3.2
-      semantic-release-python: 2.5.12
+      semantic-release-python: 2.5.14
       tslib: 2.3.1
       yaml: 1.10.2
     optionalDependencies:
@@ -11494,8 +11490,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  /semantic-release-gh/0.0.6_semantic-release@18.0.1:
-    resolution: {integrity: sha512-hsA5xAFm9ad+ZRPxHRuSVgJwHsd54k09wOoH5XJd3e6m6PTfVQ9r3rnRzWezcISLLYyGSwv1tKGsWgdGhJ84ww==}
+  /semantic-release-gh/0.0.5_semantic-release@18.0.1:
+    resolution: {integrity: sha512-A6S8W6H/PX48mOmdNEH3jGQATapKhHO/rMnyzWUJe2tBtMcQJcSsxqqNq7y1duULI8OaZw35uFLy0Bsu8geqdg==}
     engines: {node: '>=14.18.0'}
     peerDependencies:
       semantic-release: '>=18.0.0-beta.1'
@@ -11543,15 +11539,15 @@ packages:
       - semantic-release
     dev: true
 
-  /semantic-release-python/2.5.12:
-    resolution: {integrity: sha512-oM8d30xwMV9rLNUZdX8xDLAqUqGDgQV98ZLBsGv9d40dcbt59INE02MZ/yfTDv8/uatS2Lytz0R7V80SFMsx2A==}
+  /semantic-release-python/2.5.14:
+    resolution: {integrity: sha512-tjePHt9YvyLKxP8yQE10uH47mTNx9YvlQ6RNvJ+4GTqo3rCSSN1ZRQKZxJ9OP/o1szSqhar44ctOamQWP3m/+g==}
     engines: {node: '>=14.18.0'}
     requiresBuild: true
     dependencies:
       execa: 4.1.0
       form-data: 3.0.1
-      fs: 0.0.1-security
       got: 11.8.3
+      tslib: 2.3.1
     dev: true
 
   /semantic-release/18.0.1:

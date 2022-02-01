@@ -257,7 +257,7 @@ tasks:
       with the configuration stored in `.config/nodemon.json`.
 
       Whenever you make a change to the project, `task project:livereload` will run. You can
-      define the command that runs everytime you make a change in the `Taskfile-project.yml`
+      define the command that runs every time you make a change in the `Taskfile-project.yml`
       `livereload` section. This file is kept intact even across upstream propagation updates,
       unlike the regular `Taskfile.yml`.
 
@@ -354,7 +354,7 @@ tasks:
 
       Our projects use `run` (a fork of task) to handle most of the task running.
       However, in some projects there may be scripts defined in package.json. This
-      task is a convienience method that will present a list of scripts alongside
+      task is a convenience method that will present a list of scripts alongside
       their descriptions that you can interactively launch.
     log:
       error: Error running `NTL_RUNNER={{.NPM_PROGRAM}} {{.NPX_HANDLE}}ntl`
