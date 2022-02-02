@@ -43,10 +43,9 @@ archives:
       - goos: windows
         format: zip
     replacements:
-      amd64: 64-bit
-      386: 32-bit
-      darwin: macOS
-      linux: Linux
+      amd64: x86_64
+      386: x86_32
+      darwin: macos
 
 universal_binaries:
   - replace: true
@@ -78,10 +77,9 @@ nfpms:
       - jq
       - yq
     replacements:
-      amd64: 64-bit
-      386: 32-bit
-      darwin: macOS
-      linux: Linux
+      amd64: x86_64
+      386: x86_32
+      darwin: macos
 
 snapcrafts:
   - id: default
@@ -90,10 +88,9 @@ snapcrafts:
     # yamllint disable-line rule:line-length
     description: '**Bodega** is a fork of [go-task](https://github.com/go-task/task) that adds powerful UX features and functional improvements while retaining backwards compatibility. For those of you who do not know, Task is a task runner / Make alternative written in Go. It allows you to define bash script snippets in YML files and provides some advanced features. Some of the features it includes is the ability to define dependencies, running tasks conditionally, caching values, and a built-in method of housing CLI documentation. **Bodega** takes go-task to the next level by improving the TUI experience and including features that allow you to use the project as a CLI-generator.'
     replacements:
-      amd64: 64-bit
-      386: 32-bit
-      darwin: macOS
-      linux: Linux
+      amd64: x86_64
+      386: x86_32
+      darwin: macos
     confinement: classic
     license: MIT
     extra_files:
