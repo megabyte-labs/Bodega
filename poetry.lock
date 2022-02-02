@@ -366,6 +366,26 @@ optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
+name = "toml-sort"
+version = "0.19.0"
+description = "Toml sorting library"
+category = "dev"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.dependencies]
+click = ">=7.0"
+tomlkit = ">=0.5.8"
+
+[[package]]
+name = "tomlkit"
+version = "0.9.0"
+description = "Style preserving TOML library"
+category = "dev"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[[package]]
 name = "tqdm"
 version = "4.62.3"
 description = "Fast, Extensible Progress Meter"
@@ -383,7 +403,7 @@ telegram = ["requests"]
 
 [[package]]
 name = "twine"
-version = "3.7.1"
+version = "3.8.0"
 description = "Collection of utilities for publishing packages on PyPI"
 category = "main"
 optional = true
@@ -399,6 +419,7 @@ requests = ">=2.20"
 requests-toolbelt = ">=0.8.0,<0.9.0 || >0.9.0"
 rfc3986 = ">=1.4.0"
 tqdm = ">=4.14"
+urllib3 = ">=1.26.0"
 
 [[package]]
 name = "urllib3"
@@ -451,7 +472,7 @@ semantic = ["pip", "setuptools", "twine", "wheel"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10.0,<4.0.0"
-content-hash = "e3dd09a870b482324d441ba531c753f3e260ef7d81751fd7919ebe1afc23eb1b"
+content-hash = "636937f68e2358a8e287fc5b030280cc3e8de5d7803ce945351fa176e53fcd62"
 
 [metadata.files]
 bleach = [
@@ -705,13 +726,21 @@ toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
     {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
 ]
+toml-sort = [
+    {file = "toml-sort-0.19.0.tar.gz", hash = "sha256:5e81f5a9632fa4c7302642c6ea1b76468865adca9a23dee6e129f8ee50c1fb64"},
+    {file = "toml_sort-0.19.0-py3-none-any.whl", hash = "sha256:ca7c7100b0bd14faf3056361ddff478411a609fbaabd00c27d48569e62ab55bc"},
+]
+tomlkit = [
+    {file = "tomlkit-0.9.0-py3-none-any.whl", hash = "sha256:c1b0fc73abd4f1e77c29ea4061ca0f2e11cbfb77342e17df3d3fdd496fc3f899"},
+    {file = "tomlkit-0.9.0.tar.gz", hash = "sha256:5a83672c565f78f5fc8f1e44e5f2726446cc6b765113efd21d03e9331747d9ab"},
+]
 tqdm = [
     {file = "tqdm-4.62.3-py2.py3-none-any.whl", hash = "sha256:8dd278a422499cd6b727e6ae4061c40b48fce8b76d1ccbf5d34fca9b7f925b0c"},
     {file = "tqdm-4.62.3.tar.gz", hash = "sha256:d359de7217506c9851b7869f3708d8ee53ed70a1b8edbba4dbcb47442592920d"},
 ]
 twine = [
-    {file = "twine-3.7.1-py3-none-any.whl", hash = "sha256:8c120845fc05270f9ee3e9d7ebbed29ea840e41f48cd059e04733f7e1d401345"},
-    {file = "twine-3.7.1.tar.gz", hash = "sha256:28460a3db6b4532bde6a5db6755cf2dce6c5020bada8a641bb2c5c7a9b1f35b8"},
+    {file = "twine-3.8.0-py3-none-any.whl", hash = "sha256:d0550fca9dc19f3d5e8eadfce0c227294df0a2a951251a4385797c8a6198b7c8"},
+    {file = "twine-3.8.0.tar.gz", hash = "sha256:8efa52658e0ae770686a13b675569328f1fba9837e5de1867bfe5f46a9aefe19"},
 ]
 urllib3 = [
     {file = "urllib3-1.26.8-py2.py3-none-any.whl", hash = "sha256:000ca7f471a233c2251c6c7023ee85305721bfdf18621ebff4fd17a8653427ed"},
