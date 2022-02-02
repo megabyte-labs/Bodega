@@ -30,6 +30,7 @@ type Task struct {
 	// TODO: Hide should be bool but we want Go templates
 	Hide   string
 	Prompt *Prompt
+	RunOnceSystem bool
 }
 
 func (t *Task) Name() string {
@@ -76,6 +77,7 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Run           string
 		Hide          string
 		Prompt        *Prompt
+		RunOnceSystem bool `yaml:"run_once_system"`
 	}
 	if err := unmarshal(&task); err != nil {
 		return err
@@ -103,5 +105,6 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	t.Run = task.Run
 	t.Hide = task.Hide
 	t.Prompt = task.Prompt
+	t.RunOnceSystem = task.RunOnceSystem
 	return nil
 }

@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 	"path/filepath"
@@ -610,22 +609,26 @@ func (e *Executor) startExecution(ctx context.Context, t *taskfile.Task, execute
 		return execute(ctx)
 	}
 
-	// Persist running the task as an empty file
-	if t.Run == "once_system" {
+	// Persist running the task across reboots if "run" property is "once"
+	// Note that if a task ran before with run_once_system set to true, then
+	// it should not be removed in order for Task to recognize that.
+	if t.Run == "once" && t.RunOnceSystem {
 		c, _ := os.UserCacheDir()
 		f := filepath.Join(c, "bodega", h)
 		// TODO: os.Stat might return false positinves or suffer from TOCTOU race condition
 		if _, err := os.Stat(f); os.IsNotExist(err) {
+			if err = os.MkdirAll(filepath.Join(c, "bodega"), 0755); err == nil {
+				e.Logger.Errf(logger.Red, "%v", err)
+			}
+			if _, err := os.Create(f); err != nil {
+				e.Logger.Errf(logger.Red, "task: error writing file: %v", err)
+			}
+		} else {
 			e.executionHashesMutex.Lock()
 			dummyCtx, cancel := context.WithCancel(context.TODO())
 			e.executionHashes[h] = dummyCtx
 			e.executionHashesMutex.Unlock()
 			cancel()
-		} else {
-			_ = os.MkdirAll(filepath.Join(c, "bodega"), 0755)
-			if err := ioutil.WriteFile(f, []byte{}, 0644); err != nil {
-				e.Logger.Errf(logger.Red, "task: error writing file: %v", err)
-			}
 		}
 	}
 
