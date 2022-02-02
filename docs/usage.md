@@ -524,7 +524,6 @@ Supported values for `run`:
  * `always` (default) always attempt to invoke the task regardless of the
   number of previous executions
  * `once` only invoke this task once regardless of the number of references
- * `once_system` only invoke this task once across multiple invocations of Task.
  It persists tasks that ran previously within the `~/.cache/task` directory
  * `when_changed` only invokes the task once for each unique set of variables
   passed into the task
@@ -550,7 +549,8 @@ tasks:
       - echo {{.CONTENT}}
 
   install-deps-system-wide:
-    run: once_system
+    run: once
+    run_once_system: true
     cmds:
       - sleep 10 # some operation you wish not to repeat across reboots
 
@@ -559,6 +559,8 @@ tasks:
     cmds:
       - sleep 5 # long operation like installing packages
 ```
+
+When running tasks once, an additional boolean option `run_once_system` can be set to run the task only once per invocation of Task.
 
 > task `install-deps-system-wide` is skipped on running `task install-deps-system-wide`
 > twice from the command line
