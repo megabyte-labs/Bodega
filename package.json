@@ -62,6 +62,7 @@
     "buildMain": "cmd/task",
     "build_command": "go build -o dist/task cmd/task/task.go",
     "build_command_output": "./dist/task",
+    "currentBuildTag": "v3.9.2",
     "customPackageName": "go-bodega",
     "description": "A gorgeous, feature-packed drop-in replacement for the go-task project",
     "github_id": "",
@@ -76,7 +77,7 @@
     },
     "slug": "bodega",
     "subgroup": "cli",
-    "title": "Bodega - An Invaluable Task Runner"
+    "title": "Bodega - An Invaluable Task Runner Known"
   },
   "changelog": {
     "displayTypes": [
