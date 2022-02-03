@@ -18,17 +18,21 @@
   "scripts": {
     "build": "task go:build",
     "help": "task --menu",
+    "postinstall": "go-npm install",
     "prepare": "task common:husky",
     "repair": "bash <(curl -sS https://install.doctor/repair)",
     "start": "bash start.sh",
-    "test": "task go:test"
+    "test": "task go:test",
+    "preuninstall": "go-npm uninstall"
   },
   "config": {
     "commitizen": {
       "path": "node_modules/cz-emoji-conventional"
     }
   },
-  "dependencies": {},
+  "dependencies": {
+    "go-npm": "^0.1.9"
+  },
   "optionalDependencies": {},
   "devDependencies": {
     "@commitlint/config-conventional": "^16.0.0",
@@ -116,6 +120,11 @@
       "url": "https://www.patreon.com/ProfessorManhattan"
     }
   ],
+  "goBinary": {
+    "name": "task",
+    "path": "./bin",
+    "url": "https://github.com/ProfessorManhattan/Bodega/releases/download/v3.9.3/Bodega-3.9.3--.tar.gz"
+  },
   "lint-staged": {
     "**/!(logo).(jpg|png)": [
       "task image:compress --"
