@@ -357,7 +357,7 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 				return &taskRunError{t.Task, err}
 			}
 		}
-		e.Logger.VerboseErrf(logger.Magenta, `task: "%s" finished`, call.Task)
+		e.Logger.VerboseErrf(logger.Magenta, `task: [%s] finished`, call.Task)
 		return nil
 	})
 }
