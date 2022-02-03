@@ -140,7 +140,7 @@ func (e *Executor) Setup() error {
 	}
 
 	if v < 2 {
-		return fmt.Errorf(`task: Taskfile versions prior to v2 are not supported anymore`)
+		return fmt.Errorf(`Taskfile versions prior to v2 are not supported anymore`)
 	}
 
 	// consider as equal to the greater version if round
