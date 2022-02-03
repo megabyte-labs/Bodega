@@ -6,7 +6,7 @@
   </center>
 </div>
 <div align="center">
-  <center><h1 align="center"><i></i>Bodega - An Invaluable Task Runner<i></i></h1></center>
+  <center><h1 align="center"><i></i>Bodega - An Invaluable Task Runner Known<i></i></h1></center>
   <center><h4 style="color: #18c3d1;"><i></i><a href="https://megabyte.space" target="_blank">Megabyte Labs</a></h4><i></i></center>
 </div>
 
@@ -29,8 +29,8 @@
 </div>
 <br/>
 <div align="center">
-  <a title="Version: 3.0.0" href="https://github.com/ProfessorManhattan/Bodega" target="_blank">
-    <img alt="Version: 3.0.0" src="https://img.shields.io/badge/version-3.0.0-blue.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgAQMAAABJtOi3AAAABlBMVEUAAAD///+l2Z/dAAAAAXRSTlMAQObYZgAAACNJREFUCNdjIACY//+BEp9hhM3hAzYQwoBIAqEDYQrCZLwAAGlFKxU1nF9cAAAAAElFTkSuQmCC&cacheSeconds=2592000&style=flat-square" />
+  <a title="Version: 3.9.3" href="https://github.com/ProfessorManhattan/Bodega" target="_blank">
+    <img alt="Version: 3.9.3" src="https://img.shields.io/badge/version-3.9.3-blue.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgAQMAAABJtOi3AAAABlBMVEUAAAD///+l2Z/dAAAAAXRSTlMAQObYZgAAACNJREFUCNdjIACY//+BEp9hhM3hAzYQwoBIAqEDYQrCZLwAAGlFKxU1nF9cAAAAAElFTkSuQmCC&cacheSeconds=2592000&style=flat-square" />
   </a>
   <a title="Go version: goVersion" href="https://github.com/ProfessorManhattan/Bodega/blob/master/go.mod" target="_blank">
     <img alt="Go version: goVersion" src="https://img.shields.io/github/go-mod/go-version/profile.github}}/{{slug?logo=go&logoColor=white&style=flat-square">
