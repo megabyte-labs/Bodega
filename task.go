@@ -3,6 +3,7 @@ package task
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -649,11 +650,21 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 			options  []string
 			selected string
 			// Used to represent a set to store unique options
-			optionsMap = make(map[string]struct{}, len(t.Prompt.Options))
+			optionsMap = make(map[string]struct{}, len(t.Prompt.Options.Values))
 		)
 
+		if t.Prompt.Options.JsonArr != "" {
+			var choices []string
+			if err := json.Unmarshal([]byte(t.Prompt.Options.JsonArr), &choices); err == nil {
+				for _, c := range choices {
+					t.Prompt.Options.Values = append(t.Prompt.Options.Values, taskfile.ValueType{Value: c})
+				}
+			}
+
+		}
+
 		// Parse `prompt` options
-		for _, option := range t.Prompt.Options {
+		for _, option := range t.Prompt.Options.Values {
 			if option.Value == "" && option.Msg != nil {
 				if option.Msg.Value != "" {
 					option.Value = option.Msg.Value
@@ -674,7 +685,7 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 				}
 			}
 			if _, ok := optionsMap[option.Value]; !ok {
-				optionsMap[option.Value] = true
+				optionsMap[option.Value] = struct{}{}
 				options = append(options, option.Value)
 			}
 		}

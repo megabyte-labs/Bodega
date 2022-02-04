@@ -10,15 +10,20 @@ type MsgType struct {
 	Sh    string
 }
 
+type Options struct {
+	// Parse options from this json array string
+	JsonArr string
+	Values  []ValueType
+}
+
 type Prompt struct {
 	Type     string
 	Message  string
-	Options  []*ValueType
+	Options  Options
 	Validate *MsgType
 	Answer   *Task
 }
 
-// UnmarshalYAML implements yaml.Unmarshaler interface.
 func (m *MsgType) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var cmd string
 
@@ -41,7 +46,6 @@ func (m *MsgType) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
-// UnmarshalYAML implements yaml.Unmarshaler interface.
 func (v *ValueType) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var cmd string
 
@@ -66,18 +70,31 @@ func (v *ValueType) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
-// UnmarshalYAML implements yaml.Unmarshaler interface.
-func (p *Prompt) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	var cmd string
+// UnmarshalYAML requires a pointer receiver even if the structure passed to
+// marshal is not a pointer
+func (o *Options) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
-	if err := unmarshal(&cmd); err == nil {
-		return nil
+	var jArr string
+	if err := unmarshal(&jArr); err == nil {
+		o.JsonArr = jArr
+		return err
 	}
+
+	var opts []ValueType
+	if err := unmarshal(&opts); err != nil {
+		return err
+	}
+
+	o.Values = opts
+	return nil
+}
+
+func (p *Prompt) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	var prompt struct {
 		Type     string
 		Message  string
-		Options  []*ValueType
+		Options  Options
 		Validate *MsgType
 		Answer   *Task
 	}

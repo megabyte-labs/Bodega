@@ -45,12 +45,6 @@ func (e *Executor) compiledTask(call taskfile.Call, evaluateShVars bool) (*taskf
 
 	r := templater.Templater{Vars: vars, RemoveNoValue: v >= 3.0}
 
-	/// TODO: improve this
-	replacePrompt := origTask.Prompt
-	if origTask.Prompt != nil && r.Vars.Mapping["ANSWER"].Static != "" {
-		replacePrompt.Validate.Sh = r.Replace(origTask.Prompt.Validate.Sh)
-	}
-
 	newT := taskfile.Task{
 		Task:        origTask.Task,
 		Alias:       origTask.Alias,
@@ -164,5 +158,17 @@ func (e *Executor) compiledTask(call taskfile.Call, evaluateShVars bool) (*taskf
 		newT.Status = r.ReplaceSlice(origTask.Status)
 	}
 
+	/// TODO: improve this; this is hard-coded
+	if origTask.Prompt != nil {
+		p := origTask.Prompt
+		if r.Vars.Mapping["ANSWER"].Static != "" {
+			p.Validate.Sh = r.Replace(p.Validate.Sh)
+		}
+		if p.Options.JsonArr != "" {
+			p.Options.JsonArr = r.Replace(p.Options.JsonArr)
+		}
+
+		newT.Prompt = p
+	}
 	return &newT, r.Err()
 }
