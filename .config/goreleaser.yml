@@ -104,7 +104,7 @@ env:
 gomod:
   env:
     - GORELEASER_CURRENT_TAG=v3.9.2
-  proxy: 'true'
+  proxy: true
 
 nfpms:
   - description: 'A gorgeous, feature-packed drop-in replacement for the go-task project'
