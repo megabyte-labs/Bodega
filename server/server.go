@@ -14,11 +14,10 @@ import (
 )
 
 // Implements a server with basic authentication and request rate
-// Limiting. Only supports websockets connection (wss:// only)
+// Limiting. Only supports websockets connection
 type BasicServer struct {
-	// Task's entry point. Since the request format is literally a command
-	// specified on the command-line, then this should suffice for now
-	TaskEntryPoint func(calledFromRepl bool)
+	// Base options inherited from task Executor
+	Entrypoint string
 }
 
 func (b *BasicServer) Start(useTLS bool) error {
@@ -42,7 +41,7 @@ func (b *BasicServer) Start(useTLS bool) error {
 		err = srv.ListenAndServe()
 	}
 	if err != nil {
-		log.Fatal("server error ", err)
+		log.Fatal("server error: ", err)
 		return err
 	}
 	return nil
@@ -59,7 +58,7 @@ func (b *BasicServer) startExecution(ctx context.Context, c *websocket.Conn) err
 		return err
 	}
 
-	if err := ParseAndRun(ctx, c, r); err != nil {
+	if err := ParseAndRun(ctx, c, r, b); err != nil {
 		return err
 	}
 

@@ -201,15 +201,6 @@ func start(calledFromRepl bool) {
 		return
 	}
 
-	if basicServer {
-		s := &server.BasicServer{TaskEntryPoint: start}
-		if err := s.Start(useTLS); err != nil {
-			log.Fatal("task: error running server: ", err)
-		}
-		return
-
-	}
-
 	if dir != "" && entrypoint != "" {
 		log.Fatal("task: You can't set both --dir and --taskfile")
 		return
@@ -219,6 +210,17 @@ func start(calledFromRepl bool) {
 		entrypoint = filepath.Base(entrypoint)
 	} else {
 		entrypoint = "Taskfile.yml"
+	}
+
+	if basicServer {
+		s := &server.BasicServer{
+			Entrypoint: entrypoint,
+		}
+		if err := s.Start(useTLS); err != nil {
+			log.Fatal("task: error running server: ", err)
+		}
+		return
+
 	}
 
 	e := task.Executor{

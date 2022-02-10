@@ -1,9 +1,9 @@
 package server
 
 import (
-	// "bufio"
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 
 	"log"
@@ -28,15 +28,91 @@ const (
 	// Summary is a command instead of an optional flag
 	SummaryCmd TaskCmd = "summary"
 	// Run runs a task
-	RunCmd TaskCmd = "run"
-        VersionCmd TaskCmd = "version"
+	RunCmd     TaskCmd = "run"
+	VersionCmd TaskCmd = "version"
 )
+
+type limitedWriter struct {
+	closed bool
+
+	c   *websocket.Conn
+	ctx context.Context
+	typ websocket.MessageType
+
+	b *bytes.Buffer
+
+	// Number of output lines to buffer and current lines written
+	nLines, n int
+}
+
+// Returns a writer that flushes output to the underlying websocket on n writes
+// Similar to a websocket writer: https://github.com/nhooyr/websocket/blob/3604edcb857415cb2c1213d63328cdcd738f2328/ws_js.go#L313
+// This is essentially the websocket writer with modifications, so make sure you close it
+func NewLimitedWriter(ctx context.Context, c *websocket.Conn, typ websocket.MessageType) (limitedWriter, error) {
+	return limitedWriter{
+		c:   c,
+		ctx: ctx,
+		typ: typ,
+
+		b: getBuf(),
+
+		n: 0,
+		// TODO: Hard-coded for now
+		nLines: 3,
+	}, nil
+}
+
+// Write implements the io.Writer interface
+func (lw *limitedWriter) Write(p []byte) (int, error) {
+	// fmt.Printf("woah calling Write: %s\n", p)
+	if lw.closed {
+		return 0, errors.New("cannot write to closed writer")
+	}
+
+	if lw.n >= lw.nLines {
+		fmt.Println("flushing output to websocket")
+		if err := lw.Flush(); err != nil {
+			return 0, err
+		}
+	}
+	fmt.Printf("n: %d content: %s\n", lw.n, lw.b.Bytes())
+	lw.n += 1
+	return lw.b.Write(p)
+}
+
+// Flush the output to the underlying websocket without closing it
+func (lw *limitedWriter) Flush() error {
+	lw.n = 0
+	err := lw.c.Write(lw.ctx, lw.typ, lw.b.Bytes())
+	if err != nil {
+		return fmt.Errorf("failed to flush output to websocket: %w", err)
+	}
+	lw.b.Reset()
+	return nil
+}
+
+// FlushClose Closes the writer and flushes any output beforehand
+// I avoided naming it Close() as this implementes the io.Closer interface
+// and apparently Task calls FlushClose for unknown reasons after each command execution
+func (lw *limitedWriter) FlushClose() error {
+	log.Println("calling close!!")
+	if lw.closed {
+		return errors.New("cannot close closed writer")
+	}
+	lw.closed = true
+	defer putBuf(lw.b)
+
+	if err := lw.Flush(); err != nil {
+		return fmt.Errorf("failed to close writer: %w", err)
+	}
+	return nil
+}
 
 // Options matching the command-line
 type TaskOpts struct {
-	Force   bool `json:"force"`
-	Silent  bool `json:"silent"`
-        // TODO: update me to be an int
+	Force  bool `json:"force"`
+	Silent bool `json:"silent"`
+	// TODO: update me to be an int
 	Verbose bool `json:"verbose"`
 }
 
@@ -55,32 +131,33 @@ type taskNameAndDesc struct {
 	Name string `json:"name"`
 	Desc string `json:"desc"`
 }
+
 type ListResp struct {
 	Tasks []taskNameAndDesc
 }
 
 // Parses input request and runs the given command
-func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq) error {
+func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq, s *BasicServer) error {
 
 	var (
-		stdout bytes.Buffer
-		// To be used later
-		stdin bytes.Buffer
+		// TODO: To be used later
+		stdin, stdout bytes.Buffer
 	)
 
 	e := task.Executor{
+		// Request options
 		Force:   r.Options.Force,
 		Verbose: r.Options.Verbose,
 		Silent:  r.Options.Silent,
 		Summary: r.Command == SummaryCmd,
 		Color:   false,
 
+		// Task "Server" options
+		Entrypoint: s.Entrypoint,
+
 		Stdin:  &stdin,
 		Stdout: &stdout,
 		Stderr: &stdout,
-		// Stdin: os.Stdin,
-		// Stdout: os.Stdout,
-		// Stderr: os.Stderr,
 	}
 
 	if err := e.Setup(); err != nil {
@@ -98,17 +175,30 @@ func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq) error {
 		}
 
 	case RunCmd:
+		// limitedBufferedStdout is a buffered writer over the websocket writer
+		// TODO: defer flussing output lines
+		limitedBufferedStdout, err := NewLimitedWriter(ctx, c, websocket.MessageText)
+		if err != nil {
+			return fmt.Errorf("failed to initialize limitedWriter: %w", err)
+		}
+		e.Stdout = &limitedBufferedStdout
+		e.Stderr = &limitedBufferedStdout
+		fmt.Printf("stdout and stderr: %#v\n", e.Stderr)
+
+		// defer limitedBufferedStdout.Close()
+		defer func() {
+			fmt.Println("closing limitedWriter")
+			if err := limitedBufferedStdout.FlushClose(); err != nil {
+				log.Println("failed to close websocket custom writer: ", err)
+			}
+		}()
+
 		// TODO: stream output tasks
 		if err := runTasks(ctx, &e, r); err != nil {
 			log.Println(err)
 			return err
 
 		}
-
-		// w, err := c.Writer(ctx, websocket.MessageText)
-		// if err != nil {
-		// 	return err
-		// }
 
 		// fmt.Println("here we go")
 		// b, err := ioutil.ReadAll(bytes.NewReader(stdout.Bytes()))
@@ -125,10 +215,10 @@ func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq) error {
 		// if err := w.Close(); err != nil {
 		// 	return err
 		// }
-		if err := c.Write(ctx, websocket.MessageText, stdout.Bytes()); err != nil {
-			log.Println(err)
-			return err
-		}
+		// if err := c.Write(ctx, websocket.MessageText, stdout.Bytes()); err != nil {
+		// 	log.Println(err)
+		// 	return err
+		// }
 
 	case SummaryCmd, VersionCmd:
 		// summary command
@@ -144,6 +234,7 @@ func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq) error {
 		log.Println("command is not supported: ", r.Command)
 	}
 
+	fmt.Println("exiting...")
 	return nil
 }
 
