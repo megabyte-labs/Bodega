@@ -125,7 +125,7 @@
   "goBinary": {
     "name": "task",
     "path": "./bin",
-    "url": "https://github.com/ProfessorManhattan/Bodega/releases/download/v3.9.3/Bodega-version-platform-arch.tar.gz"
+    "url": "https://github.com/ProfessorManhattan/Bodega/releases/download/v3.9.4/Bodega-version-platform-arch.tar.gz"
   },
   "lint-staged": {
     "**/!(logo).(jpg|png)": [
