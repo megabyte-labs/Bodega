@@ -39,6 +39,7 @@
     "@washingtondc/development": "latest",
     "cz-emoji-conventional": "^1.0.1",
     "eslint-config-strict-mode": "latest",
+    "glob": "^7.2.0",
     "handlebars-helpers": "^0.10.0",
     "prettier-config-sexy-mode": "latest",
     "semantic-release-config": "latest"
@@ -59,6 +60,7 @@
     "node": ">=14.18.0"
   },
   "publishConfig": {
+    "@megabyte:registry": "https://gitlab.com/api/v4/projects/28755315/packages/npm/",
     "access": "public"
   },
   "blueprint": {
@@ -123,7 +125,7 @@
   "goBinary": {
     "name": "task",
     "path": "./bin",
-    "url": "https://github.com/ProfessorManhattan/Bodega/releases/download/v3.9.3/Bodega-3.9.3--.tar.gz"
+    "url": "https://github.com/ProfessorManhattan/Bodega/releases/download/v3.9.3/Bodega-version-platform-arch.tar.gz"
   },
   "lint-staged": {
     "**/!(logo).(jpg|png)": [
@@ -163,12 +165,12 @@
   },
   "ntl": {
     "descriptions": {
-      "build": "Builds the project, if needed",
+      "build": "Builds the project using the build command specified under scripts in package.json",
       "help": "Display the Bodega Taskfile.yml interactive help menu",
-      "prepare": "Hook, triggered by running npm install, that runs logic such as installing pre-commit hooks",
+      "prepare": "A hook triggered by running npm install that runs logic such as installing pre-commit hooks",
       "repair": "Fixes basic issues in projects that are having trouble running basic commands like 'task start'",
       "start": "Entrypoint for new developers that installs requirements and then runs 'task start'",
-      "test": "Runs the appropriate test logic"
+      "test": "Runs the appropriate test logic by running the test command defined under scripts in package.json"
     }
   },
   "prettier": "prettier-config-sexy-mode",
