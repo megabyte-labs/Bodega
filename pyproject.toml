@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bodega"
-version = "3.9.3"
+version = "3.9.4"
 description = "A gorgeous, feature-packed drop-in replacement for the go-task project"
 authors = ["Brian Zalewski <brian@megabyte.space>"]
 license = "MIT"
