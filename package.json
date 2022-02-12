@@ -14,17 +14,18 @@
     "email": "help@megabyte.space",
     "url": "https://gitlab.com/megabyte-labs/go/cli/bodega/-/issues"
   },
-  "type": "module",
+  "type": "commonjs",
+  "files": [],
   "scripts": {
     "build": "task go:build",
     "bump": "npm run build && npm version patch --no-commit-hooks --no-git-tag-version --force && npm publish",
     "help": "task --menu",
-    "postinstall": "go-npm install",
+    "postinstall": "go-npm install || true",
     "prepare": "task common:husky",
     "repair": "bash <(curl -sS https://install.doctor/repair)",
     "start": "bash start.sh",
     "test": "task go:test",
-    "preuninstall": "go-npm uninstall"
+    "preuninstall": "go-npm uninstall || true"
   },
   "config": {
     "commitizen": {
