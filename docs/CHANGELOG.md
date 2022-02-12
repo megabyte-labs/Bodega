@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. In order to maintain         this file through automation, all commits to this repository must adhere to the guidelines laid out by         [Conventional Commits](https://conventionalcommits.org) and the         [Megabyte Labs Commit Guide](https://megabyte.space/docs/contributing/commits).
 
+# [3.10.0](https://gitlab.com/megabyte-labs/go/cli/bodega/compare/v3.9.4...v3.10.0) (2022-02-12)
+
+
+### ✨ Features
+
+* **testing**: testing Semantic Release ([494b133](https://gitlab.com/megabyte-labs/go/cli/bodega/commit/494b133))
+
 ## [3.9.4](https://gitlab.com/megabyte-labs/go/cli/bodega/compare/v3.9.3...v3.9.4) (2022-02-10)
 
 
