@@ -49,6 +49,7 @@
       }
     }
   ],
+  "goBinarySystemInfo": "{{platform}}-{{arch}}",
   "gomodProxy": true,
   "group": "common",
   "homebrew": {
