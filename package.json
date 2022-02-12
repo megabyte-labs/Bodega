@@ -19,12 +19,12 @@
     "build": "task go:build",
     "bump": "npm run build && npm version patch --no-commit-hooks --no-git-tag-version --force && npm publish",
     "help": "task --menu",
-    "postinstall": "go-npm install",
+    "postinstall": "go-npm install || true",
     "prepare": "task common:husky",
     "repair": "bash <(curl -sS https://install.doctor/repair)",
     "start": "bash start.sh",
     "test": "task go:test",
-    "preuninstall": "go-npm uninstall"
+    "preuninstall": "go-npm uninstall || true"
   },
   "config": {
     "commitizen": {
@@ -127,7 +127,7 @@
   "goBinary": {
     "name": "task",
     "path": "./bin",
-    "url": "https://github.com/ProfessorManhattan/Bodega/releases/download/v3.9.4/Bodega-version-platform-arch.tar.gz"
+    "url": "https://github.com/ProfessorManhattan/Bodega/releases/download/v3.9.4/Bodega-3.9.4-{{platform}}-{{arch}}.tar.gz"
   },
   "lint-staged": {
     "**/!(logo).(jpg|png)": [
