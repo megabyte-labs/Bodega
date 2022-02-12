@@ -83,6 +83,8 @@ build:
 checksum:
   name_template: CHECKSUMS.txt
 
+dist: build
+
 dockers:
   - build_flag_templates:
       - --platform=linux/amd64
