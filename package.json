@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "go-bodega",
-  "version": "3.10.0",
+  "version": "3.11.0",
   "description": "A gorgeous, feature-packed drop-in replacement for the go-task project",
   "license": "MIT",
   "author": "Brian Zalewski <brian@megabyte.space> (https://megabyte.space)",
@@ -14,7 +14,7 @@
     "email": "help@megabyte.space",
     "url": "https://gitlab.com/megabyte-labs/go/cli/bodega/-/issues"
   },
-  "type": "commonjs",
+  "type": "module",
   "files": [],
   "scripts": {
     "build": "task go:build",
@@ -128,7 +128,7 @@
   "goBinary": {
     "name": "task",
     "path": "./bin",
-    "url": "https://github.com/ProfessorManhattan/Bodega/releases/download/v3.10.0/Bodega-3.10.0-{{platform}}-{{arch}}.tar.gz"
+    "url": "https://github.com/ProfessorManhattan/Bodega/releases/download/v3.11.0/Bodega-3.11.0-{{platform}}-{{arch}}.tar.gz"
   },
   "lint-staged": {
     "**/!(logo).(jpg|png)": [
