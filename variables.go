@@ -66,7 +66,6 @@ func (e *Executor) compiledTask(call taskfile.Call, evaluateShVars bool) (*taskf
 		IgnoreError:   origTask.IgnoreError,
 		Run:           r.Replace(origTask.Run),
 		Hide:          r.Replace(origTask.Hide),
-		Prompt:        replacePrompt,
 		ShellRc:       r.Replace(origTask.ShellRc),
 		RunOnceSystem: origTask.RunOnceSystem,
 	}
@@ -140,7 +139,7 @@ func (e *Executor) compiledTask(call taskfile.Call, evaluateShVars bool) (*taskf
 	}
 
 	if origTask.LogMsg != nil {
-		new.LogMsg = &taskfile.LogMsg{
+		newT.LogMsg = &taskfile.LogMsg{
 			Start:   r.Replace(origTask.LogMsg.Start),
 			Error:   origTask.LogMsg.Error,
 			Success: r.Replace(origTask.LogMsg.Success),
@@ -148,6 +147,7 @@ func (e *Executor) compiledTask(call taskfile.Call, evaluateShVars bool) (*taskf
 	}
 
 	if len(origTask.Status) > 0 {
+		// Evaluate the live variables {{.CHECKSUM}} and {{.TIMESTAMP}}
 		for _, checker := range []status.Checker{e.timestampChecker(&newT), e.checksumChecker(&newT)} {
 			value, err := checker.Value()
 			if err != nil {

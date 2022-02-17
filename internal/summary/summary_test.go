@@ -30,9 +30,10 @@ func TestPrintsDependenciesIfPresent(t *testing.T) {
 func createDummyLogger() (*bytes.Buffer, logger.Logger) {
 	buffer := &bytes.Buffer{}
 	l := logger.Logger{
-		Stderr:  buffer,
-		Stdout:  buffer,
-		Verbose: false,
+		Stderr: buffer,
+		Stdout: buffer,
+		// TODO: verbosityLevelNone
+		Verbose: 0,
 	}
 	return buffer, l
 }

@@ -26,7 +26,7 @@ var (
 	version = ""
 )
 
-const usage = `Usage: task [-ilfwvsdm] [--init] [--list] [--force] [--watch] [--verbose] [--silent] [--dir] [--taskfile] [--dry] [--menu] [--debug] [--summary] [task...]
+const usage = `Usage: task [-ilfwvsdm] [--init] [--list] [--force] [--watch] [--verbose] [--silent] [--dir] [--taskfile] [--dry] [--menu] [--summary] [--debug] [task...]
 
 Runs the specified task(s). Runs a built-in shell if no task name
 was specified, or lists all tasks if an unknown task name was specified.
@@ -243,14 +243,6 @@ func start(calledFromRepl bool) {
 			aliasesMap[task.Alias] = task.Task
 		}
 	}
-	if list {
-		if e.FancyLogger != nil {
-			e.FancyPrintTasksHelp()
-		} else {
-			e.PrintTasksHelp()
-		}
-		return
-	}
 
 	if debug {
 		// A hack to make HandleDynamicVar stop before command execution
@@ -297,15 +289,19 @@ func start(calledFromRepl bool) {
 	}
 
 	if menu {
-
-		// TODO: run normal listing within REPL
+		// --menu should not work
+		if calledFromRepl {
+			if e.FancyLogger != nil {
+				e.FancyPrintTasksHelp()
+			}
+			return
+		}
 		if err := e.RunUI(ctx); err != nil {
-			fmt.Println("error running interface:", err)
+			fmt.Println("interface: ", err)
 		}
 		return
 	}
 	if list {
-		// TODO: do not forget fancy logger
 		e.PrintTasksHelp()
 		return
 	}

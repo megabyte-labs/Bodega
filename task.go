@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -145,7 +145,6 @@ func (e *Executor) RunUI(ctx context.Context) error {
 	if err := tea.NewProgram(model, tea.WithAltScreen()).Start(); err != nil {
 		return err
 	}
-	fmt.Println("quit from bubbletea")
 	deleteme := <-model.TChan
 	if err := f(taskfile.Call{Task: deleteme}); err != nil {
 		return err
@@ -349,17 +348,18 @@ func (e *Executor) Setup() error {
 
 // RunTask runs a task by its name
 func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
-	t := e.Taskfile.Tasks[call.Task]
-	if t.LogMsg != nil && t.LogMsg.Start != "" {
-		e.Logger.Outf(logger.Magenta, t.LogMsg.Start)
-	} else {
-		e.Logger.VerboseErrf(logger.Magenta, `task: "%s" started`, call.Task)
-	}
 	u := time.Now()
 	t, err := e.CompiledTask(call)
 	if err != nil {
 		return err
 	}
+
+	if t.LogMsg != nil && t.LogMsg.Start != "" {
+		e.Logger.Outf(logger.Magenta, t.LogMsg.Start)
+	} else {
+		e.Logger.VerboseErrf(logger.Magenta, `task: "%s" started`, call.Task)
+	}
+
 	if !e.Watch && atomic.AddInt32(e.taskCallCount[call.Task], 1) >= MaximumTaskCall {
 		return &MaximumTaskCallExceededError{task: call.Task}
 	}
@@ -368,8 +368,6 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 	defer release()
 
 	return e.startExecution(ctx, t, func(ctx context.Context) error {
-		e.Logger.VerboseErrf(logger.Magenta, `task: "%s" started`, call.Task)
-		e.Logger.VerboseErrf(logger.Magenta, `shell rc after CompiledTask: %s`, t.ShellRc)
 		if err := e.runDeps(ctx, t); err != nil {
 			return err
 		}
@@ -404,6 +402,7 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 			e.Logger.Errf(logger.Red, "task: cannot make directory %q: %v", t.Dir, err)
 		}
 
+		// NOTE: should prompts support shellRc ?
 		if t.Prompt != nil {
 			if err := e.runPrompt(ctx, t); err != nil {
 				e.Logger.Errf(logger.Red, "task: prompt execution failed: %v", err)
@@ -421,7 +420,7 @@ func (e *Executor) RunTask(ctx context.Context, call taskfile.Call) error {
 				Stdout:  e.Stdout, // TODO: support Prefix
 				Stderr:  e.Stderr,
 			}, nil)
-			if execext.IsExitError(err) {
+			if _, ok := execext.IsExitError(err); !ok {
 				e.Logger.VerboseErrf(logger.Yellow, "task: [%s] error executing initial script: %v", t.Name(), err)
 			}
 		}
@@ -597,7 +596,8 @@ func getEnviron(t *taskfile.Task) []string {
 	return environ
 }
 
-// Decide whether to run task t or not based on t.Run value
+// startExecution is a helper fucntion used inside Executor.RunTask to execute commands.
+// It decides whether to run task t or not based on t.Run value
 func (e *Executor) startExecution(ctx context.Context, t *taskfile.Task, execute func(ctx context.Context) error) error {
 	h, err := e.GetHash(t)
 	if err != nil {
@@ -677,13 +677,11 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 		}
 		// FIXME: do we have to compile the whole task ?
 		temp, _ := e.CompiledTask(taskfile.Call{Task: t.Task, Vars: t.Vars})
-
 		if temp.Prompt.Validate != nil {
-			err := execext.RunCommand(ctx, &execext.RunCommandOptions{
+			_, err := execext.RunCommand(ctx, &execext.RunCommandOptions{
 				Command: temp.Prompt.Validate.Sh,
 				Env:     getEnviron(t),
-			})
-
+			}, nil)
 			if err != nil {
 				return fmt.Errorf("validation failed: %v", err)
 			}
@@ -718,12 +716,12 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 				} else {
 					// Execute the command(s) within "sh:" field and capture the output
 					var out bytes.Buffer
-					err := execext.RunCommand(context.Background(), &execext.RunCommandOptions{
+					_, err := execext.RunCommand(context.Background(), &execext.RunCommandOptions{
 						Command: option.Msg.Sh,
 						Dir:     t.Dir,
 						Env:     getEnviron(t),
 						Stdout:  &out,
-					})
+					}, nil)
 					if err != nil {
 						e.Logger.VerboseOutf(logger.Yellow, "command %s at prompt %s exited abnormally: %v", option.Msg.Sh, t.Name(), err)
 						return err

@@ -41,7 +41,7 @@ type FancyLogger struct {
 	stdout io.Writer
 	stderr io.Writer
 	// TODO: Verbose should indicate with verbosity levels
-	Verbose bool
+	Verbose int
 	// TODO: keeping this for now although it's no use
 	Color   bool
 	glamour *glamour.TermRenderer
@@ -59,7 +59,7 @@ func NewFancyLogger() *FancyLogger {
 	return &FancyLogger{
 		stdout:  os.Stdout,
 		stderr:  os.Stderr,
-		Verbose: true,
+		Verbose: verbosityLevelInfo,
 		Color:   false,
 		glamour: fl,
 	}

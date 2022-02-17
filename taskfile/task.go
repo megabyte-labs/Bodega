@@ -6,8 +6,8 @@ type Tasks map[string]*Task
 // Task represents a task
 type Task struct {
 	Task          string
-	Alias         string
 	ShellRc       string
+	Alias         string
 	Cmds          []*Cmd
 	Deps          []*Dep
 	Label         string
@@ -27,9 +27,9 @@ type Task struct {
 	Prefix        string
 	IgnoreError   bool
 	Run           string
+	Prompt        *Prompt
 	// TODO: Hide should be bool but we want Go templates
-	Hide   string
-	Prompt *Prompt
+	Hide          string
 	RunOnceSystem bool
 }
 
@@ -75,8 +75,8 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Prefix        string
 		IgnoreError   bool `yaml:"ignore_error"`
 		Run           string
-		Hide          string
 		Prompt        *Prompt
+		Hide          string
 		RunOnceSystem bool `yaml:"run_once_system"`
 	}
 	if err := unmarshal(&task); err != nil {
@@ -103,8 +103,8 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	t.Prefix = task.Prefix
 	t.IgnoreError = task.IgnoreError
 	t.Run = task.Run
-	t.Hide = task.Hide
 	t.Prompt = task.Prompt
+	t.Hide = task.Hide
 	t.RunOnceSystem = task.RunOnceSystem
 	return nil
 }

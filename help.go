@@ -46,10 +46,14 @@ func (e *Executor) FancyPrintTasksHelp() {
 		return
 	}
 	w := new(strings.Builder)
-	w.WriteString("# Tasks\nTask | Description |\n-----|:-----------|\n")
+	w.WriteString("# Tasks\nTask|Alias| Description |\n-----|-----|:-----------|\n")
 
+	var isHidden bool
 	for _, task := range tasks {
-		fmt.Fprintf(w, "%s|%s|\n", task.Name(), task.Desc)
+		isHidden, _ = strconv.ParseBool(strings.TrimSpace(task.Hide))
+		if !isHidden {
+			fmt.Fprintf(w, "%s|%s|%s|\n", task.Name(), task.Alias, task.Desc)
+		}
 	}
 	e.FancyLogger.Out(w.String())
 }

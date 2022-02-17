@@ -45,8 +45,13 @@ func (i taskItem) getAlias() string    { return i.alias }
 func (i taskItem) FilterValue() string { return i.name }
 
 // Both Title() and Description() are required for an item to work with DefaultDelegate
-func (i taskItem) Title() string       { return i.name }
 func (i taskItem) Description() string { return i.desc }
+func (i taskItem) Title() string {
+	if i.alias != "" {
+		return i.alias
+	}
+	return i.name
+}
 
 type tasksModel struct {
 	lst   list.Model
@@ -59,8 +64,7 @@ type tasksModel struct {
 func NewTasksModel(tasks []*taskfile.Task, c chan string) *tasksModel {
 	var items = make([]list.Item, 0, len(tasks))
 	for _, t := range tasks {
-		// TODO: add alias here after the alias feature branch ios merged
-		items = append(items, taskItem{name: t.Name(), alias: "", desc: t.Desc})
+		items = append(items, taskItem{name: t.Name(), alias: t.Alias, desc: t.Desc})
 	}
 
 	// TODO: custom delegate
