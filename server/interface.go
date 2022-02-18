@@ -30,6 +30,14 @@ const (
 	// Run runs a task
 	RunCmd     TaskCmd = "run"
 	VersionCmd TaskCmd = "version"
+
+	// Number of output lines to respond with
+	defaultNlines int = 5
+)
+
+var (
+	errClosingWriter error = errors.New("cannot close closed writer")
+	errClosedWriter  error = errors.New("cannot write to closed writer")
 )
 
 type limitedWriter struct {
@@ -45,10 +53,13 @@ type limitedWriter struct {
 	nLines, n int
 }
 
-// Returns a writer that flushes output to the underlying websocket on n writes
+// Returns a writer that flushes output to the underlying websocket on nLines writes
 // Similar to a websocket writer: https://github.com/nhooyr/websocket/blob/3604edcb857415cb2c1213d63328cdcd738f2328/ws_js.go#L313
 // This is essentially the websocket writer with modifications, so make sure you close it
-func NewLimitedWriter(ctx context.Context, c *websocket.Conn, typ websocket.MessageType) (limitedWriter, error) {
+func NewLimitedWriter(ctx context.Context, c *websocket.Conn, typ websocket.MessageType, nLines int) (limitedWriter, error) {
+	if nLines == 0 {
+		nLines = defaultNlines
+	}
 	return limitedWriter{
 		c:   c,
 		ctx: ctx,
@@ -58,7 +69,7 @@ func NewLimitedWriter(ctx context.Context, c *websocket.Conn, typ websocket.Mess
 
 		n: 0,
 		// TODO: Hard-coded for now
-		nLines: 3,
+		nLines: nLines,
 	}, nil
 }
 
@@ -66,7 +77,7 @@ func NewLimitedWriter(ctx context.Context, c *websocket.Conn, typ websocket.Mess
 func (lw *limitedWriter) Write(p []byte) (int, error) {
 	// fmt.Printf("woah calling Write: %s\n", p)
 	if lw.closed {
-		return 0, errors.New("cannot write to closed writer")
+		return 0, errClosedWriter
 	}
 
 	if lw.n >= lw.nLines {
@@ -93,11 +104,11 @@ func (lw *limitedWriter) Flush() error {
 
 // FlushClose Closes the writer and flushes any output beforehand
 // I avoided naming it Close() as this implementes the io.Closer interface
-// and apparently Task calls FlushClose for unknown reasons after each command execution
+// and apparently Task calls Close() for unknown reasons after each command execution
 func (lw *limitedWriter) FlushClose() error {
 	log.Println("calling close!!")
 	if lw.closed {
-		return errors.New("cannot close closed writer")
+		return errClosingWriter
 	}
 	lw.closed = true
 	defer putBuf(lw.b)
@@ -114,6 +125,8 @@ type TaskOpts struct {
 	Silent bool `json:"silent"`
 	// TODO: update me to be an int
 	Verbose bool `json:"verbose"`
+	// Number of output lines to send back. Defaults to defaultNlines
+	NLines int `json:"nLines"`
 }
 
 // The base request structure
@@ -140,7 +153,7 @@ type ListResp struct {
 func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq, s *BasicServer) error {
 
 	var (
-		// TODO: To be used later
+		// TODO: stdin is to be used later
 		stdin, stdout bytes.Buffer
 	)
 
@@ -152,7 +165,7 @@ func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq, s *BasicServ
 		Summary: r.Command == SummaryCmd,
 		Color:   false,
 
-		// Task "Server" options
+		// Task "server" options, often passed at initial invocation as server
 		Entrypoint: s.Entrypoint,
 
 		Stdin:  &stdin,
@@ -167,7 +180,6 @@ func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq, s *BasicServ
 
 	switch r.Command {
 	case ListCmd:
-		// list command
 		t := listTasks(&e)
 		if err := wsjson.Write(ctx, c, t); err != nil {
 			log.Println(err)
@@ -176,8 +188,7 @@ func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq, s *BasicServ
 
 	case RunCmd:
 		// limitedBufferedStdout is a buffered writer over the websocket writer
-		// TODO: defer flussing output lines
-		limitedBufferedStdout, err := NewLimitedWriter(ctx, c, websocket.MessageText)
+		limitedBufferedStdout, err := NewLimitedWriter(ctx, c, websocket.MessageText, r.Options.NLines)
 		if err != nil {
 			return fmt.Errorf("failed to initialize limitedWriter: %w", err)
 		}
@@ -193,7 +204,6 @@ func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq, s *BasicServ
 			}
 		}()
 
-		// TODO: stream output tasks
 		if err := runTasks(ctx, &e, r); err != nil {
 			log.Println(err)
 			return err
