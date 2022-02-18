@@ -78,11 +78,21 @@ func (b *BasicServer) serveWS(w http.ResponseWriter, r *http.Request) {
 	defer c.Close(websocket.StatusInternalError, "internal error")
 
 	// l := rate.NewLimiter(rate.Every(time.Millisecond*100), 10)
+	log.Printf("new connection %v\n", r.RemoteAddr)
 	for {
 		err = b.startExecution(r.Context(), c)
-		if websocket.CloseStatus(err) == websocket.StatusNormalClosure {
+
+		switch websocket.CloseStatus(err) {
+		case websocket.StatusNormalClosure:
 			return
+		case statusTaskSuccess:
+			c.Close(statusTaskSuccess, "task exited successfully")
+			return
+		case statusTaskFailure:
+			c.Close(statusTaskFailure, "running task failed")
+			// Do not exit before the error is printed
 		}
+
 		if err != nil {
 			log.Printf("host %v request errored: %v", r.RemoteAddr, err)
 			return

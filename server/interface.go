@@ -1,3 +1,6 @@
+// Defines and implements the interface with the task package.
+// It is similar to the command-line interface defined in
+// task package
 package server
 
 import (
@@ -15,10 +18,6 @@ import (
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
 )
-
-// Defines and implements the interface with the task package.
-// It is similar to the command-line interface defined in
-// task package
 
 type TaskCmd string
 
@@ -38,6 +37,12 @@ const (
 var (
 	errClosingWriter error = errors.New("cannot close closed writer")
 	errClosedWriter  error = errors.New("cannot write to closed writer")
+
+	// statusTaskSuccess is sent when task execution is finished.
+	// Handy for long running tasks whose outputs are often transmitted late in time
+	// Status codes from 3000 to 3999 are application specific
+	statusTaskSuccess websocket.StatusCode = 3001
+	statusTaskFailure websocket.StatusCode = 3002
 )
 
 type limitedWriter struct {
@@ -194,41 +199,21 @@ func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq, s *BasicServ
 		}
 		e.Stdout = &limitedBufferedStdout
 		e.Stderr = &limitedBufferedStdout
-		fmt.Printf("stdout and stderr: %#v\n", e.Stderr)
 
 		// defer limitedBufferedStdout.Close()
 		defer func() {
 			fmt.Println("closing limitedWriter")
-			if err := limitedBufferedStdout.FlushClose(); err != nil {
-				log.Println("failed to close websocket custom writer: ", err)
+			if errClosure := limitedBufferedStdout.FlushClose(); errClosure != nil {
+				log.Println("failed to close websocket custom writer: ", errClosure)
 			}
 		}()
 
 		if err := runTasks(ctx, &e, r); err != nil {
 			log.Println(err)
-			return err
-
+			return websocket.CloseError{Code: statusTaskFailure, Reason: err.Error()}
 		}
-
-		// fmt.Println("here we go")
-		// b, err := ioutil.ReadAll(bytes.NewReader(stdout.Bytes()))
-		// if err != nil {
-		// 	fmt.Printf("err %v", err)
-		//
-		// }
-		// fmt.Printf("%s", b)
-		// _, err = io.Copy(w, bufio.NewReader(&stdout))
-		// if err != nil {
-		// 	return fmt.Errorf("failed to copy buffers: %w", err)
-		// }
-		//
-		// if err := w.Close(); err != nil {
-		// 	return err
-		// }
-		// if err := c.Write(ctx, websocket.MessageText, stdout.Bytes()); err != nil {
-		// 	log.Println(err)
-		// 	return err
-		// }
+		// TODO: Hack
+		return websocket.CloseError{Code: statusTaskSuccess}
 
 	case SummaryCmd, VersionCmd:
 		// summary command
