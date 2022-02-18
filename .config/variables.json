@@ -50,6 +50,7 @@
     }
   ],
   "goBinarySystemInfo": "{{platform}}-{{arch}}",
+  "goVetFlags": "",
   "gomodProxy": true,
   "group": "common",
   "homebrew": {
