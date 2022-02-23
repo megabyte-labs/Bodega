@@ -135,7 +135,7 @@ tasks:
         sh: |
           TASK_GROUP="$(yq e '.vars.REPOSITORY_TYPE' Taskfile.yml)"
           if [ "$TASK_GROUP" == 'null' ]; then
-            PKG_GROUP="$(jq -r '.blueprint.group' package.json"
+            PKG_GROUP="$(jq -r '.blueprint.group' package.json)"
             if [ "$PKG_GROUP" == 'null' ]; then
               echo 'generic'
             else
