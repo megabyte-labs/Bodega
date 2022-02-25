@@ -111,7 +111,6 @@ func (lw *limitedWriter) Flush() error {
 // I avoided naming it Close() as this implementes the io.Closer interface
 // and apparently Task calls Close() for unknown reasons after each command execution
 func (lw *limitedWriter) FlushClose() error {
-	log.Println("calling close!!")
 	if lw.closed {
 		return errClosingWriter
 	}
@@ -126,10 +125,9 @@ func (lw *limitedWriter) FlushClose() error {
 
 // Options matching the command-line
 type TaskOpts struct {
-	Force  bool `json:"force"`
-	Silent bool `json:"silent"`
-	// TODO: update me to be an int
-	Verbose bool `json:"verbose"`
+	Force   bool `json:"force"`
+	Silent  bool `json:"silent"`
+	Verbose int  `json:"verbose"`
 	// Number of output lines to send back. Defaults to defaultNlines
 	NLines int `json:"nLines"`
 }
@@ -168,7 +166,8 @@ func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq, s *BasicServ
 		Verbose: r.Options.Verbose,
 		Silent:  r.Options.Silent,
 		Summary: r.Command == SummaryCmd,
-		Color:   false,
+		// Parallel: true,
+		Color: false,
 
 		// Task "server" options, often passed at initial invocation as server
 		Entrypoint: s.Entrypoint,
@@ -202,7 +201,6 @@ func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq, s *BasicServ
 
 		// defer limitedBufferedStdout.Close()
 		defer func() {
-			fmt.Println("closing limitedWriter")
 			if errClosure := limitedBufferedStdout.FlushClose(); errClosure != nil {
 				log.Println("failed to close websocket custom writer: ", errClosure)
 			}
@@ -229,7 +227,6 @@ func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq, s *BasicServ
 		log.Println("command is not supported: ", r.Command)
 	}
 
-	fmt.Println("exiting...")
 	return nil
 }
 
