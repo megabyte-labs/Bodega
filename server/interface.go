@@ -73,7 +73,6 @@ func NewLimitedWriter(ctx context.Context, c *websocket.Conn, typ websocket.Mess
 		b: getBuf(),
 
 		n: 0,
-		// TODO: Hard-coded for now
 		nLines: nLines,
 	}, nil
 }
@@ -86,18 +85,18 @@ func (lw *limitedWriter) Write(p []byte) (int, error) {
 	}
 
 	if lw.n >= lw.nLines {
-		fmt.Println("flushing output to websocket")
 		if err := lw.Flush(); err != nil {
 			return 0, err
 		}
 	}
-	fmt.Printf("n: %d content: %s\n", lw.n, lw.b.Bytes())
 	lw.n += 1
 	return lw.b.Write(p)
 }
 
 // Flush the output to the underlying websocket without closing it
 func (lw *limitedWriter) Flush() error {
+	log.Println("flushing output to websocket")
+	// fmt.Printf("n: %d content: %s\n", lw.n, lw.b.Bytes())
 	lw.n = 0
 	err := lw.c.Write(lw.ctx, lw.typ, lw.b.Bytes())
 	if err != nil {
@@ -197,7 +196,9 @@ func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq, s *BasicServ
 			return fmt.Errorf("failed to initialize limitedWriter: %w", err)
 		}
 		e.Stdout = &limitedBufferedStdout
+		e.Logger.Stdout = &limitedBufferedStdout
 		e.Stderr = &limitedBufferedStdout
+		e.Logger.Stderr = &limitedBufferedStdout
 
 		// defer limitedBufferedStdout.Close()
 		defer func() {
