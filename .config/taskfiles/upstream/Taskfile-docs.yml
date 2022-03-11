@@ -55,13 +55,18 @@ tasks:
       - rm -rf {{.SHARED_FOLDER}}/.git
 
   copy:
+    deps:
+      - :install:software:yq
     log:
       error: Error encountered in copy sequence
       start: Beginning copy sequence
       success: Completed copy sequence
     cmds:
-      - rm -rf .config
+      - mv .gitlab-ci.yml old.gitlab-ci.yml
       - task: copy:before
+      - |
+        yq eval-all -i 'select(fileIndex == 0) * select(fileIndex == 1)' old.gitlab-ci.yml .gitlab-ci.yml
+        mv old.gitlab-ci.yml .gitlab-ci.yml
       - cp {{.SHARED_FOLDER}}/.gitlab-ci.yml .gitlab-ci.yml
 
   copy:before:

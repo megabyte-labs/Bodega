@@ -2,6 +2,7 @@
 version: '3'
 
 vars:
+  DEVCONTAINER_CONFIG: .devcontainer/devcontainer.json
   EXTENSIONS_FILE: .vscode/extensions.json
   EXTENSIONS_URL: https://gitlab.com/megabyte-labs/gas-station/-/raw/master/environments/prod/group_vars/desktop/vscode-extensions.yml
   TASKS_FILE: .vscode/tasks.json
@@ -13,16 +14,16 @@ tasks:
       - :install:software:jq
       - :install:software:yq
     summary: |
-      # Generates the `.vscode/extensions.json` file for VS Code auto plugin recommendations
+      # Generates the `{{.EXTENSIONS_FILE}}` file for VS Code auto plugin recommendations
 
-      This task generates the `.vscode/extensions.json` file which is used to automatically have
+      This task generates the `{{.EXTENSIONS_FILE}}` file which is used to automatically have
       VS Code show a popup with a link that leads to a list of plugins that the project recommends.
       This list is populated by converting the list of VS Code plugins installed by default by
       [Gas Station](https://gitlab.com/megabyte-labs/gas-station) into VS Code syntax.
     log:
-      error: Failed to generate `.vscode/extensions.json`
-      start: Generating `.vscode/extensions.json`
-      success: Generated `.vscode/extensions.json`
+      error: Failed to generate `{{.EXTENSIONS_FILE}}`
+      start: Generating `{{.EXTENSIONS_FILE}}`
+      success: Generated `{{.EXTENSIONS_FILE}}`
     cmds:
       - mkdir -p .vscode
       - |
@@ -33,13 +34,38 @@ tasks:
         TMP_JQ="$(mktemp)"
         jq -cRrs 'split("\n") | "{ \"recommendations\": \(.) }"' < "$TMP_YQ" > "$TMP_JQ"
         sed 's/,""//' < "$TMP_JQ" > '{{.EXTENSIONS_FILE}}'
+      - task: :fix:prettier
+        vars:
+          CLI_ARGS: '{{.EXTENSIONS_FILE}}'
+
+  extensions:devcontainer:
+    deps:
+      - :install:npm:prettier
+      - :install:software:jq
+    summary: |
+      # Inject `devcontainer.json` with Extensions
+
+      This task synchronizes the extensions from `.vscode/extensions.json` into the
+      `.devcontainer/devcontainer.json` extensions field.
+    log:
+      error: Failed to inject `{{.EXTENSIONS_FILE}}` `recommendations` into `{{.DEVCONTAINER_CONFIG}}`
+      start: Injecting `{{.EXTENSIONS_FILE}}` `recommendations` into `{{.DEVCONTAINER_CONFIG}}`
+      success: Successfully injected `{{.EXTENSIONS_FILE}}` `recommendations` into `{{.DEVCONTAINER_CONFIG}}`
+    cmds:
       - |
-        {{.NPX_HANDLE}}prettier --write '{{.EXTENSIONS_FILE}}' > /dev/null
+        TMP="$(mktemp)"
+        jq --arg recommendations "$(jq '.recommendations' {{.EXTENSIONS_FILE}})" '.extensions = ($recommendations | fromjson)' {{.DEVCONTAINER_CONFIG}} > "$TMP"
+        mv "$TMP" {{.DEVCONTAINER_CONFIG}}
+      - task: :fix:prettier
+        vars:
+          CLI_ARGS: '{{.DEVCONTAINER_CONFIG}}'
 
   generate:
     deps:
       - extensions
       - tasks
+    cmds:
+      - task: extensions:devcontainer
 
   tasks:
     deps:
@@ -56,9 +82,9 @@ tasks:
       can potentially leverage to make our `tasks.json` better and more useful to developers.
     run: when_changed
     log:
-      error: Failed to generate `.vscode/extensions.json`
+      error: Failed to generate `{{.EXTENSIONS_FILE}}`
       start: Generating `.vscode/tasks.json`
-      success: Generated `.vscode/extensions.json`
+      success: Generated `{{.EXTENSIONS_FILE}}`
     cmds:
       - |
         TMP="$(mktemp)"
@@ -75,5 +101,6 @@ tasks:
           fi
         done <<< "$(task --list)"
         jq --arg tasks "${TASKS%?}]" '.tasks = ($tasks | fromjson)' "$TMP" > '{{.TASKS_FILE}}'
-      - |
-        {{.NPX_HANDLE}}prettier --write '{{.TASKS_FILE}}' > /dev/null
+      - task: :fix:prettier
+        vars:
+          CLI_ARGS: '{{.TASKS_FILE}}'

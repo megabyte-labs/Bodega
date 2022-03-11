@@ -5,17 +5,14 @@ stages:
   - test
   - lsif
   - publish
-
 variables:
   PIP_CACHE_DIR: '${CI_PROJECT_DIR}/.cache/pip'
-
 cache:
   key: '${CI_JOB_NAME}'
   paths:
     - .cache/pip
     - .pnpm-store
     - .venv
-
 include:
   - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/lint/eslint.gitlab-ci.yml
   - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/lint/prettier.gitlab-ci.yml

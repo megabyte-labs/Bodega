@@ -26,6 +26,15 @@ tasks:
     status:
       - type allure > /dev/null
 
+  ansifilter:
+    run: once
+    cmds:
+      - task: brew:formulae
+        vars:
+          FORMULAE: ansifilter
+    status:
+      - type ansifilter > /dev/null
+
   brew:
     run: once
     log:
@@ -36,7 +45,7 @@ tasks:
       - task: common
       - task: brew:{{OS}}
     status:
-      - type brew > /dev/null
+      - type brew > /dev/null || [ -n "$NO_INSTALL_HOMEBREW" ]
 
   brew:cask:
     run: when_changed
@@ -54,7 +63,7 @@ tasks:
     cmds:
       - |
         if ! type brew &> /dev/null; then
-          if sudo -n bash; then
+          if type sudo &> /dev/null && sudo -n true; then
             echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
           else
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -77,7 +86,7 @@ tasks:
       - task: brew
       - brew install {{.FORMULAE}}
     status:
-      - type {{.FORMULAE}} &> /dev/null
+      - type {{.FORMULAE}} &> /dev/null || [ -n "$NO_INSTALL_HOMEBREW" ]
 
   brew:linux:
     run: once
@@ -89,7 +98,7 @@ tasks:
           fi
         }
         if ! type brew &> /dev/null; then
-          if sudo -n bash; then
+          if type sudo &> /dev/null && sudo -n bash; then
             echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
           else
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -184,11 +193,12 @@ tasks:
       - |
         .config/log info 'Attempting to run `sudo pacman update` (for Homebrew dependencies)'
         sudo pacman update
-        .config/log info 'Attempting to run `sudo pacman -S base-devel curl file git procps-ng` (for Homebrew dependencies)'
-        sudo pacman -S base-devel curl file git procps-ng
+        .config/log info 'Attempting to run `sudo pacman -S base-devel curl file git gzip procps-ng` (for Homebrew dependencies)'
+        sudo pacman -S base-devel curl file git gzip procps-ng
     status:
       - type curl &> /dev/null
       - type git &> /dev/null
+      - type gzip &> /dev/null
       - ldconfig -p | grep base-devel
       - ldconfig -p | grep file
       - ldconfig -p | grep procps-ng
@@ -200,10 +210,11 @@ tasks:
         .config/log info 'Attempting to run `sudo apt-get -y update` (for Homebrew dependencies)'
         sudo apt-get -y update
         .config/log info 'Attempting to run `sudo apt-get install -y build-essential curl file git procps` (Homebrew dependencies)'
-        sudo apt-get install -y build-essential curl file git procps
+        sudo apt-get install -y build-essential curl file git gzip procps
     status:
       - type curl &> /dev/null
       - type git &> /dev/null
+      - type gzip &> /dev/null
       - dpkg-query -l build-essential &> /dev/null
       - dpkg-query -l file &> /dev/null
       - dpkg-query -l procps &> /dev/null
@@ -222,9 +233,9 @@ tasks:
           fi
           touch "$HOME/.config/bodega/yum-devtools-check-ran"
         fi
-        if ! rpm --quiet --query curl file git procps-ng; then
+        if ! rpm --quiet --query curl file git gzip procps-ng; then
           .config/log info 'Attempting to run `sudo yum install -y curl file git procps-ng`'
-          sudo yum install -y curl file git procps-ng
+          sudo yum install -y curl file git gzip procps-ng
         fi
         if [ -f '/etc/os-release' ]; then
           source /etc/os-release
@@ -319,6 +330,15 @@ tasks:
     status:
       - type docker > /dev/null
 
+  docker-slim:
+    run: once
+    cmds:
+      - task: brew:formulae
+        vars:
+          FORMULAE: docker-slim
+    status:
+      - type docker-slim > /dev/null
+
   docker:darwin:
     run: once
     cmds:
@@ -373,6 +393,15 @@ tasks:
       - .config/log info 'Please reboot the system and re-run the same command after rebooting'
       - exit 1
 
+  expect:
+    run: once
+    cmds:
+      - task: brew:formulae
+        vars:
+          FORMULAE: expect
+    status:
+      - type expect > /dev/null
+
   gcloud:
     run: once
     cmds:
@@ -413,6 +442,15 @@ tasks:
       - task: common
     status:
       - type git > /dev/null
+
+  gitlab-runner:
+    run: once
+    cmds:
+      - task: brew:formulae
+        vars:
+          FORMULAE: gitlab-runner
+    status:
+      - type gitlab-runner > /dev/null
 
   gitleaks:
     run: once
@@ -478,6 +516,15 @@ tasks:
     status:
       - type grype > /dev/null
 
+  gzip:
+    run: once
+    cmds:
+      - task: brew:formulae
+        vars:
+          FORMULAE: gzip
+    status:
+      - type gzip > /dev/null
+
   jq:
     run: once
     cmds:
@@ -487,6 +534,16 @@ tasks:
     status:
       - type jq > /dev/null
 
+  kvm:
+    run: once
+    cmds:
+      - task: :install:install-doctor
+        vars:
+          SOFTWARE: kvm
+      - task: exit:notice:restart
+    status:
+      - type qemu-system-x86_64 > /dev/null
+
   node:
     run: once
     cmds:
@@ -495,6 +552,22 @@ tasks:
           FORMULAE: node
     status:
       - type node > /dev/null
+
+  packer:
+    run: once
+    cmds:
+      - task: brew:formulae
+        vars:
+          FORMULAE: packer
+
+  parallels:
+    run: once
+    cmds:
+      - task: brew:cask
+        vars:
+          CASK: parallels
+    status:
+      - '[ "{{OS}}" != "darwin" ] || ! mdfind -name "Parallels Desktop.app" &> /dev/null'
 
   pipx:
     run: once
@@ -573,9 +646,11 @@ tasks:
   python:linux:
     run: once
     cmds:
-      - task: :install:install-doctor
+      - task: brew:formulae
         vars:
-          SOFTWARE: python
+          FORMULAE: python@3.10
+    status:
+      - type python3 > /dev/null
 
   python:windows:
     log:
@@ -592,14 +667,18 @@ tasks:
     status:
       - type rsync &> /dev/null
 
-  sentry:
+  rust:
     run: once
     cmds:
       - task: brew:formulae
         vars:
-          FORMULAE: getsentry/tools/sentry-cli
+          FORMULAE: rust
     status:
-      - type sentry-cli > /dev/null
+      - type rust &> /dev/null
+
+  sentry:
+    cmds:
+      - task: :install:github:sentry
 
   snapcraft:
     run: once
@@ -707,6 +786,15 @@ tasks:
       - task: :install:install-doctor
         vars:
           SOFTWARE: vmware
+
+  yarn:
+    run: once
+    cmds:
+      - task: brew:formulae
+        vars:
+          FORMULAE: yarn
+    status:
+      - type yarn > /dev/null
 
   yq:
     run: once
