@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/go-task/task/v3/internal/execext"
-	"github.com/go-task/task/v3/internal/logger"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/execext"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/logger"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 var (
@@ -16,11 +16,12 @@ var (
 
 func (e *Executor) areTaskPreconditionsMet(ctx context.Context, t *taskfile.Task) (bool, error) {
 	for _, p := range t.Preconditions {
-		err := execext.RunCommand(ctx, &execext.RunCommandOptions{
+		_, err := execext.RunCommand(ctx, &execext.RunCommandOptions{
 			Command: p.Sh,
+			Debug:   e.Debug,
 			Dir:     t.Dir,
 			Env:     getEnviron(t),
-		})
+		}, nil)
 
 		if err != nil {
 			e.Logger.Errf(logger.Magenta, "task: %s", p.Msg)

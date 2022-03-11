@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/go-task/task/v3/internal/output"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/output"
 )
 
 func TestInterleaved(t *testing.T) {

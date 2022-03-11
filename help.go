@@ -3,10 +3,12 @@ package task
 import (
 	"fmt"
 	"sort"
+	"strconv"
+	"strings"
 	"text/tabwriter"
 
-	"github.com/go-task/task/v3/internal/logger"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/logger"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 // ListTasksWithDesc reports tasks that have a description spec.
@@ -16,6 +18,7 @@ func (e *Executor) ListTasksWithDesc() {
 }
 
 // ListAllTasks reports all tasks, with or without a description spec.
+// This is primarily used by `task --list` TODO: PrintTasksHelp()
 func (e *Executor) ListAllTasks() {
 	e.printTasks(true)
 	return
@@ -41,8 +44,17 @@ func (e *Executor) printTasks(listAll bool) {
 
 	// Format in tab-separated columns with a tab stop of 8.
 	w := tabwriter.NewWriter(e.Stdout, 0, 8, 0, '\t', 0)
+	var isHidden bool
 	for _, task := range tasks {
-		fmt.Fprintf(w, "* %s: \t%s\n", task.Name(), task.Desc)
+		// FIXME: task.Hide should offer the truth value
+		isHidden, _ = strconv.ParseBool(strings.TrimSpace(task.Hide))
+		if !isHidden {
+			if task.Alias != "" {
+				fmt.Fprintf(w, "* %s: \t%s (alias: %s)\n", task.Name(), task.Desc, task.Alias)
+			} else {
+				fmt.Fprintf(w, "* %s: \t%s\n", task.Name(), task.Desc)
+			}
+		}
 	}
 	w.Flush()
 }
@@ -54,6 +66,26 @@ func (e *Executor) allTaskNames() (tasks []*taskfile.Task) {
 	}
 	sort.Slice(tasks, func(i, j int) bool { return tasks[i].Task < tasks[j].Task })
 	return
+}
+
+// TODO: refgactor me into PrintTasksHelp()
+func (e *Executor) FancyPrintTasksHelp() {
+	tasks := e.tasksWithDesc()
+	if len(tasks) == 0 {
+		e.Logger.Outf(logger.Yellow, "task: No tasks with description available")
+		return
+	}
+	w := new(strings.Builder)
+	w.WriteString("# Tasks\nTask|Alias| Description |\n-----|-----|:-----------|\n")
+
+	var isHidden bool
+	for _, task := range tasks {
+		isHidden, _ = strconv.ParseBool(strings.TrimSpace(task.Hide))
+		if !isHidden {
+			fmt.Fprintf(w, "%s|%s|%s|\n", task.Name(), task.Alias, task.Desc)
+		}
+	}
+	e.FancyLogger.Out(w.String())
 }
 
 func (e *Executor) tasksWithDesc() (tasks []*taskfile.Task) {

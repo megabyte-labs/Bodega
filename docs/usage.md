@@ -99,6 +99,46 @@ tasks:
       - echo "Using $KEYNAME and endpoint $ENDPOINT"
 ```
 
+## Grouping common commands
+
+Common commands across the Taskfile or across task commands can be grouped
+together under the `shell_rc` field. A command or task will execute the
+contents of the `shell_rc` before starting
+
+```yaml
+version: '3'
+
+# Global common scripts or functions
+shell_rc: |
+    func(){
+      echo "global function called!"
+    }
+
+tasks:
+  default:
+    cmds:
+      - task: init-script-global
+      - task: init-script
+
+  init-script-global:
+    cmds:
+    - echo "trying out the global shell_rc field"
+    - func
+
+  init-script:
+    # Local common scripts of functions. Override the global one
+    shell_rc: |
+      export VAR_INSIDE_INIT_SCRIPT="Hello from init script"
+      func(){
+        echo "local function called!"
+      }
+    cmds:
+      - echo "This is a var inside the local script: $VAR_INSIDE_INIT_SCRIPT"
+      - func
+```
+Executing `task default` on the command line executes the tasks `init-script-global`
+and `init-script`, which calls the global `func` first then the local one
+
 ## Including other Taskfiles
 
 If you want to share tasks between different projects (Taskfiles), you can use
@@ -484,6 +524,7 @@ Supported values for `run`:
  * `always` (default) always attempt to invoke the task regardless of the
   number of previous executions
  * `once` only invoke this task once regardless of the number of references
+ It persists tasks that ran previously within the `~/.cache/task` directory
  * `when_changed` only invokes the task once for each unique set of variables
   passed into the task
 
@@ -507,10 +548,87 @@ tasks:
     cmds:
       - echo {{.CONTENT}}
 
+  install-deps-system-wide:
+    run: once
+    run_once_system: true
+    cmds:
+      - sleep 10 # some operation you wish not to repeat across reboots
+
   install-deps:
     run: once
     cmds:
       - sleep 5 # long operation like installing packages
+```
+
+When running tasks once, an additional boolean option `run_once_system` can be set to run the task only once per invocation of Task.
+
+> task `install-deps-system-wide` is skipped on running `task install-deps-system-wide`
+> twice from the command line
+
+### Control task execution via user input
+
+A prompt field provides an interactive method of getting user data.
+In addition, it controls execution with the `validate` sub-field
+which, on correct desired input, executes the task `answer`.
+The user's selection (or input) is available as the {{.ANSWER}} template variable
+
+#### Confirmation
+A prompt of type `confirm` pops up a yes/no confirmation message
+```yaml
+  prompt_confirm:
+    prompt:
+      type: confirm
+      message: "Confirming this action ?"
+      answer: 
+        cmds:
+          - echo "true"
+          - task: prompt_confirm
+```
+
+#### Selection 
+
+A prompt of type `select` or `multi_select` allows the selection of (an) items.
+The options sub-field is used to list the possible selections. You may use a 
+dynamic option as well
+```yaml
+  test_prompt:
+    prompt:
+      type: select
+      # type: multi_select
+      message: What day is it?
+      options:
+        - msg: Sunday
+        - Tuesday
+        - msg:
+            sh: date +%A
+        - Wednesday
+      validate:
+        sh: '[[ "{{.ANSWER}}" == "Wednesday" ]]'
+      answer:
+        desc: "a task executed on valid input only"
+        cmds:
+          - echo "It is Wednesday my dudes!"
+```
+The `{{.ANSWER}}` for the `multi_select` will expand as an array of choices. You can
+use Go's template constructs to operate on the array.
+
+#### Text input
+
+A prompt of type `input` provides one line of text as input. To hide characters from 
+being displayed, choose type `password`. For multi-line input, use `multiline`.
+```yaml
+  prompt_input:
+    prompt:
+      type: password
+      # type: multiline
+      # type: input
+      message: "Password is ?"
+      validate:
+        sh: ' [[ "{{.ANSWER}}" == "pass" ]] '
+      answer: 
+        cmds:
+          - echo "Password is correct. Proceeding..."
+          - task: prompt_confirm
 ```
 
 ## Variables
@@ -710,6 +828,7 @@ tasks:
 ## Help
 
 Running `task --list` (or `task -l`) lists all tasks with a description.
+If you would like to hide a task from being listed, set the `hide:` field.
 The following Taskfile:
 
 ```yaml
@@ -720,6 +839,10 @@ tasks:
     desc: Build the go binary.
     cmds:
       - go build -v -i main.go
+
+  unnecessary:
+    desc: Unnecessary task.
+    hide: true
 
   test:
     desc: Run all the go tests.
@@ -793,7 +916,8 @@ Please note: *showing the summary will not execute the command*.
 
 Sometimes you may want to override the task name print on summary, up-to-date
 messages to STDOUT, etc. In this case you can just set `label:`, which can also
-be interpolated with variables:
+be interpolated with variables. Tasks invoked through the command line can have
+an alternative name through the `alias:` field:
 
 ```yaml
 version: '3'
@@ -811,7 +935,13 @@ tasks:
     label: 'print-{{.MESSAGE}}'
     cmds:
       - echo "{{.MESSAGE}}"
+
+  this-is-a-very-task-name:
+    alias: greetings
+    cmds:
+      - echo 'greetings!'
 ```
+On the command line execute `task greetings`
 
 ## Silent mode
 

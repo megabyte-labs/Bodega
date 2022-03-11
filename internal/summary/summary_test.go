@@ -7,9 +7,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/go-task/task/v3/internal/logger"
-	"github.com/go-task/task/v3/internal/summary"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/logger"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/summary"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 func TestPrintsDependenciesIfPresent(t *testing.T) {
@@ -30,9 +30,10 @@ func TestPrintsDependenciesIfPresent(t *testing.T) {
 func createDummyLogger() (*bytes.Buffer, logger.Logger) {
 	buffer := &bytes.Buffer{}
 	l := logger.Logger{
-		Stderr:  buffer,
-		Stdout:  buffer,
-		Verbose: false,
+		Stderr: buffer,
+		Stdout: buffer,
+		// TODO: verbosityLevelNone
+		Verbose: 0,
 	}
 	return buffer, l
 }

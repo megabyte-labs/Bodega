@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 // Compiler handles compilation of a task before its execution.

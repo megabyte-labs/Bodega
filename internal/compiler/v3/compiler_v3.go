@@ -7,12 +7,13 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
-	"github.com/go-task/task/v3/internal/compiler"
-	"github.com/go-task/task/v3/internal/execext"
-	"github.com/go-task/task/v3/internal/logger"
-	"github.com/go-task/task/v3/internal/templater"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/compiler"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/execext"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/logger"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/templater"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 var _ compiler.Compiler = &CompilerV3{}
@@ -135,7 +136,12 @@ func (c *CompilerV3) HandleDynamicVar(v taskfile.Var, dir string) (string, error
 		Stdout:  &stdout,
 		Stderr:  c.Logger.Stderr,
 	}
-	if err := execext.RunCommand(context.Background(), opts); err != nil {
+	// A hack to make HandleDynamicVar stop before command execution
+	if _, ok := c.TaskfileEnv.Mapping["__DEBUG__"]; ok {
+		opts.Debug = true
+	}
+	u := time.Now()
+	if _, err := execext.RunCommand(context.Background(), opts, nil); err != nil {
 		return "", fmt.Errorf(`task: Command "%s" failed: %s`, opts.Command, err)
 	}
 
@@ -144,7 +150,8 @@ func (c *CompilerV3) HandleDynamicVar(v taskfile.Var, dir string) (string, error
 	result := strings.TrimSuffix(stdout.String(), "\n")
 
 	c.dynamicCache[v.Sh] = result
-	c.Logger.VerboseErrf(logger.Magenta, `task: dynamic variable: '%s' result: '%s'`, v.Sh, result)
+	t := time.Now()
+	c.Logger.DebugErrf(logger.Magenta, `task: dynamic variable: '%s' took %d ms with result: '%s'`, v.Sh, t.Sub(u).Milliseconds(), result)
 
 	return result, nil
 }

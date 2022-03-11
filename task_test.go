@@ -13,8 +13,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/go-task/task/v3"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 func init() {
@@ -582,7 +582,7 @@ func TestStatusVariables(t *testing.T) {
 		Stdout:  &buff,
 		Stderr:  &buff,
 		Silent:  false,
-		Verbose: true,
+		Verbose: 1, // Verbosity level of 1
 	}
 	assert.NoError(t, e.Setup())
 	assert.NoError(t, e.Run(context.Background(), taskfile.Call{Task: "build"}))
@@ -870,7 +870,7 @@ func TestSummary(t *testing.T) {
 	assert.NoError(t, e.Setup())
 	assert.NoError(t, e.Run(context.Background(), taskfile.Call{Task: "task-with-summary"}, taskfile.Call{Task: "other-task-with-summary"}))
 
-	data, err := os.ReadFile(filepath.Join(dir, "task-with-summary.txt"))
+	data, err := ioutil.ReadFile(filepath.Join(dir, "task-with-summary-fancy.txt"))
 	assert.NoError(t, err)
 
 	expectedOutput := string(data)

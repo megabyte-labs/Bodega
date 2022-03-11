@@ -3,7 +3,7 @@ package args
 import (
 	"strings"
 
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 // ParseV3 parses command line argument: tasks and global variables
@@ -12,6 +12,7 @@ func ParseV3(args ...string) ([]taskfile.Call, *taskfile.Vars) {
 	var globals = &taskfile.Vars{}
 
 	for _, arg := range args {
+		// If the argument is not a global environment variable
 		if !strings.Contains(arg, "=") {
 			calls = append(calls, taskfile.Call{Task: arg})
 			continue
@@ -21,6 +22,7 @@ func ParseV3(args ...string) ([]taskfile.Call, *taskfile.Vars) {
 		globals.Set(name, taskfile.Var{Static: value})
 	}
 
+	// Assume the task to run is the default task
 	if len(calls) == 0 {
 		calls = append(calls, taskfile.Call{Task: "default"})
 	}
