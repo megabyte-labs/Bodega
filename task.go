@@ -190,7 +190,7 @@ func (e *Executor) Setup() error {
 	e.FancyLogger = logger.NewFancyLogger().SetStderr(e.Stderr).SetStdout(e.Stdout)
 
 	if v < 2 {
-		return fmt.Errorf(`Taskfile versions prior to v2 are not supported anymore`)
+		return fmt.Errorf(`task: Taskfile versions prior to v2 are not supported anymore`)
 	}
 
 	// consider as equal to the greater version if round
@@ -511,7 +511,7 @@ func (e *Executor) runDeferred(t *taskfile.Task, call taskfile.Call, i int) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	if err := e.runCommand(ctx, t, call, i); err != nil {
+	if err := e.runCommand(ctx, t, call, i, nil); err != nil {
 		e.Logger.VerboseErrf(logger.Yellow, `task: ignored error in deferred cmd: %s`, err.Error())
 	}
 }

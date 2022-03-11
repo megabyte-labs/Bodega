@@ -328,7 +328,7 @@ func start(calledFromRepl bool) {
 		return
 	}
 	if list {
-		e.PrintTasksHelp()
+		e.ListAllTasks()
 		return
 	}
 

@@ -18,7 +18,7 @@ func (e *Executor) ListTasksWithDesc() {
 }
 
 // ListAllTasks reports all tasks, with or without a description spec.
-// This is primarily used by `task --list` TODO: PrintTasksHelp()
+// This is primarily used by `task --list`
 func (e *Executor) ListAllTasks() {
 	e.printTasks(true)
 	return
