@@ -85,6 +85,7 @@
       "gitlab": "https://gitlab.com/megabyte-labs/go/cli/bodega"
     },
     "slug": "bodega",
+    "snapPackage": "bodega",
     "subgroup": "cli",
     "title": "Bodega - An Invaluable Task Runner Known"
   },
