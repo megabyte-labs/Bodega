@@ -1,5 +1,71 @@
 {
+  "private": false,
+  "name": "go-bodega",
+  "version": "3.11.0",
+  "description": "A gorgeous, feature-packed drop-in replacement for the go-task project",
+  "license": "MIT",
   "author": "Brian Zalewski <brian@megabyte.space> (https://megabyte.space)",
+  "homepage": "https://megabyte.space",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ProfessorManhattan/Bodega.git"
+  },
+  "bugs": {
+    "email": "help@megabyte.space",
+    "url": "https://gitlab.com/megabyte-labs/go/cli/bodega/-/issues"
+  },
+  "type": "module",
+  "files": [],
+  "scripts": {
+    "build": "task go:build",
+    "bump": "npm run build && npm version patch --no-commit-hooks --no-git-tag-version --force && npm publish",
+    "help": "task --menu",
+    "postinstall": "go-npm install || true",
+    "prepare": "npm run start && (test -f Taskfile.yml && task common:husky) || true",
+    "repair": "bash <(curl -sS https://install.doctor/repair)",
+    "start": "bash start.sh",
+    "test": "task go:test",
+    "preuninstall": "go-npm uninstall || true"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/git-cz-emoji"
+    }
+  },
+  "dependencies": {
+    "go-npm": "^0.1.9"
+  },
+  "optionalDependencies": {},
+  "devDependencies": {
+    "@commitlint/config-conventional": "^16.0.0",
+    "@washingtondc/development": "latest",
+    "eslint-config-strict-mode": "latest",
+    "git-cz-emoji": "latest",
+    "glob": "^7.2.0",
+    "handlebars-helpers": "^0.10.0",
+    "prettier-config-sexy-mode": "latest",
+    "semantic-release-config": "latest",
+    "typescript": "^4.5.5"
+  },
+  "keywords": [
+    "automation",
+    "cli",
+    "go",
+    "go-lang",
+    "golang",
+    "mblabs",
+    "megabytelabs",
+    "professormanhattan",
+    "terminal",
+    "washingtondc"
+  ],
+  "engines": {
+    "node": ">=14.18.0"
+  },
+  "publishConfig": {
+    "@megabyte:registry": "https://gitlab.com/api/v4/projects/28755315/packages/npm/",
+    "access": "public"
+  },
   "blueprint": {
     "binName": "task",
     "buildMain": "cmd/task",
@@ -91,7 +157,7 @@
   "goBinary": {
     "name": "task",
     "path": "./bin",
-    "url": "https://github.com/ProfessorManhattan/Bodega/releases/download/v3.10.0/Bodega-3.10.0-{{platform}}-{{arch}}.tar.gz"
+    "url": "https://github.com/ProfessorManhattan/Bodega/releases/download/v3.11.0/Bodega-3.11.0-{{platform}}-{{arch}}.tar.gz"
   },
   "homepage": "https://megabyte.space",
   "keywords": [
@@ -108,6 +174,9 @@
   ],
   "license": "MIT",
   "lint-staged": {
+    "(.dockerignore|.editorconfig|.eslintignore|.gitattributes|.gitconfig|.gitignore|.gitmodules|.nodemonignore|.npmignore|.prettierignore)": [
+      "task fix:prettier --"
+    ],
     "(Brewfile|composer.lock|Gemfile|Gopkg.lock|Pipfile.lock)": [
       "task fix:prettier --"
     ],
@@ -127,6 +196,16 @@
       "task fix:js --",
       "task lint:js --"
     ],
+    "**/*.(css|html|less|md|mjml|php|scss|sh|xml)": [
+      "task fix:prettier --"
+    ],
+    "**/*.(json|webapp|webmanifest)": [
+      "task fix:json --"
+    ],
+    "**/*.(js|jsx|ts|tsx)": [
+      "task fix:js --",
+      "task lint:js --"
+    ],
     "**/*.(yml|yaml)": [
       "task fix:yaml --",
       "task lint:yaml --"
@@ -134,6 +213,9 @@
     "**/*.go": [
       "task fix:go --",
       "task lint:go --"
+    ],
+    "**/*.json": [
+      "task fix:json --"
     ],
     "**/*.md": [
       "task fix:markdown --",
@@ -160,6 +242,14 @@
     "**/*.xml": [
       "task fix:xml --",
       "task lint:xml --"
+    ],
+    "Dockerfile": [
+      "task fix:prettier --",
+      "task lint:docker --"
+    ],
+    "Vagrantfile": [
+      "task fix:prettier --",
+      "task lint:vagrant"
     ],
     "Dockerfile": [
       "task fix:prettier --",
@@ -196,6 +286,24 @@
   "pnpm": {
     "allowedVersions": {
       "@typescript-eslint/eslint-plugin": "5",
+      "typescript": "4"
+    },
+    "neverBuiltDependencies": [
+      "core-js",
+      "core-js-pure",
+      "highlight.js"
+    ],
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "eslint",
+        "prettier"
+      ]
+    }
+  },
+  "pnpm": {
+    "allowedVersions": {
+      "@typescript-eslint/eslint-plugin": "5",
+      "eslint": "8",
       "typescript": "4"
     },
     "neverBuiltDependencies": [

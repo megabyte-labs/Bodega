@@ -56,6 +56,9 @@ includes:
   app:virtualbox: ./.config/taskfiles/app/Taskfile-virtualbox.yml
   boilerplate: ./.config/taskfiles/boilerplate/Taskfile.yml
   boilerplate:populate: ./.config/taskfiles/boilerplate/Taskfile-populate.yml
+  project:
+    taskfile: ./local/Taskfile-project.yml
+    optional: true
   boilerplate:prompt: ./.config/taskfiles/boilerplate/Taskfile-prompt.yml
   ci: ./.config/taskfiles/ci/Taskfile.yml
   ci:github: ./.config/taskfiles/ci/Taskfile-github.yml
@@ -122,6 +125,48 @@ includes:
   web:ionic: ./.config/taskfiles/web/Taskfile-ionic.yml
   web:nx: ./.config/taskfiles/web/Taskfile-nx.yml
   web:profile: ./.config/taskfiles/web/Taskfile-profile.yml
+
+output: interleaved
+
+vars:
+  DOCKERHUB_PROFILE: megabytelabs
+  DOCKERHUB_USER: professormanhattan
+  ESLINT_FIX_RECURSIVE: 'true'
+  ESLINT_FORMATTER: stylish
+  ESLINT_FORMATTER_OPTIONS: git-log gitlab pretty summary
+  GITHUB_ORG: ProfessorManhattan
+  GITHUB_USER: ProfessorManhattan
+  GROUP_EXEC_ASYNC: 'false'
+  IGNORE_FOLDERS: -path './.autodoc/*' -o -path './.cache/*' -o -path './.common*' -o -path './.config/*' -o -path './.git/*'
+    -o -path './.github/*' -o -path './.gitlab/*' -o -path './.husky/*' -o -path './.modules/*' -o -path './.npm/*'
+    -o -path './.pnpm-store/*' -o -path './.shared/*' -o -path './.task/*' -o -path './.venv/*' -o -path './.vscode/*'
+    -o -path './build/*' -o -path './dist/*' -o -path './node_modules/*' -o -path './roles/*' -o -name pnpm-lock.yaml
+    -o -name package-lock.json -o -name poetry.lock -o -name '.variables.json'
+  INIT_SCRIPT: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/scripts/update-init.sh
+  LOG_FIX:
+    sh: chmod +x .config/log && echo "heyhey"
+  MODEL_TASKFILE: https://gitlab.com/megabyte-labs/common/shared/-/raw/master/Taskfile.yml
+  NPM_KEEP_UPDATED: glob
+  NPM_PROGRAM: npm
+  NPM_PROGRAM_LOCAL: pnpm
+  NPX_HANDLE: 'pnpx '
+  NPX_PACKAGE: pnpx
+  PROJECT_TYPE: project
+  PYTHON_HANDLE: 'poetry run '
+  PYTHON_VIRTUALENV: true
+  REPOSITORY_SUBTYPE: cli
+  REPOSITORY_TYPE: go
+  SEMANTIC_CONFIG: semantic-release-config
+  TIMEZONE: America/New_York
+
+env:
+  OSTYPE:
+    sh: |
+      {{if (eq OS "linux")}}LINUX_FLAVOR='linux-gnu'
+      LIBC=$(ldd /bin/ls | grep 'musl' | head -1 | cut -d ' ' -f1)
+      if [ -n "$LIBC" ]; then LINUX_FLAVOR='linux-musl'; fi{{end}}
+      echo "{{if (eq OS "linux")}}$LINUX_FLAVOR{{else}}darwin{{end}}"
+  SENTRY_DSN: ''
 
 profile: |
   PATH="$PATH:$HOME/.local/bin:$HOME/.poetry/bin"
@@ -523,6 +568,83 @@ tasks:
     cmds:
       - task: boilerplate:check:package
       - task: boilerplate:clean
+
+  publish:
+    desc: Publish a semantic release via `semantic-release`
+    summary: |
+      # Publish the Project
+
+      Using this task, you can publish a project to all its targets. The targets
+      depend on the project type. Most projects will include:
+
+      1. Updating version numbers in `package.json`, `pyproject.toml`, etc.
+      2. Adding a new git tag at the version and publishing it with updated assets
+      3. Publishing repository-specific items like NPM packages, PyPi packages, etc.
+      4. Publishing artifacts to GitLab Releases and GitHub Releases
+      5. Updating the `docs/CHANGELOG.md`
+
+      ## Packages Used
+
+      This task runs `semantic-release` using the `semantic-release-config` package. The package
+      includes release instructions for:
+
+      1. Python packages
+      2. NPM packages
+      3. Dockerfile projects
+      4. Go projects
+      5. Ansible roles
+
+      ## Formats
+
+      It does its best to ship projects out in as many formats (that make sense) as possible.
+      For instance, an NPM CLI gets published as:
+
+      1. NPM package
+      2. Binaries (including deb and rpm) available on GitHub/GitLab releases
+      3. Brew formulae
+      4. Snapcraft
+      5. Probably more implemented after writing this
+
+      ## Python Package Notes
+
+      If `setup.cfg` is present, then the project is assumed to be a legacy Python
+      project that needs to run in environment with access to the `python-semantic`
+      extras defined in `pyproject.toml`.
+    log:
+      error: Error running `semantic-release` via `task publish`
+      start: Running `semantic-release` via `task publish`
+      success: Successfully ran `semantic-release` via `task publish`
+    cmds:
+      - task: publish:semantic-release
+
+  publish:force:
+    desc: Force a `semantic-release` even if there are no new eligible commits
+    summary: |
+      # Force a Release with Empty Commit
+
+      Trigger any kind of version bump / semantic release by passing
+      `PATCH UPDATE`, `MINOR UPDATE`, or `MAJOR UPDATE` in via CLI arguments.
+      This task will commit an empty commit message that will trigger the
+      corresponding version bump type.
+
+      **Example of patch update:**
+      `task publish:force -- 'PATCH UPDATE'`
+
+      **Example of minor update:**
+      `task publish:force -- 'MINOR UPDATE'`
+
+      **Example of major update:**
+      `task publish:force -- 'MAJOR UPDATE'`
+    vars:
+      UPDATE_LEVEL: '{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}PATCH UPDATE{{end}}'
+    log:
+      error: Error creating update via `task publish:force`
+      start: Publishing `semantic-release` update via `task publish:force`
+      success: Successfully published update via `task publish:force`
+    cmds:
+      - |
+        HUSKY=0 git commit -a --allow-empty -m '🔨 build(version bump): semantic-release {{.UPDATE_LEVEL}}' -n
+      - task: publish
 
   reset:
     desc: Resets the project by removing all caches and then re-generating templated files
