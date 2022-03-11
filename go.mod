@@ -1,4 +1,4 @@
-module github.com/go-task/task/v3
+module gitlab.com/megabyte-labs/go/cli/bodega
 
 require (
 	github.com/fatih/color v1.13.0
