@@ -7,9 +7,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/go-task/task/v3/internal/logger"
-	"github.com/go-task/task/v3/internal/summary"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/logger"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/summary"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 func TestPrintsDependenciesIfPresent(t *testing.T) {

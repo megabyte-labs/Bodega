@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 var (

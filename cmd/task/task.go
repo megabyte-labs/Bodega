@@ -16,11 +16,11 @@ import (
 	"github.com/spf13/pflag"
 	"mvdan.cc/sh/v3/syntax"
 
-	"github.com/go-task/task/v3"
-	"github.com/go-task/task/v3/args"
-	"github.com/go-task/task/v3/internal/logger"
-	"github.com/go-task/task/v3/server"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega"
+	"gitlab.com/megabyte-labs/go/cli/bodega/args"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/logger"
+	"gitlab.com/megabyte-labs/go/cli/bodega/server"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 var (

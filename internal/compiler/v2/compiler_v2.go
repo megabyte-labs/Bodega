@@ -7,11 +7,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/go-task/task/v3/internal/compiler"
-	"github.com/go-task/task/v3/internal/execext"
-	"github.com/go-task/task/v3/internal/logger"
-	"github.com/go-task/task/v3/internal/templater"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/compiler"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/execext"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/logger"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/templater"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 var _ compiler.Compiler = &CompilerV2{}

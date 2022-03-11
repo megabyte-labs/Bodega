@@ -3,8 +3,8 @@ package task
 import (
 	"fmt"
 
-	"github.com/go-task/task/v3/internal/hash"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/hash"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 // Returns a unique hash value for the given task t

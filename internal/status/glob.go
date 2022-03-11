@@ -7,7 +7,7 @@ import (
 
 	"github.com/mattn/go-zglob"
 
-	"github.com/go-task/task/v3/internal/execext"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/execext"
 )
 
 func globs(dir string, globs []string) ([]string, error) {

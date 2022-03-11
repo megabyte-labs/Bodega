@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/go-task/task/v3/internal/execext"
-	"github.com/go-task/task/v3/internal/logger"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/execext"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/logger"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 var (

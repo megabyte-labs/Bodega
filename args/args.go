@@ -3,7 +3,7 @@ package args
 import (
 	"strings"
 
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 // ParseV3 parses command line argument: tasks and global variables

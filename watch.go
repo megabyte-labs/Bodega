@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/go-task/task/v3/internal/logger"
-	"github.com/go-task/task/v3/internal/status"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/logger"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/status"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 	"github.com/radovskyb/watcher"
 )
 

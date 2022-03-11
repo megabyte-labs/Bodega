@@ -6,9 +6,9 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"github.com/go-task/task/v3/internal/compiler"
-	"github.com/go-task/task/v3/internal/templater"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/compiler"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/templater"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 func Dotenv(c compiler.Compiler, tf *taskfile.Taskfile, dir string) (*taskfile.Vars, error) {

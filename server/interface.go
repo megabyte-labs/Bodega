@@ -12,8 +12,8 @@ import (
 	"log"
 	"sort"
 
-	"github.com/go-task/task/v3"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 	"golang.org/x/sync/errgroup"
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"

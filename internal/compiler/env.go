@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 // GetEnviron the all return all environment variables encapsulated on a

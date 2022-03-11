@@ -4,10 +4,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/go-task/task/v3/internal/execext"
-	"github.com/go-task/task/v3/internal/status"
-	"github.com/go-task/task/v3/internal/templater"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/execext"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/status"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/templater"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 // CompiledTask returns a copy of a task, but replacing variables in almost all
