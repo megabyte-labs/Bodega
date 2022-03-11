@@ -39,7 +39,6 @@
   "devDependencies": {
     "@commitlint/config-conventional": "^16.0.0",
     "@washingtondc/development": "latest",
-    "cz-emoji-conventional": "^1.0.1",
     "eslint-config-strict-mode": "latest",
     "git-cz-emoji": "latest",
     "glob": "^7.2.0",
@@ -144,6 +143,9 @@
     "**/*": [
       "task lint:any --"
     ],
+    "**/*!(template).(json|webapp|webmanifest)": [
+      "task fix:json --"
+    ],
     "**/*.(bash|cfg|cgi|command|css|env|env.*|handlebars|hbs|html|less|fcgi|java|md|mdx|mjml|php|phtml|properties|reg|scss|tmpl|tmux|tool|tpl|zsh)": [
       "task fix:prettier --"
     ],
@@ -172,6 +174,10 @@
     "**/*.json": [
       "task fix:json --"
     ],
+    "**/*.md": [
+      "task fix:markdown --",
+      "task lint:spelling:markdown --"
+    ],
     "**/*.php": [
       "task fix:php --",
       "task lint:php --"
@@ -186,6 +192,7 @@
       "task lint:shell --"
     ],
     "**/*.toml": [
+      "task fix:toml --",
       "task fix:prettier --",
       "task lint:toml --"
     ],
@@ -234,10 +241,8 @@
     ],
     "peerDependencyRules": {
       "ignoreMissing": [
-        "@typescript-eslint/eslint-plugin",
         "eslint",
-        "prettier",
-        "typescript"
+        "prettier"
       ]
     }
   },
