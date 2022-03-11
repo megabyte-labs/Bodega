@@ -433,9 +433,6 @@ tasks:
       error: There was an error while running the Molecule test locally
       start: Running the Molecule test locally
       success: The local Molecule test was successfully run
-    vars:
-      MOLECULE_DATE:
-        sh: date '+%Y-%m-%d'
     cmds:
       - |
         set -o pipefail

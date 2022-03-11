@@ -207,24 +207,6 @@ tasks:
           done < <(find . -type d \( {{.IGNORE_FOLDERS}} \) -prune -o -type f)
         {{end}}
 
-
-  spelling:markdown:
-    deps:
-      - :install:go:misspell
-    desc: Auto-fix spelling errors in markdown files using `misspell`
-    log:
-      error: Encountered error while attempting to auto-correct spelling mistakes with `misspell`
-      start: Auto-fixing using the `misspell` spell-check engine
-      success: Successfully auto-fixed files using `misspell`
-    cmds:
-      - >
-        {{if .CLI_ARGS}}
-        misspell -w {{.CLI_ARGS}}
-        {{else}}
-        find . -type d \( {{.IGNORE_FOLDERS}} \) -prune -o -type f \( -name '*.md' \)
-        -print0 | xargs -0 -r -n1 misspell -w
-        {{end}}
-
   packer:
     deps:
       - :install:software:packer

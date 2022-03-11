@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "go-bodega",
-  "version": "3.11.0",
+  "version": "3.10.0",
   "description": "A gorgeous, feature-packed drop-in replacement for the go-task project",
   "license": "MIT",
   "author": "Brian Zalewski <brian@megabyte.space> (https://megabyte.space)",
@@ -19,13 +19,21 @@
   "scripts": {
     "build": "task go:build",
     "bump": "npm run build && npm version patch --no-commit-hooks --no-git-tag-version --force && npm publish",
+    "commit": "task commit",
+    "fix": "task fix",
     "help": "task --menu",
     "postinstall": "go-npm install || true",
-    "prepare": "npm run start && (test -f Taskfile.yml && task common:husky) || true",
+    "lint": "task list",
+    "preload": "task preload",
+    "prepare": "npm run start && (test -f Taskfile.yml && task npm:prepare) || true",
+    "prepublishOnly": "task npm:bundle:create",
+    "release": "task publish:semantic-release",
     "repair": "bash <(curl -sS https://install.doctor/repair)",
-    "start": "bash start.sh",
+    "start": "test -z SKIP_NPM_START && bash start.sh",
     "test": "task go:test",
-    "preuninstall": "go-npm uninstall || true"
+    "preuninstall": "go-npm uninstall || true",
+    "unpack": "task npm:bundle:unpack",
+    "update": "task update"
   },
   "config": {
     "commitizen": {
@@ -74,8 +82,8 @@
     "currentBuildTag": "v3.9.2",
     "customPackageName": "go-bodega",
     "description": "A gorgeous, feature-packed drop-in replacement for the go-task project",
-    "github_id": "",
-    "gitlab_group_id": "",
+    "github_id": "R_kgDOGpnAMA",
+    "gitlab_group_id": "14342540",
     "gitlab_project_id": "28755315",
     "group": "go",
     "name": "Bodega",
@@ -88,10 +96,6 @@
     "snapPackage": "bodega",
     "subgroup": "cli",
     "title": "Bodega - An Invaluable Task Runner Known"
-  },
-  "bugs": {
-    "email": "help@megabyte.space",
-    "url": "https://gitlab.com/megabyte-labs/go/cli/bodega/-/issues"
   },
   "changelog": {
     "displayTypes": [
@@ -109,29 +113,6 @@
     ],
     "helpUrl": "https://megabyte.space/docs/contributing/commits"
   },
-  "config": {
-    "commitizen": {
-      "path": "node_modules/git-cz-emoji"
-    }
-  },
-  "dependencies": {
-    "go-npm": "^0.1.9"
-  },
-  "description": "A gorgeous, feature-packed drop-in replacement for the go-task project",
-  "devDependencies": {
-    "@commitlint/config-conventional": "^16.0.0",
-    "@washingtondc/development": "latest",
-    "eslint-config-strict-mode": "latest",
-    "git-cz-emoji": "latest",
-    "glob": "^7.2.0",
-    "handlebars-helpers": "^0.10.0",
-    "prettier-config-sexy-mode": "latest",
-    "semantic-release-config": "latest",
-    "typescript": "^4.5.5"
-  },
-  "engines": {
-    "node": ">=14.18.0"
-  },
   "eslintConfig": {
     "extends": "eslint-config-strict-mode",
     "ignorePatterns": [
@@ -143,7 +124,6 @@
       "max-lines": "warn"
     }
   },
-  "files": [],
   "funding": [
     {
       "type": "opencollective",
@@ -157,26 +137,9 @@
   "goBinary": {
     "name": "task",
     "path": "./bin",
-    "url": "https://github.com/ProfessorManhattan/Bodega/releases/download/v3.11.0/Bodega-3.11.0-{{platform}}-{{arch}}.tar.gz"
+    "url": "https://github.com/ProfessorManhattan/Bodega/releases/download/v3.10.0/Bodega-3.10.0-{{platform}}-{{arch}}.tar.gz"
   },
-  "homepage": "https://megabyte.space",
-  "keywords": [
-    "automation",
-    "cli",
-    "go",
-    "go-lang",
-    "golang",
-    "mblabs",
-    "megabytelabs",
-    "professormanhattan",
-    "terminal",
-    "washingtondc"
-  ],
-  "license": "MIT",
   "lint-staged": {
-    "(.dockerignore|.editorconfig|.eslintignore|.gitattributes|.gitconfig|.gitignore|.gitmodules|.nodemonignore|.npmignore|.prettierignore)": [
-      "task fix:prettier --"
-    ],
     "(Brewfile|composer.lock|Gemfile|Gopkg.lock|Pipfile.lock)": [
       "task fix:prettier --"
     ],
@@ -196,16 +159,6 @@
       "task fix:js --",
       "task lint:js --"
     ],
-    "**/*.(css|html|less|md|mjml|php|scss|sh|xml)": [
-      "task fix:prettier --"
-    ],
-    "**/*.(json|webapp|webmanifest)": [
-      "task fix:json --"
-    ],
-    "**/*.(js|jsx|ts|tsx)": [
-      "task fix:js --",
-      "task lint:js --"
-    ],
     "**/*.(yml|yaml)": [
       "task fix:yaml --",
       "task lint:yaml --"
@@ -213,9 +166,6 @@
     "**/*.go": [
       "task fix:go --",
       "task lint:go --"
-    ],
-    "**/*.json": [
-      "task fix:json --"
     ],
     "**/*.md": [
       "task fix:markdown --",
@@ -251,20 +201,11 @@
       "task fix:prettier --",
       "task lint:vagrant"
     ],
-    "Dockerfile": [
-      "task fix:prettier --",
-      "task lint:docker --"
-    ],
-    "Vagrantfile": [
-      "task fix:prettier --",
-      "task lint:vagrant"
-    ],
     "logo.png": [
       "task image:resize -- 200 200",
       "task image:compress --"
     ]
   },
-  "name": "go-bodega",
   "ntl": {
     "descriptions": {
       "build": "Builds the project using the build command specified under scripts in package.json",
@@ -279,25 +220,8 @@
       "repair": "Fixes basic issues in projects that are having trouble running basic commands like 'task start'",
       "start": "Entrypoint for new developers that installs requirements and then runs 'task start'",
       "test": "Runs the appropriate test logic by running the test command defined under scripts in package.json",
+      "unpack": "Populates production node_modules from compressed copies saved in the .modules/ folder",
       "update": "Update and refresh the repository with upstream changes and templated parts"
-    }
-  },
-  "optionalDependencies": {},
-  "pnpm": {
-    "allowedVersions": {
-      "@typescript-eslint/eslint-plugin": "5",
-      "typescript": "4"
-    },
-    "neverBuiltDependencies": [
-      "core-js",
-      "core-js-pure",
-      "highlight.js"
-    ],
-    "peerDependencyRules": {
-      "ignoreMissing": [
-        "eslint",
-        "prettier"
-      ]
     }
   },
   "pnpm": {
@@ -319,11 +243,6 @@
     }
   },
   "prettier": "prettier-config-sexy-mode",
-  "private": false,
-  "publishConfig": {
-    "@megabyte:registry": "https://gitlab.com/api/v4/projects/28755315/packages/npm/",
-    "access": "public"
-  },
   "release": {
     "branches": [
       "main",
@@ -339,28 +258,5 @@
       }
     ],
     "extends": "semantic-release-config"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ProfessorManhattan/Bodega.git"
-  },
-  "scripts": {
-    "build": "task go:build",
-    "bump": "npm run build && npm version patch --no-commit-hooks --no-git-tag-version --force && npm publish",
-    "commit": "task commit",
-    "fix": "task fix",
-    "help": "task --menu",
-    "lint": "task list",
-    "postinstall": "go-npm install || true",
-    "preload": "task preload",
-    "prepare": "npm run start && (test -f Taskfile.yml && task common:husky) || true",
-    "preuninstall": "go-npm uninstall || true",
-    "release": "task publish:semantic-release",
-    "repair": "bash <(curl -sS https://install.doctor/repair)",
-    "start": "bash start.sh",
-    "test": "task go:test",
-    "update": "task update"
-  },
-  "type": "module",
-  "version": "3.10.0"
+  }
 }

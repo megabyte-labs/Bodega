@@ -224,6 +224,14 @@ tasks:
         vars:
           NPM_PACKAGE: markdown-table-formatter
 
+  modclean:
+    run: once
+    cmds:
+      - task: global
+        vars:
+          NPM_PACKAGE: modclean@2
+          NPM_PACKAGE_BIN: modclean
+
   ndb:
     run: once
     cmds:
@@ -280,6 +288,13 @@ tasks:
       - task: global
         vars:
           NPM_PACKAGE: open-cli
+
+  pac:
+    run: once
+    cmds:
+      - task: global
+        vars:
+          NPM_PACKAGE: pac
 
   pkg:
     run: once

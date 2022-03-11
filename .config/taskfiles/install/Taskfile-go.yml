@@ -90,3 +90,13 @@ tasks:
           PACKAGE: github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
     status:
       - type nfpm > /dev/null
+
+  node-prune:
+    run: once
+    cmds:
+      - task: install
+        vars:
+          BIN: node-prune
+          PACKAGE: go install github.com/tj/node-prune@latest
+    status:
+      - type node-prune > /dev/null
