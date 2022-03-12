@@ -74,6 +74,11 @@ tasks:
       - type brew &> /dev/null
 
   brew:formulae:
+    run: when_changed
+    log:
+      error: Failed to install `{{.FORMULAE}}`
+      start: Ensuring the `{{.FORMULAE}}` Homebrew formulae is installed
+      success: Successfully installed `{{.FORMULAE}}`
     vars:
       INSTALL_RECORD:
         sh: |
@@ -82,11 +87,6 @@ tasks:
             echo '{{last (splitList "/" .FORMULAE)}}' >> local/slim/exe.txt
             echo '{{.INSTALL_TASK}}' >> local/slim/install.txt
           fi
-    run: when_changed
-    log:
-      error: Failed to install `{{.FORMULAE}}`
-      start: Ensuring the `{{.FORMULAE}}` Homebrew formulae is installed
-      success: Successfully installed `{{.FORMULAE}}`
     cmds:
       - task: brew
       - brew install {{.FORMULAE}}

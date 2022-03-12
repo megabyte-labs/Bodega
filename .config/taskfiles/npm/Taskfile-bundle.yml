@@ -40,6 +40,15 @@ tasks:
     deps:
       - :install:go:node-prune
       - :install:npm:modclean
+    vars:
+      MODCLEAN_PATTERNS:
+        sh: |
+          {{if .CLI_ARGS}}echo '{{.CLI_ARGS}}'{{else}}PREFERENCE="$(jq -r '.blueprint.modcleanPatterns' package.json)"
+          if [ "$PREFERENCE" != 'null' ]; then
+            echo "$PREFERENCE"
+          else
+            echo "default:safe,default:caution"
+          fi{{end}}
     summary: |
       ## node-prune
 
@@ -69,15 +78,6 @@ tasks:
       for the patterns. And if that is not present, then `default:safe,default:caution` is used by default.
 
       You can see the [default patterns here](https://github.com/ModClean/modclean-patterns-default/blob/master/patterns.json).
-    vars:
-      MODCLEAN_PATTERNS:
-        sh: |
-          {{if .CLI_ARGS}}echo '{{.CLI_ARGS}}'{{else}}PREFERENCE="$(jq -r '.blueprint.modcleanPatterns' package.json)"
-          if [ "$PREFERENCE" != 'null' ]; then
-            echo "$PREFERENCE"
-          else
-            echo "default:safe,default:caution"
-          fi{{end}}
     log:
       error: Encountered error while pruning production `node_modules/` folder
       start: Pruning production `node_modules/` folder
