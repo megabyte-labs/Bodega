@@ -342,7 +342,7 @@ tasks:
       start: Running `{{.NPX_HANDLE}}jest`
       success: Successfully ran `{{.NPX_HANDLE}}jest`
     cmds:
-      - '{{.NPX_HANDLE}}jest'
+      - '{{.NPX_HANDLE}}jest --silent=false'
 
   test:ci:
     deps:

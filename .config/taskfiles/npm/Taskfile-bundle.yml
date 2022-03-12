@@ -95,7 +95,7 @@ tasks:
       success: Finished packing production `node_modules/` into the `.modules/` folder
     cmds:
       - mkdir -p .modules
-      - pac
+      - .config/log info '`pac` is being replaced by `produndle` - WIP' || produndle pack
 
   unpack:
     deps:
@@ -113,7 +113,7 @@ tasks:
       start: Populating `node_modules/` with `.tgz` files in the `.modules` folder
       success: Finished populating `node_modules/` folder
     cmds:
-      - pac install
+      - .config/log info '`pac` is being replaced by `produndle` - WIP' || produndle unpack
       - |
         BASE_DIR="$(PWD)"
         for MODULE in node_modules/*; do

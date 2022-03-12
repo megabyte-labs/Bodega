@@ -11,10 +11,43 @@
 
 set -eo pipefail
 
-# @description Ensure .config/log is executable
-if [ -f .config/log ]; then
-  chmod +x .config/log
+# @description Ensure .config/log is present
+if [ ! -f .config/log ]; then
+  mkdir -p .config
+  curl -sSL https://gitlab.com/megabyte-labs/common/shared/-/raw/master/common/.config/log > .config/log
 fi
+
+# @description Ensure .config/log is executable
+chmod +x .config/log
+
+# @description Acquire unique ID for this script
+if [ -z "$CI" ]; then
+  if type m5sum &> /dev/null; then
+    FILE_HASH="$(md5sum "$0" | sed 's/\s.*$//')"
+  else
+    FILE_HASH="$(date +%s -r "$0")"
+  fi
+else
+  FILE_HASH="none"
+fi
+
+# @description Caches values from commands
+#
+# @example
+#   cache brew --prefix golang
+#
+# @arg The command to run
+function cache() {
+  local DIR="${CACHE_DIR:-.cache}"
+  if ! test -d "$DIR"; then
+    mkdir -p "$DIR"
+  fi
+  local FN="$DIR/${LINENO}-${FILE_HASH}"
+  if ! test -f "$FN" ; then
+    "$@" > "$FN"
+  fi
+  cat "$FN"
+}
 
 # @description Formats log statements
 #
@@ -91,8 +124,8 @@ if [ "$EUID" -eq 0 ] && [ -z "$INIT_CWD" ] && type useradd &> /dev/null; then
   # shellcheck disable=SC2016
   logger info 'Running as root - creating seperate user named `megabyte` to run script with'
   echo "megabyte ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-  useradd -m -s "$(which bash)" -c "Megabyte Labs Homebrew Account" megabyte > /dev/null || EXIT_CODE=$?
-  if [ -n "$EXIT_CODE" ]; then
+  useradd -m -s "$(which bash)" -c "Megabyte Labs Homebrew Account" megabyte > /dev/null || ROOT_EXIT_CODE=$?
+  if [ -n "$ROOT_EXIT_CODE" ]; then
     # shellcheck disable=SC2016
     logger info 'User `megabyte` already exists'
   fi
@@ -194,23 +227,35 @@ function ensureTaskInstalled() {
       logger error "System type not recognized. You must install task manually." && exit 1
     fi
   else
-    logger info "Checking for latest version of Task"
-    CURRENT_VERSION="$(task --version | cut -d' ' -f3 | cut -c 2-)"
-    LATEST_VERSION="$(curl -s "$TASK_RELEASE_API" | grep tag_name | cut -c 17- | sed 's/\",//')"
-    if printf '%s\n%s\n' "$LATEST_VERSION" "$CURRENT_VERSION" | sort -V -c &> /dev/null; then
-      logger info "Task is already up-to-date"
+    mkdir -p "$HOME/.cache/megabyte/start.sh"
+    if [ -f "$HOME/.cache/megabyte/start.sh/bodega-update-check" ]; then
+      TASK_UPDATE_TIME="$(cat "$HOME/.cache/megabyte/start.sh/bodega-update-check")"
     else
-      logger info "A new version of Task is available (version $LATEST_VERSION)"
-      logger info "The current version of Task installed is $CURRENT_VERSION"
-      if ! type task &> /dev/null; then
-        installTask
+      TASK_UPDATE_TIME="$(date +%s)"
+      echo "$TASK_UPDATE_TIME" > "$HOME/.cache/megabyte/start.sh/bodega-update-check"
+    fi
+    TIME_DIFF="$(($(date +%s) - "$TASK_UPDATE_TIME"))"
+    # Only run if it has been at least 15 minutes since last attempt
+    if [ "$TIME_DIFF" -gt 900 ] || [ "$TIME_DIFF" -lt 5 ]; then
+      date +%s > "$HOME/.cache/megabyte/start.sh/bodega-update-check"
+      logger info "Checking for latest version of Task"
+      CURRENT_VERSION="$(task --version | cut -d' ' -f3 | cut -c 2-)"
+      LATEST_VERSION="$(curl -s "$TASK_RELEASE_API" | grep tag_name | cut -c 17- | sed 's/\",//')"
+      if printf '%s\n%s\n' "$LATEST_VERSION" "$CURRENT_VERSION" | sort -V -c &> /dev/null; then
+        logger info "Task is already up-to-date"
       else
-        if rm "$(which task)" &> /dev/null; then
-          installTask
-        elif sudo rm "$(which task)" &> /dev/null; then
+        logger info "A new version of Task is available (version $LATEST_VERSION)"
+        logger info "The current version of Task installed is $CURRENT_VERSION"
+        if ! type task &> /dev/null; then
           installTask
         else
-          logger warn "Unable to remove previous version of Task"
+          if rm "$(which task)" &> /dev/null; then
+            installTask
+          elif sudo rm "$(which task)" &> /dev/null; then
+            installTask
+          else
+            logger warn "Unable to remove previous version of Task"
+          fi
         fi
       fi
     fi
@@ -318,6 +363,45 @@ function sha256() {
   fi
 }
 
+# @description Ensures the Taskfile.yml is accessible
+#
+# @example
+#   ensureTaskfiles
+function ensureTaskfiles() {
+  # shellcheck disable=SC2030
+  task donothing | BOOTSTRAP_EXIT_CODE=$?
+  # shellcheck disable=SC2031
+  if [ -n "$BOOTSTRAP_EXIT_CODE" ]; then
+    curl -sSL https://gitlab.com/megabyte-labs/common/shared/-/archive/master/shared-master.tar.gz > shared-master.tar.gz
+    tar -xzvf shared-master.tar.gz
+    rm shared-master.tar.gz
+    mv shared-master/common/.config .config
+    mv shared-master/common/.editorconfig .editorconfig
+    mv shared-master/common/.gitignore .gitignore
+    rm -rf shared-master
+  fi
+}
+
+# @description Ensures basic files like package.json and Taskfile.yml are present
+#
+# @example
+#   ensureProjectBootstrapped
+function ensureProjectBootstrapped() {
+  if [ ! -f start.sh ] || [ ! -f package.json ] || [ ! -f Taskfile.yml ]; then
+    if [ ! -f start.sh ]; then
+      curl -sSL https://gitlab.com/megabyte-labs/common/shared/-/raw/master/common/start.sh > start.sh
+    fi
+    if [ ! -f package.json ]; then
+      curl -sSL https://gitlab.com/megabyte-labs/common/shared/-/raw/master/package.json > package.json
+    fi
+    if [ ! -f Taskfile.yml ]; then
+      curl -sSL https://gitlab.com/megabyte-labs/common/shared/-/raw/master/Taskfile.yml > Taskfile.yml
+    fi
+    ensureTaskfiles
+    task new:project
+  fi
+}
+
 ##### Main Logic #####
 
 if [ ! -f "$HOME/.profile" ]; then
@@ -376,22 +460,34 @@ if [[ "$OSTYPE" == 'darwin'* ]] || [[ "$OSTYPE" == 'linux-gnu'* ]] || [[ "$OSTYP
   fi
 fi
 
-# @description Attempts to pull the latest changes if the folder is a git repository
+# @description Attempts to pull the latest changes if the folder is a git repository.
 if [ -d .git ] && type git &> /dev/null; then
-  HTTPS_VERSION="$(git remote get-url origin | sed 's/git@gitlab.com:/https:\/\/gitlab.com\//')"
-  git pull "$HTTPS_VERSION" master --ff-only
-  ROOT_DIR="$PWD"
-  if ls .modules/*/ > /dev/null 2>&1; then
-    for SUBMODULE_PATH in .modules/*/; do
-      cd "$SUBMODULE_PATH"
-      DEFAULT_BRANCH=$(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5)
-      git reset --hard HEAD
-      git checkout "$DEFAULT_BRANCH"
-      git pull origin "$DEFAULT_BRANCH" --ff-only || true
-    done
-    cd "$ROOT_DIR"
-    # shellcheck disable=SC2016
-    logger success 'Ensured submodules in the `.modules` folder are pointing to the master branch'
+  mkdir -p .cache/start.sh
+  if [ -f .cache/start.sh/git-pull-time ]; then
+    GIT_PULL_TIME="$(cat .cache/start.sh/git-pull-time)"
+  else
+    GIT_PULL_TIME="$(date +%s)"
+    echo "$GIT_PULL_TIME" > .cache/start.sh/git-pull-time
+  fi
+  TIME_DIFF="$(($(date +%s) - "$GIT_PULL_TIME"))"
+  # Only run if it has been at least 15 minutes since last attempt
+  if [ "$TIME_DIFF" -gt 900 ] || [ "$TIME_DIFF" -lt 5 ]; then
+    date +%s > .cache/start.sh/git-pull-time
+    HTTPS_VERSION="$(git remote get-url origin | sed 's/git@gitlab.com:/https:\/\/gitlab.com\//')"
+    git pull "$HTTPS_VERSION" master --ff-only
+    ROOT_DIR="$PWD"
+    if ls .modules/*/ > /dev/null 2>&1; then
+      for SUBMODULE_PATH in .modules/*/; do
+        cd "$SUBMODULE_PATH"
+        DEFAULT_BRANCH=$(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5)
+        git reset --hard HEAD
+        git checkout "$DEFAULT_BRANCH"
+        git pull origin "$DEFAULT_BRANCH" --ff-only || true
+      done
+      cd "$ROOT_DIR"
+      # shellcheck disable=SC2016
+      logger success 'Ensured submodules in the `.modules` folder are pointing to the master branch'
+    fi
   fi
 fi
 
@@ -399,12 +495,22 @@ fi
 ensureTaskInstalled
 
 # @description Run the start logic, if appropriate
-if [ -z "$CI" ] && [ -z "$INIT_CWD" ] && [ -f Taskfile.yml ]; then
+if [ -z "$CI" ] && [ -z "$INIT_CWD" ]; then
   # shellcheck disable=SC1091
   . "$HOME/.profile"
+  ensureProjectBootstrapped
   if task donothing &> /dev/null; then
     task start
-    # shellcheck disable=SC2016
-    logger info 'There may have been changes to your PATH variable. You may have to reload your terminal or run:\n\n`. "$HOME/.profile"`'
+  else
+    logger info 'Ensuring Taskfile.yml files are all in good standing'
+    ensureTaskfiles
+    if task donothing &> /dev/null; then
+      task start
+    else
+      # shellcheck disable=SC2016
+      logger warn 'Something appears to be wrong with the main `Taskfile.yml` - resetting to shared common version'
+      rm Taskfile.yml
+      ensureProjectBootstrapped
+    fi
   fi
 fi

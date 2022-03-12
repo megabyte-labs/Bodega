@@ -17,23 +17,23 @@
   "type": "module",
   "files": [],
   "scripts": {
-    "build": "task go:build",
+    "build": "bash start.sh && task go:build",
     "bump": "npm run build && npm version patch --no-commit-hooks --no-git-tag-version --force && npm publish",
-    "commit": "task commit",
-    "fix": "task fix",
-    "help": "task --menu",
+    "commit": "bash start.sh && task commit",
+    "fix": "bash start.sh && task fix",
+    "help": "bash start.sh && task --menu",
     "postinstall": "go-npm install || true",
-    "lint": "task list",
-    "preload": "task preload",
-    "prepare": "npm run start && (test -f Taskfile.yml && task npm:prepare) || true",
-    "prepublishOnly": "task npm:bundle:create",
-    "release": "task publish:semantic-release",
+    "lint": "bash start.sh && task list",
+    "preload": "bash start.sh && task preload",
+    "prepare": "bash start.sh && (test -f Taskfile.yml && task npm:prepare) || true",
+    "prepublishOnly": "test -z SKIP_NPM_PREPUBLISHONLY && bash start.sh && task npm:bundle:create || true",
+    "release": "bash start.sh && task publish:semantic-release",
     "repair": "bash <(curl -sS https://install.doctor/repair)",
-    "start": "test -z SKIP_NPM_START && bash start.sh",
-    "test": "task go:test",
+    "start": "test -z SKIP_NPM_START && bash start.sh || true",
+    "test": "bash start.sh && task go:test",
     "preuninstall": "go-npm uninstall || true",
-    "unpack": "task npm:bundle:unpack",
-    "update": "task update"
+    "unpack": "bash start.sh && task npm:bundle:unpack",
+    "update": "bash start.sh && task update"
   },
   "config": {
     "commitizen": {
@@ -45,15 +45,13 @@
   },
   "optionalDependencies": {},
   "devDependencies": {
-    "@commitlint/config-conventional": "^16.0.0",
-    "@washingtondc/development": "latest",
+    "@commitlint/config-conventional": "latest",
     "eslint-config-strict-mode": "latest",
     "git-cz-emoji": "latest",
-    "glob": "^7.2.0",
-    "handlebars-helpers": "^0.10.0",
+    "handlebars-helpers": "latest",
     "prettier-config-sexy-mode": "latest",
     "semantic-release-config": "latest",
-    "typescript": "^4.5.5"
+    "typescript": "latest"
   },
   "keywords": [
     "automation",

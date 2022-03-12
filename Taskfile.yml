@@ -52,9 +52,6 @@ includes:
   packer: ./.config/taskfiles/packer/Taskfile.yml
   packer:build: ./.config/taskfiles/packer/Taskfile-build.yml
   packer:update: ./.config/taskfiles/packer/Taskfile-update.yml
-  project:
-    taskfile: ./local/Taskfile-project.yml
-    optional: true
   publish: ./.config/taskfiles/publish/Taskfile.yml
   publish:android: ./.config/taskfiles/publish/Taskfile-android.yml
   publish:brew: ./.config/taskfiles/publish/Taskfile-brew.yml
@@ -122,6 +119,8 @@ env:
       LIBC=$(ldd /bin/ls | grep 'musl' | head -1 | cut -d ' ' -f1)
       if [ -n "$LIBC" ]; then LINUX_FLAVOR='linux-musl'; fi{{end}}
       echo "{{if (eq OS "linux")}}$LINUX_FLAVOR{{else}}darwin{{end}}"
+  RECORD_INSTALL:
+    sh: test -n "$CI" && echo "true" || true
   SENTRY_DSN: ''
 
 profile: |
@@ -334,6 +333,7 @@ tasks:
           bash <(curl -sSL {{.INIT_SCRIPT}})
         fi
       - git push origin master
+      - task: ci:synchronize
 
   lint:
     desc: Lints the project using all linters
@@ -388,6 +388,11 @@ tasks:
           .config/log error '`Taskfile-project.yml` must exist and have a `livereload` task to use with `nodemon`' && exit 1
         fi
       - nodemon --config {{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}.config/nodemon.json{{end}}
+
+  new:project:
+    desc: Create a new project
+    cmds:
+      - task: prepare
 
   preload:
     desc: Set up your workstation in advance by installing commonly used programs

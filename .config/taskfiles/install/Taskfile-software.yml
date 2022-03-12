@@ -14,8 +14,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: act
-    status:
-      - type act > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   allure:
     run: once
@@ -23,8 +22,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: allure
-    status:
-      - type allure > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   ansifilter:
     run: once
@@ -32,8 +30,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: ansifilter
-    status:
-      - type ansifilter > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   brew:
     run: once
@@ -77,6 +74,14 @@ tasks:
       - type brew &> /dev/null
 
   brew:formulae:
+    vars:
+      INSTALL_RECORD:
+        sh: |
+          if [ -n "$RECORD_INSTALL" ]; then
+            mkdir -p local/slim
+            echo '{{last (splitList "/" .FORMULAE)}}' >> local/slim/exe.txt
+            echo '{{.INSTALL_TASK}}' >> local/slim/install.txt
+          fi
     run: when_changed
     log:
       error: Failed to install `{{.FORMULAE}}`
@@ -86,7 +91,7 @@ tasks:
       - task: brew
       - brew install {{.FORMULAE}}
     status:
-      - type {{.FORMULAE}} &> /dev/null || [ -n "$NO_INSTALL_HOMEBREW" ]
+      - type {{last (splitList "/" .FORMULAE)}} &> /dev/null || [ -n "$NO_INSTALL_HOMEBREW" ]
 
   brew:linux:
     run: once
@@ -137,8 +142,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: codeclimate/formulae/codeclimate
-    status:
-      - type codeclimate > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   common:
     run: once
@@ -265,6 +269,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: findutils
+          INSTALL_TASK: '{{.TASK}}'
     status:
       - type gfind > /dev/null
 
@@ -273,6 +278,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: gawk
+          INSTALL_TASK: '{{.TASK}}'
     status:
       - type gawk > /dev/null
 
@@ -281,6 +287,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: gnu-sed
+          INSTALL_TASK: '{{.TASK}}'
     status:
       - type gsed > /dev/null
 
@@ -289,6 +296,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: gnu-tar
+          INSTALL_TASK: '{{.TASK}}'
     status:
       - type gtar > /dev/null
 
@@ -297,6 +305,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: grep
+          INSTALL_TASK: '{{.TASK}}'
     status:
       - type ggrep > /dev/null
 
@@ -306,12 +315,14 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: container-structure-test
+          INSTALL_TASK: '{{.TASK}}'
 
   coreutils:
     cmds:
       - task: brew:formulae
         vars:
           FORMULAE: coreutils
+          INSTALL_TASK: '{{.TASK}}'
     status:
       - type gcp > /dev/null || [ "{{OS}}" != "darwin" ]
 
@@ -320,8 +331,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: dasel
-    status:
-      - type dasel > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   docker:
     run: once
@@ -336,8 +346,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: docker-slim
-    status:
-      - type docker-slim > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   docker:darwin:
     run: once
@@ -355,6 +364,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: docker
+          INSTALL_TASK: '{{.TASK}}'
       - task: exit:notice:restart
     status:
       - type docker > /dev/null
@@ -369,8 +379,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: goodwithtech/r/dockle
-    status:
-      - type dockle > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   exiftool:
     run: once
@@ -378,8 +387,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: exiftool
-    status:
-      - type exiftool > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   exit:notice:reload:
     cmds:
@@ -399,8 +407,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: expect
-    status:
-      - type expect > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   gcloud:
     run: once
@@ -433,8 +440,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: gh
-    status:
-      - type gh > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   git:
     run: once
@@ -449,8 +455,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: gitlab-runner
-    status:
-      - type gitlab-runner > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   gitleaks:
     run: once
@@ -458,8 +463,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: gitleaks
-    status:
-      - type gitleaks > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   glab:
     run: once
@@ -467,8 +471,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: glab
-    status:
-      - type glab > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   go:
     run: once
@@ -504,8 +507,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: go
-    status:
-      - type go > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   grype:
     run: once
@@ -513,8 +515,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: anchore/grype/grype
-    status:
-      - type grype > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   gzip:
     run: once
@@ -522,8 +523,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: gzip
-    status:
-      - type gzip > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   jq:
     run: once
@@ -531,8 +531,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: jq
-    status:
-      - type jq > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   kvm:
     run: once
@@ -550,8 +549,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: node
-    status:
-      - type node > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   packer:
     run: once
@@ -559,6 +557,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: packer
+          INSTALL_TASK: '{{.TASK}}'
 
   parallels:
     run: once
@@ -612,6 +611,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: poetry
+          INSTALL_TASK: '{{.TASK}}'
 
   poetry:linux:
     run: once
@@ -619,6 +619,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: poetry
+          INSTALL_TASK: '{{.TASK}}'
 
   poetry:windows:
     log:
@@ -640,6 +641,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: python@3.10
+          INSTALL_TASK: '{{.TASK}}'
     status:
       - type python3 > /dev/null
 
@@ -649,6 +651,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: python@3.10
+          INSTALL_TASK: '{{.TASK}}'
     status:
       - type python3 > /dev/null
 
@@ -664,8 +667,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: rsync
-    status:
-      - type rsync &> /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   rust:
     run: once
@@ -673,8 +675,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: rust
-    status:
-      - type rust &> /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   sentry:
     cmds:
@@ -686,8 +687,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: snapcraft
-    status:
-      - type snapcraft > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   sshpass:
     run: once
@@ -695,8 +695,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: hudochenkov/sshpass/sshpass
-    status:
-      - type sshpass > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   subrepo:
     run: once
@@ -704,6 +703,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: git-subrepo
+          INSTALL_TASK: '{{.TASK}}'
     status:
       - git subrepo --version > /dev/null || [[ "${container:=}" == "docker" ]]
 
@@ -713,8 +713,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: tokei
-    status:
-      - type tokei > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   trivy:
     run: once
@@ -722,8 +721,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: aquasecurity/trivy/trivy
-    status:
-      - type trivy > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   vagrant:
     cmds:
@@ -793,8 +791,7 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: yarn
-    status:
-      - type yarn > /dev/null
+          INSTALL_TASK: '{{.TASK}}'
 
   yq:
     run: once
@@ -802,5 +799,4 @@ tasks:
       - task: brew:formulae
         vars:
           FORMULAE: yq
-    status:
-      - type yq > /dev/null
+          INSTALL_TASK: '{{.TASK}}'

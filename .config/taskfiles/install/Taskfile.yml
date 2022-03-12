@@ -58,7 +58,6 @@ tasks:
   modules:local:
     deps:
       - :install:npm:{{.NPM_PROGRAM_LOCAL}}
-      - :install:npm:cz-emoji
       - :install:software:jq
     env:
       DEPS:
@@ -83,7 +82,9 @@ tasks:
           if [ -n "$AUTO_UPDATE_NPM_PACKAGES" ]; then
             {{.NPM_PROGRAM_LOCAL}} update
           else
-            {{.NPM_PROGRAM_LOCAL}} install || EXIT_CODE=$?
+            {{.NPM_PROGRAM_LOCAL}} install {{if eq .NPM_PROGRAM_LOCAL "pnpm"}}--public-hoist-pattern *types* \
+            --public-hoist-pattern *eslint* --public-hoist-pattern @prettier/plugin-* \
+            --public-hoist-pattern *prettier-plugin-* --public-hoist-pattern *jest* {{end}}|| EXIT_CODE=$?
             if [ -n "$EXIT_CODE" ]; then
               .config/log info 'Running `{{.NPM_PROGRAM_LOCAL}} update` because install had non-zero exit code '"(Code $EXIT_CODE)"
               {{.NPM_PROGRAM_LOCAL}} update

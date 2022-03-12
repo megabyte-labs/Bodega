@@ -24,6 +24,10 @@ tasks:
       a `Docker.build1.test.yml` and `Docker.build2.test.yml` container-structure-test.
     hide:
       sh: '[ ! -f Dockerfile ]'
+    log:
+      error: Encountered error while running Docker build sequence
+      start: Running Docker build sequence
+      success: Finished running Docker build sequence
     cmds:
       - |
         if [ -f Docker.test.yml ]; then
