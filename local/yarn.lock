@@ -1198,7 +1198,7 @@ toml-eslint-parser@^0.2.1:
   dependencies:
     eslint-visitor-keys "^2.0.0"
 
-typescript@latest:
+typescript@^4.5.5:
   version "4.6.2"
   resolved "4.6.2"
   integrity sha512-HM/hFigTBHZhLXshn9sN37H085+hQGeJHJ/X7LpBWLID/fbc2acUMfU+lGD98X81sKP+pFa9f0DZmCwB9GnbAg==
