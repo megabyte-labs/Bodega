@@ -14,6 +14,7 @@ cache:
     - .pnpm-store
     - .venv
 include:
+  - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/lint/codeclimate.gitlab-ci.yml
   - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/lint/eslint.gitlab-ci.yml
   - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/lint/prettier.gitlab-ci.yml
   - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/lint/shellcheck.gitlab-ci.yml

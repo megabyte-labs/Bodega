@@ -542,6 +542,11 @@
       "command": "bash start.sh && task publish:opera:release"
     },
     {
+      "label": "(pull:upstream): Pull from upstream repositories",
+      "type": "shell",
+      "command": "bash start.sh && task pull:upstream"
+    },
+    {
       "label": "(python:build): Build the project",
       "type": "shell",
       "command": "bash start.sh && task python:build"
@@ -650,6 +655,11 @@
       "label": "(test): Open an interactive dialog to select and run a Molecule test",
       "type": "shell",
       "command": "bash start.sh && task test"
+    },
+    {
+      "label": "(update): Update the repository",
+      "type": "shell",
+      "command": "bash start.sh && task update"
     },
     {
       "label": "(vagrant:up): Select which virtualization platform to run the image on using an interactive prompt",

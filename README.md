@@ -67,7 +67,7 @@
   _ [More output messages](#more-output-messages)
   _ [Interactive Prompt](#interactive-prompt)
   _ [Fancy listing](#fancy-listing)
-  _ [[WIP] Progress bar](#wip-progress-bar)
+  _ [Output custom messages on task success/failure](#output-custom-messages-on-task-successfailure) \* [[WIP] Progress bar](#wip-progress-bar)
   - [Installation](#installation)
     - [Quick Method](#quick-method)
     - [Compile Program with Go](#compile-program-with-go)
@@ -289,6 +289,43 @@ user@user:$
 
 [![bubbletea_list_demo](https://asciinema.org/a/sem2Ac3yZIUJ03HTMHyOEOq7I)](https://asciinema.org/a/sem2Ac3yZIUJ03HTMHyOEOq7I)
 
+### Output custom messages on task success/failure
+
+Customize the output message if the task successfully ran or failed. You can also define a custom message that runs before the task start.
+
+```yaml
+custom-logs:
+  run: once
+  desc: 'includes custom messages on start/stop and error'
+  cmds:
+    - echo 'hey'
+    - cmd: exit 99
+      ignore_error: true
+    - cmd: exit 12
+      ignore_error: false
+  log:
+    success: 'hello custom-logs task'
+    start: 'Log message to show before Go starts running the task logic (including env scripts)'
+    error:
+      default: 'Log message to show if the cmds return exit code 1 or greater'
+      codes: # optional!
+        - code: 12
+          message: 'code exited with error code 12'
+```
+
+If the task exited with a particular error number, you may also tailor a speicific message for each error code with the `codes` field. Running the above task should output:
+
+```
+hello custom-logs task
+task: [custom-logs] echo 'hey'
+hey
+task: [custom-logs] exit 99
+task: [custom-logs] exit 12
+code exited with error code 12
+task: Failed to run task "custom-logs": exit status 12
+
+```
+
 ### [WIP] Progress bar
 
 Trach the issue [here](https://github.com/charmbracelet/bubbletea/issues/179)
@@ -350,9 +387,9 @@ If you trust us (and you should not.. trust.. anybody.. EVER), then you can also
 All of the usage instructions can be found by running `task --help`. After running the command, you should be greeted with the following output:
 
 ```
-Usage: task [-ilfwvsd] [--init] [--list] [--force] [--watch] [--verbose] [--silent] [--dir] [--taskfile] [--dry] [--summary] [task...]
+Usage: task [-ilfwvsdm] [--init] [--list] [--force] [--watch] [--verbose] [--silent] [--dir] [--taskfile] [--dry] [--menu] [--summary] [--debug] [task...]
 
-Runs the specified task(s). Falls back to the "default" task if no task name
+Runs the specified task(s). Runs a built-in shell if no task name
 was specified, or lists all tasks if an unknown task name was specified.
 
 Example: 'task hello' with the following 'Taskfile.yml' file will generate an
@@ -372,6 +409,7 @@ tasks:
 Options:
   -c, --color             colored output. Enabled by default. Set flag to false or use NO_COLOR=1 to disable (default true)
   -C, --concurrency int   limit number tasks to run concurrently
+      --debug             stop before each command execution
   -d, --dir string        sets directory of execution
       --dry               compiles and prints tasks in the order that they would be run, without executing them
   -f, --force             forces execution even when the task is up-to-date
@@ -379,13 +417,16 @@ Options:
   -i, --init              creates a new Taskfile.yaml in the current folder
   -l, --list              lists tasks with description of current Taskfile
   -a, --list-all          lists tasks with or without a description
+  -m, --menu              runs an interactive listing of tasks
   -o, --output string     sets output style: [interleaved|group|prefixed]
   -p, --parallel          executes tasks provided on command line in parallel
+      --server            runs as a server
   -s, --silent            disables echoing
       --status            exits with non-zero exit code if any of the given tasks is not up-to-date
       --summary           show summary about a task
   -t, --taskfile string   choose which Taskfile to run. Defaults to "Taskfile.yml"
-  -v, --verbose           enables verbose mode
+      --use-tls           enable server to use TLS
+  -v, --verbose count     enables verbose mode (repeat option for more output)
       --version           show Task version
   -w, --watch             enables watch of the given task
 ```

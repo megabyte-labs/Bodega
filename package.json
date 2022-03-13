@@ -1,5 +1,77 @@
 {
+  "private": false,
+  "name": "go-bodega",
+  "version": "3.10.0",
+  "description": "A gorgeous, feature-packed drop-in replacement for the go-task project",
+  "license": "MIT",
   "author": "Brian Zalewski <brian@megabyte.space> (https://megabyte.space)",
+  "homepage": "https://megabyte.space",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ProfessorManhattan/Bodega.git"
+  },
+  "bugs": {
+    "email": "help@megabyte.space",
+    "url": "https://gitlab.com/megabyte-labs/go/cli/bodega/-/issues"
+  },
+  "type": "module",
+  "files": [],
+  "scripts": {
+    "build": "bash start.sh && task go:build",
+    "bump": "npm run build && npm version patch --no-commit-hooks --no-git-tag-version --force && npm publish",
+    "commit": "bash start.sh && task commit",
+    "fix": "bash start.sh && task fix",
+    "help": "bash start.sh && task --menu",
+    "postinstall": "go-npm install || true",
+    "lint": "bash start.sh && task list",
+    "preload": "bash start.sh && task preload",
+    "prepare": "bash start.sh && (test -f Taskfile.yml && task npm:prepare) || true",
+    "prepublishOnly": "test -z $SKIP_PREPUB && bash start.sh && task npm:bundle:create || true",
+    "release": "bash start.sh && task publish:semantic-release",
+    "repair": "bash <(curl -sS https://install.doctor/repair)",
+    "start": "test -z SKIP_NPM_START && bash start.sh || true",
+    "test": "bash start.sh && task go:test",
+    "preuninstall": "go-npm uninstall || true",
+    "unpack": "bash start.sh && task npm:bundle:unpack",
+    "update": "bash start.sh && task update"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/git-cz-emoji"
+    }
+  },
+  "dependencies": {
+    "go-npm": "^0.1.9"
+  },
+  "optionalDependencies": {},
+  "devDependencies": {
+    "@commitlint/config-conventional": "latest",
+    "eslint-config-strict-mode": "latest",
+    "git-cz-emoji": "latest",
+    "handlebars-helpers": "latest",
+    "prettier-config-sexy-mode": "latest",
+    "semantic-release-config": "latest",
+    "typescript": "latest"
+  },
+  "keywords": [
+    "automation",
+    "cli",
+    "go",
+    "go-lang",
+    "golang",
+    "mblabs",
+    "megabytelabs",
+    "professormanhattan",
+    "terminal",
+    "washingtondc"
+  ],
+  "engines": {
+    "node": ">=14.18.0"
+  },
+  "publishConfig": {
+    "@megabyte:registry": "https://gitlab.com/api/v4/projects/28755315/packages/npm/",
+    "access": "public"
+  },
   "blueprint": {
     "binName": "task",
     "buildMain": "cmd/task",
@@ -23,10 +95,6 @@
     "subgroup": "cli",
     "title": "Bodega - An Invaluable Task Runner Known"
   },
-  "bugs": {
-    "email": "help@megabyte.space",
-    "url": "https://gitlab.com/megabyte-labs/go/cli/bodega/-/issues"
-  },
   "changelog": {
     "displayTypes": [
       "feat",
@@ -38,29 +106,10 @@
     "showAuthor": true
   },
   "commitlint": {
-    "extends": [],
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
     "helpUrl": "https://megabyte.space/docs/contributing/commits"
-  },
-  "config": {
-    "commitizen": {
-      "path": "node_modules/git-cz-emoji"
-    }
-  },
-  "dependencies": {
-    "go-npm": "^0.1.9"
-  },
-  "description": "A gorgeous, feature-packed drop-in replacement for the go-task project",
-  "devDependencies": {
-    "eslint-config-strict-mode": "latest",
-    "git-cz-emoji": "latest",
-    "prettier-config-sexy-mode": "latest",
-    "semantic-release-config": "latest",
-    "typescript": "latest",
-    "@commitlint/config-conventional": "latest",
-    "handlebars-helpers": "latest"
-  },
-  "engines": {
-    "node": ">=14.18.0"
   },
   "eslintConfig": {
     "extends": "eslint-config-strict-mode",
@@ -68,7 +117,6 @@
       "testdata/**/*"
     ]
   },
-  "files": [],
   "funding": [
     {
       "type": "opencollective",
@@ -84,20 +132,6 @@
     "path": "./bin",
     "url": "https://github.com/ProfessorManhattan/Bodega/releases/download/v3.10.0/Bodega-3.10.0-{{platform}}-{{arch}}.tar.gz"
   },
-  "homepage": "https://megabyte.space",
-  "keywords": [
-    "automation",
-    "cli",
-    "go",
-    "go-lang",
-    "golang",
-    "mblabs",
-    "megabytelabs",
-    "professormanhattan",
-    "terminal",
-    "washingtondc"
-  ],
-  "license": "MIT",
   "lint-staged": {
     "(Brewfile|composer.lock|Gemfile|Gopkg.lock|Pipfile.lock)": [
       "task fix:prettier --"
@@ -165,7 +199,6 @@
       "task image:compress --"
     ]
   },
-  "name": "go-bodega",
   "ntl": {
     "descriptions": {
       "build": "Builds the project using the build command specified under scripts in package.json",
@@ -184,7 +217,6 @@
       "update": "Update and refresh the repository with upstream changes and templated parts"
     }
   },
-  "optionalDependencies": {},
   "pnpm": {
     "allowedVersions": {
       "@typescript-eslint/eslint-plugin": "5",
@@ -204,11 +236,6 @@
     }
   },
   "prettier": "prettier-config-sexy-mode",
-  "private": false,
-  "publishConfig": {
-    "@megabyte:registry": "https://gitlab.com/api/v4/projects/28755315/packages/npm/",
-    "access": "public"
-  },
   "release": {
     "branches": [
       "main",
@@ -224,30 +251,5 @@
       }
     ],
     "extends": "semantic-release-config"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ProfessorManhattan/Bodega.git"
-  },
-  "scripts": {
-    "build": "bash start.sh && task go:build",
-    "bump": "npm run build && npm version patch --no-commit-hooks --no-git-tag-version --force && npm publish",
-    "commit": "bash start.sh && task commit",
-    "fix": "bash start.sh && task fix",
-    "help": "bash start.sh && task --menu",
-    "lint": "bash start.sh && task list",
-    "postinstall": "go-npm install || true",
-    "preload": "bash start.sh && task preload",
-    "prepare": "bash start.sh && (test -f Taskfile.yml && task npm:prepare) || true",
-    "prepublishOnly": "test -z SKIP_NPM_PREPUBLISHONLY && bash start.sh && task npm:bundle:create || true",
-    "preuninstall": "go-npm uninstall || true",
-    "release": "bash start.sh && task publish:semantic-release",
-    "repair": "bash <(curl -sS https://install.doctor/repair)",
-    "start": "test -z SKIP_NPM_START && bash start.sh || true",
-    "test": "bash start.sh && task go:test",
-    "unpack": "bash start.sh && task npm:bundle:unpack",
-    "update": "bash start.sh && task update"
-  },
-  "type": "module",
-  "version": "3.10.0"
+  }
 }
