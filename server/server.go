@@ -45,11 +45,9 @@ func (b *BasicServer) Start(useTLS bool) error {
 		return err
 	}
 	return nil
-
 }
 
 func (b *BasicServer) startExecution(ctx context.Context, c *websocket.Conn) error {
-
 	r := TaskReq{}
 	if err := wsjson.Read(ctx, c, &r); err != nil {
 		if errors.Is(err, io.EOF) {
@@ -63,7 +61,6 @@ func (b *BasicServer) startExecution(ctx context.Context, c *websocket.Conn) err
 	}
 
 	return nil
-
 }
 
 // Listens for ws:// or wss:// connections

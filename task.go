@@ -478,7 +478,7 @@ func (e *Executor) mkdir(t *taskfile.Task) error {
 	defer mutex.Unlock()
 
 	if _, err := os.Stat(t.Dir); os.IsNotExist(err) {
-		if err := os.MkdirAll(t.Dir, 0755); err != nil {
+		if err := os.MkdirAll(t.Dir, 0o755); err != nil {
 			return err
 		}
 	}
@@ -628,7 +628,7 @@ func (e *Executor) startExecution(ctx context.Context, t *taskfile.Task, execute
 		f := filepath.Join(c, "bodega", h)
 		// TODO: os.Stat might return false positinves or suffer from TOCTOU race condition
 		if _, err := os.Stat(f); os.IsNotExist(err) {
-			if err = os.MkdirAll(filepath.Join(c, "bodega"), 0755); err == nil {
+			if err = os.MkdirAll(filepath.Join(c, "bodega"), 0o755); err == nil {
 				e.Logger.Errf(logger.Red, "%v", err)
 			}
 			if _, err := os.Create(f); err != nil {
@@ -768,7 +768,6 @@ func (e *Executor) runPrompt(ctx context.Context, t *taskfile.Task) error {
 		// The answer task runs only once, even for multi_select
 		if err := funcValidateAndRunAnswer(selected); err != nil {
 			return err
-
 		}
 
 		return nil

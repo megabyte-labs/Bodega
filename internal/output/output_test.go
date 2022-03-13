@@ -14,7 +14,7 @@ import (
 func TestInterleaved(t *testing.T) {
 	var b bytes.Buffer
 	var o output.Output = output.Interleaved{}
-	var w = o.WrapWriter(&b, "")
+	w := o.WrapWriter(&b, "")
 
 	fmt.Fprintln(w, "foo\nbar")
 	assert.Equal(t, "foo\nbar\n", b.String())
@@ -25,7 +25,7 @@ func TestInterleaved(t *testing.T) {
 func TestGroup(t *testing.T) {
 	var b bytes.Buffer
 	var o output.Output = output.Group{}
-	var w = o.WrapWriter(&b, "").(io.WriteCloser)
+	w := o.WrapWriter(&b, "").(io.WriteCloser)
 
 	fmt.Fprintln(w, "foo\nbar")
 	assert.Equal(t, "", b.String())
@@ -38,7 +38,7 @@ func TestGroup(t *testing.T) {
 func TestPrefixed(t *testing.T) {
 	var b bytes.Buffer
 	var o output.Output = output.Prefixed{}
-	var w = o.WrapWriter(&b, "prefix").(io.WriteCloser)
+	w := o.WrapWriter(&b, "prefix").(io.WriteCloser)
 
 	t.Run("simple use cases", func(t *testing.T) {
 		b.Reset()

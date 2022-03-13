@@ -5,10 +5,8 @@ import (
 	"fmt"
 )
 
-var (
-	// ErrTaskfileAlreadyExists is returned on creating a Taskfile if one already exists
-	ErrTaskfileAlreadyExists = errors.New("task: A Taskfile already exists")
-)
+// ErrTaskfileAlreadyExists is returned on creating a Taskfile if one already exists
+var ErrTaskfileAlreadyExists = errors.New("task: A Taskfile already exists")
 
 type taskNotFoundError struct {
 	taskName string

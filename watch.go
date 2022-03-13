@@ -10,10 +10,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/radovskyb/watcher"
 	"gitlab.com/megabyte-labs/go/cli/bodega/internal/logger"
 	"gitlab.com/megabyte-labs/go/cli/bodega/internal/status"
 	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
-	"github.com/radovskyb/watcher"
 )
 
 const watchInterval = 5 * time.Second

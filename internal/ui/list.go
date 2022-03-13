@@ -46,6 +46,7 @@ func (i taskItem) FilterValue() string { return i.name }
 
 // Both Title() and Description() are required for an item to work with DefaultDelegate
 func (i taskItem) Description() string { return i.desc }
+
 func (i taskItem) Title() string {
 	if i.alias != "" {
 		return i.alias
@@ -62,7 +63,7 @@ type tasksModel struct {
 // Returns a pre-defined model to be used with bubbletea.
 // NewTasksModel() expects an instance of tasks with description
 func NewTasksModel(tasks []*taskfile.Task, c chan string) *tasksModel {
-	var items = make([]list.Item, 0, len(tasks))
+	items := make([]list.Item, 0, len(tasks))
 	for _, t := range tasks {
 		items = append(items, taskItem{name: t.Name(), alias: t.Alias, desc: t.Desc})
 	}

@@ -43,8 +43,8 @@ func (c *Checksum) IsUpToDate() (bool, error) {
 	}
 
 	if !c.Dry {
-		_ = os.MkdirAll(filepath.Join(c.BaseDir, ".task", "checksum"), 0755)
-		if err = os.WriteFile(checksumFile, []byte(newMd5+"\n"), 0644); err != nil {
+		_ = os.MkdirAll(filepath.Join(c.BaseDir, ".task", "checksum"), 0o755)
+		if err = os.WriteFile(checksumFile, []byte(newMd5+"\n"), 0o644); err != nil {
 			return false, err
 		}
 	}

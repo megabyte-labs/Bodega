@@ -16,16 +16,14 @@ import (
 	"github.com/spf13/pflag"
 	"mvdan.cc/sh/v3/syntax"
 
-	"gitlab.com/megabyte-labs/go/cli/bodega"
+	task "gitlab.com/megabyte-labs/go/cli/bodega"
 	"gitlab.com/megabyte-labs/go/cli/bodega/args"
 	"gitlab.com/megabyte-labs/go/cli/bodega/internal/logger"
 	"gitlab.com/megabyte-labs/go/cli/bodega/server"
 	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
-var (
-	version = ""
-)
+var version = ""
 
 const usage = `Usage: task [-ilfwvsdm] [--init] [--list] [--force] [--watch] [--verbose] [--silent] [--dir] [--taskfile] [--dry] [--menu] [--summary] [--debug] [task...]
 
@@ -51,7 +49,6 @@ Options:
 
 // repl provides a bare REPL functionality to Task
 func repl() error {
-
 	log.Println("Type 'help' for a list of commands or 'quit' to exit ")
 	rl, err := readline.New("task> ")
 	if err != nil {
@@ -94,7 +91,6 @@ REPL:
 
 	}
 	return nil
-
 }
 
 func main() {
@@ -119,7 +115,6 @@ func main() {
 
 // start is the entry function for Task
 func start(calledFromRepl bool) {
-
 	var (
 		versionFlag bool
 		helpFlag    bool

@@ -73,7 +73,6 @@ func (v *ValueType) UnmarshalYAML(unmarshal func(interface{}) error) error {
 // UnmarshalYAML requires a pointer receiver even if the structure passed to
 // marshal is not a pointer
 func (o *Options) UnmarshalYAML(unmarshal func(interface{}) error) error {
-
 	var jArr string
 	if err := unmarshal(&jArr); err == nil {
 		o.JsonArr = jArr
@@ -90,7 +89,6 @@ func (o *Options) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 func (p *Prompt) UnmarshalYAML(unmarshal func(interface{}) error) error {
-
 	var prompt struct {
 		Type     string
 		Message  string

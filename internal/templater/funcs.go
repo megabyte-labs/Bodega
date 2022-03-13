@@ -10,9 +10,7 @@ import (
 	"mvdan.cc/sh/v3/syntax"
 )
 
-var (
-	templateFuncs template.FuncMap
-)
+var templateFuncs template.FuncMap
 
 func init() {
 	taskFuncs := template.FuncMap{

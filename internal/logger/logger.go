@@ -9,8 +9,10 @@ import (
 	"github.com/fatih/color"
 )
 
-type Color func() PrintFunc
-type PrintFunc func(io.Writer, string, ...interface{})
+type (
+	Color     func() PrintFunc
+	PrintFunc func(io.Writer, string, ...interface{})
+)
 
 func Default() PrintFunc { return color.New(color.Reset).FprintfFunc() }
 func Blue() PrintFunc    { return color.New(color.FgBlue).FprintfFunc() }
@@ -82,7 +84,6 @@ func (fl *FancyLogger) Err(s string) {
 		return
 	}
 	fmt.Fprint(fl.stderr, out)
-
 }
 
 func (fl *FancyLogger) Out(s string) {
@@ -92,7 +93,6 @@ func (fl *FancyLogger) Out(s string) {
 		return
 	}
 	fmt.Fprint(fl.stdout, out)
-
 }
 
 // Outf prints stuff to STDOUT.

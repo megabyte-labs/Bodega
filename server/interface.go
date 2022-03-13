@@ -8,11 +8,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
 	"log"
 	"sort"
 
-	"gitlab.com/megabyte-labs/go/cli/bodega"
+	task "gitlab.com/megabyte-labs/go/cli/bodega"
 	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 	"golang.org/x/sync/errgroup"
 	"nhooyr.io/websocket"
@@ -72,7 +71,7 @@ func NewLimitedWriter(ctx context.Context, c *websocket.Conn, typ websocket.Mess
 
 		b: getBuf(),
 
-		n: 0,
+		n:      0,
 		nLines: nLines,
 	}, nil
 }
@@ -139,8 +138,7 @@ type TaskReq struct {
 }
 
 // The base response structure
-type TaskResp struct {
-}
+type TaskResp struct{}
 
 type taskNameAndDesc struct {
 	Name string `json:"name"`
@@ -154,10 +152,8 @@ type ListResp struct {
 // Parses input request and runs the given command
 func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq, s *BasicServer) error {
 
-	var (
-		// TODO: stdin is to be used later
-		stdin, stdout bytes.Buffer
-	)
+	// TODO: stdin is to be used later
+	var stdin, stdout bytes.Buffer
 
 	e := task.Executor{
 		// Request options
@@ -232,7 +228,6 @@ func ParseAndRun(ctx context.Context, c *websocket.Conn, r TaskReq, s *BasicServ
 }
 
 func runTasks(ctx context.Context, e *task.Executor, r TaskReq) error {
-
 	// Check if given tasks exist
 	for _, c := range r.TaskCalls {
 		if _, ok := e.Taskfile.Tasks[c]; !ok {
@@ -256,7 +251,6 @@ func runTasks(ctx context.Context, e *task.Executor, r TaskReq) error {
 }
 
 func listTasks(e *task.Executor) []taskNameAndDesc {
-
 	tasks := make([]taskNameAndDesc, 0, len(e.Taskfile.Tasks))
 	for _, task := range e.Taskfile.Tasks {
 		// compiledTask, err := e.FastCompiledTask(taskfile.Call{Task: task.Task})
