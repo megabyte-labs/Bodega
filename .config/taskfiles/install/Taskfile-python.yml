@@ -5,7 +5,6 @@ tasks:
   pip:
     deps:
       - :install:software:python
-    run: when_changed
     vars:
       INSTALL_RECORD:
         sh: |
@@ -14,6 +13,7 @@ tasks:
             echo '{{.PACKAGE}}' >> local/slim/exe.txt
             echo '{{.INSTALL_TASK}}' >> local/slim/install.txt
           fi
+    run: when_changed
     log:
       error: Failed to install pip3 package `{{.PACKAGE}}`
       start: Installing pip3 package `{{.PACKAGE}}`
@@ -26,7 +26,6 @@ tasks:
   pipx:
     deps:
       - :install:software:pipx
-    run: when_changed
     vars:
       INSTALL_RECORD:
         sh: |
@@ -35,6 +34,7 @@ tasks:
             echo '{{.PACKAGE}}' >> local/slim/exe.txt
             echo '{{.INSTALL_TASK}}' >> local/slim/install.txt
           fi
+    run: when_changed
     log:
       error: Failed to install `{{.PACKAGE}}` with pipx
       start: Installing `{{.PACKAGE}}` with pipx

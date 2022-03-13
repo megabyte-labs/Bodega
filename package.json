@@ -38,9 +38,7 @@
     "showAuthor": true
   },
   "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ],
+    "extends": [],
     "helpUrl": "https://megabyte.space/docs/contributing/commits"
   },
   "config": {
@@ -53,13 +51,13 @@
   },
   "description": "A gorgeous, feature-packed drop-in replacement for the go-task project",
   "devDependencies": {
-    "@commitlint/config-conventional": "latest",
     "eslint-config-strict-mode": "latest",
     "git-cz-emoji": "latest",
-    "handlebars-helpers": "latest",
     "prettier-config-sexy-mode": "latest",
     "semantic-release-config": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "@commitlint/config-conventional": "latest",
+    "handlebars-helpers": "latest"
   },
   "engines": {
     "node": ">=14.18.0"

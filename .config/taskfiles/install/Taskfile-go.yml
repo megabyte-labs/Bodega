@@ -46,11 +46,6 @@ tasks:
           PACKAGE: gotest.tools/gotestsum@latest
 
   install:
-    run: when_changed
-    log:
-      error: Failed to install `{{.PACKAGE}}` with Go
-      start: Installing Go package named `{{.PACKAGE}}`
-      success: Successfully installed `{{.PACKAGE}}`
     vars:
       INSTALL_RECORD:
         sh: |
@@ -59,6 +54,11 @@ tasks:
             echo '{{.BIN}}' >> local/slim/exe.txt
             echo '{{.INSTALL_TASK}}' >> local/slim/install.txt
           fi
+    run: when_changed
+    log:
+      error: Failed to install `{{.PACKAGE}}` with Go
+      start: Installing Go package named `{{.PACKAGE}}`
+      success: Successfully installed `{{.PACKAGE}}`
     cmds:
       - task: :install:software:go
       - go install {{.PACKAGE}}

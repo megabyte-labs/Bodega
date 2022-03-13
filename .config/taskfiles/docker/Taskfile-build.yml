@@ -3,13 +3,10 @@ version: '3'
 
 tasks:
   fat:
-    run: when_changed
     deps:
       - :install:software:docker
       - :install:software:jq
     desc: Build a normal Docker container from the Dockerfile
-    hide:
-      sh: '[ ! -f Dockerfile ]'
     summary: |
       # Build Docker Container from Dockerfile
 
@@ -40,6 +37,9 @@ tasks:
           {{end}}
       VERSION:
         sh: jq -r '.version' package.json
+    run: when_changed
+    hide:
+      sh: '[ ! -f Dockerfile ]'
     log:
       error: Error building `{{.DOCKER_IMAGE}}:{{.VERSION}}`
       start: Building Docker container `{{.DOCKER_IMAGE}}:{{.VERSION}}` (also tagged as latest)
@@ -57,10 +57,10 @@ tasks:
       - task: :docker:update:retag
         vars:
           DOCKER_IMAGE: '{{.DOCKER_IMAGE}}'
-          PREV_VERSION: '{{.VERSION}}'
           NEW_VERSION:
             sh: jq -r '.version' package.json
 
+          PREV_VERSION: '{{.VERSION}}'
   slim:
     deps:
       - :install:software:docker
@@ -150,6 +150,10 @@ tasks:
         sh: echo "{{.DOCKERHUB_PROFILE}}/{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}$(jq -r '.blueprint.slug' package.json){{end}}"
       SLUG:
         sh: echo "{{if .CLI_ARGS}}{{.CLI_ARGS}}{{else}}$(jq -r '.blueprint.slug' package.json){{end}}"
+    log:
+      error: Encountered error while generating compressed Docker image tar file
+      start: Generating compressed Docker image tar file(s)
+      success: Successfully generated compressed Docker image tar file(s)
     cmds:
       - |
         function zipUp() {

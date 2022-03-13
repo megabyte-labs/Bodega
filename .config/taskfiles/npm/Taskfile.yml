@@ -241,7 +241,8 @@ tasks:
   prepare:
     cmds:
       - task: :common:husky
-      - task: prepare:prune
+    status:
+      - '[ -z "$CI" ]'
 
   prepare:prune:
     cmds:

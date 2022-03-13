@@ -38,11 +38,6 @@ tasks:
   install:
     deps:
       - :install:software:jq
-    run: when_changed
-    log:
-      error: Failed to acquire GitHub release from `{{.GITHUB}}`
-      start: Acquiring GitHub binary release from `{{.GITHUB}}`
-      success: Installed GitHub release from `{{.GITHUB}}`, available as `{{.BIN}}`
     vars:
       INSTALL_RECORD:
         sh: |
@@ -51,6 +46,11 @@ tasks:
             echo '{{.BIN}}' >> local/slim/exe.txt
             echo '{{.INSTALL_TASK}}' >> local/slim/install.txt
           fi
+    run: when_changed
+    log:
+      error: Failed to acquire GitHub release from `{{.GITHUB}}`
+      start: Acquiring GitHub binary release from `{{.GITHUB}}`
+      success: Installed GitHub release from `{{.GITHUB}}`, available as `{{.BIN}}`
     cmds:
       - task: :install:go:bin
       - mkdir -p "$HOME/.config/bin"

@@ -93,8 +93,8 @@ tasks:
       - sed -i "s^.*org.opencontainers.image.source.\*^LABEL org.opencontainers.image.source=\"${REPOSITORY_GITHUB}.git\"^g" Dockerfile
       - sed -i "s^.*org.opencontainers.image.url.\*^LABEL org.opencontainers.image.url=\"{{.URL}}\"^g" Dockerfile
       - sed -i "s^.*org.opencontainers.image.vendor.\*^LABEL org.opencontainers.image.vendor=\"{{.ORGANIZATION}}\"^g" Dockerfile
-# yamllint enable rule:line-length
-# eslint-enable max-len
+  # yamllint enable rule:line-length
+  # eslint-enable max-len
 
   retag:
     vars:

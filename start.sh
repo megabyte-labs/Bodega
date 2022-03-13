@@ -14,7 +14,9 @@ set -eo pipefail
 # @description Ensure .config/log is present
 if [ ! -f .config/log ]; then
   mkdir -p .config
-  curl -sSL https://gitlab.com/megabyte-labs/common/shared/-/raw/master/common/.config/log > .config/log
+  if type curl &> /dev/null; then
+    curl -sSL https://gitlab.com/megabyte-labs/common/shared/-/raw/master/common/.config/log > .config/log
+  fi
 fi
 
 # @description Ensure .config/log is executable
@@ -120,7 +122,7 @@ function ensureRootPackageInstalled() {
 # @description If the user is running this script as root, then create a new user named
 # megabyte and restart the script with that user. This is required because Homebrew
 # can only be invoked by non-root users.
-if [ "$EUID" -eq 0 ] && [ -z "$INIT_CWD" ] && type useradd &> /dev/null; then
+if [ "$USER" == "root" ] && [ -z "$INIT_CWD" ] && type useradd &> /dev/null; then
   # shellcheck disable=SC2016
   logger info 'Running as root - creating seperate user named `megabyte` to run script with'
   echo "megabyte ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -180,16 +182,55 @@ function ensurePackageInstalled() {
       brew install "$1"
     elif [[ "$OSTYPE" == 'linux'* ]]; then
       if [ -f "/etc/redhat-release" ]; then
-        sudo yum update
-        sudo yum install -y "$1"
+        if [ "$USER" == "root" ]; then
+          yum install -y "$1"
+        elif type sudo &> /dev/null && sudo -n true; then
+          sudo yum install -y "$1"
+        elif type sudo &> /dev/null; then
+          sudo yum install -y "$1"
+        else
+          # shellcheck disable=SC2016
+          logger warn '`sudo` is unavailable and the user appears to have no permissions'
+        fi
       elif [ -f "/etc/lsb-release" ]; then
-        sudo apt update
-        sudo apt install -y "$1"
+        if [ "$USER" == "root" ]; then
+          apt-get update
+          apt-get install -y "$1"
+        elif type sudo &> /dev/null && sudo -n true; then
+          sudo apt update
+          sudo apt install -y "$1"
+        elif type sudo &> /dev/null; then
+          sudo apt update
+          sudo apt install -y "$1"
+        else
+          # shellcheck disable=SC2016
+          logger warn '`sudo` is unavailable and the user appears to have no permissions'
+        fi
       elif [ -f "/etc/arch-release" ]; then
-        sudo pacman update
-        sudo pacman -S "$1"
+        if [ "$USER" == "root" ]; then
+          pacman update
+          pacman -S "$1"
+        elif type sudo &> /dev/null && sudo -n true; then
+          sudo pacman update
+          sudo pacman -S "$1"
+        elif type sudo &> /dev/null; then
+          sudo pacman update
+          sudo pacman -S "$1"
+        else
+          # shellcheck disable=SC2016
+          logger warn '`sudo` is unavailable and the user appears to have no permissions'
+        fi
       elif [ -f "/etc/alpine-release" ]; then
-        apk --no-cache add "$1"
+        if [ "$USER" == "root" ]; then
+          apk --no-cache add "$1"
+        elif type sudo &> /dev/null && sudo -n true; then
+          sudo apk --no-cache add "$1"
+        elif type sudo &> /dev/null; then
+          sudo apk --no-cache add "$1"
+        else
+          # shellcheck disable=SC2016
+          logger warn '`sudo` is unavailable and the user appears to have no permissions'
+        fi
       else
         logger error "$1 is missing. Please install $1 to continue." && exit 1
       fi
@@ -296,23 +337,27 @@ function installTask() {
   mkdir -p "$TMP_DIR/task"
   tar -xzvf "$DOWNLOAD_DESTINATION" -C "$TMP_DIR/task" > /dev/null
   if type task &> /dev/null && [ -w "$(which task)" ]; then
+    TARGET_BIN_DIR="."
     TARGET_DEST="$(which task)"
   else
-    if [ -w /usr/local/bin ]; then
+    if [ "$USER" == "root" ] || (type sudo &> /dev/null && sudo -n true); then
       TARGET_BIN_DIR='/usr/local/bin'
     else
       TARGET_BIN_DIR="$HOME/.local/bin"
     fi
     TARGET_DEST="$TARGET_BIN_DIR/task"
+  fi
+  if [ "$USER" == "root" ]; then
     mkdir -p "$TARGET_BIN_DIR"
-  fi
-  mv "$TMP_DIR/task/task" "$TARGET_DEST"
-  if type sudo &> /dev/null && sudo -n true; then
-    sudo mv "$TARGET_DEST" /usr/local/bin/task
-    logger success "Installed Task to /usr/local/bin/task"
+    mv "$TMP_DIR/task/task" "$TARGET_DEST"
+  elif type sudo &> /dev/null && sudo -n true; then
+    sudo mkdir -p "$TARGET_BIN_DIR"
+    sudo mv "$TMP_DIR/task/task" "$TARGET_DEST"
   else
-    logger success "Installed Task to $TARGET_DEST"
+    mkdir -p "$TARGET_BIN_DIR"
+    mv "$TMP_DIR/task/task" "$TARGET_DEST"
   fi
+  logger success 'Installed Task to `'"$TARGET_DEST"'`'
   rm "$CHECKSUM_DESTINATION"
   rm "$DOWNLOAD_DESTINATION"
 }
@@ -429,33 +474,32 @@ elif [[ "$OSTYPE" == 'linux-gnu'* ]] || [[ "$OSTYPE" == 'linux-musl'* ]]; then
     ensurePackageInstalled "file"
     ensurePackageInstalled "git"
     ensurePackageInstalled "gzip"
+    ensurePackageInstalled "sudo"
+    ensurePackageInstalled "jq"
+    ensurePackageInstalled "yq"
   fi
 fi
 
-# @description Ensures Homebrew, Poetry, jq, and yq are installed
-if [[ "$OSTYPE" == 'darwin'* ]] || [[ "$OSTYPE" == 'linux-gnu'* ]] || [[ "$OSTYPE" == 'linux-musl'* ]]; then
-  if [ -z "$INIT_CWD" ]; then
-    if ! type brew &> /dev/null; then
-      if type sudo &> /dev/null && sudo -n true; then
-        echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      else
-        logger warn "Homebrew is not installed. The script will attempt to install Homebrew and you might be prompted for your password."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# @description Ensures Homebrew and Poetry are installed
+if [ -z "$NO_INSTALL_HOMEBREW" ]; then
+  if [[ "$OSTYPE" == 'darwin'* ]] || [[ "$OSTYPE" == 'linux-gnu'* ]] || [[ "$OSTYPE" == 'linux-musl'* ]]; then
+    if [ -z "$INIT_CWD" ]; then
+      if ! type brew &> /dev/null; then
+        if type sudo &> /dev/null && sudo -n true; then
+          echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        else
+          logger warn "Homebrew is not installed. The script will attempt to install Homebrew and you might be prompted for your password."
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        fi
       fi
-    fi
-    if [ -f "$HOME/.profile" ]; then
-      # shellcheck disable=SC1091
-      . "$HOME/.profile"
-    fi
-    if ! type poetry &> /dev/null; then
-      # shellcheck disable=SC2016
-      brew install poetry || logger info 'There may have been an issue installing `poetry` with `brew`'
-    fi
-    if ! type jq &> /dev/null; then
-      brew install jq
-    fi
-    if ! type yq &> /dev/null; then
-      brew install yq
+      if [ -f "$HOME/.profile" ]; then
+        # shellcheck disable=SC1091
+        . "$HOME/.profile"
+      fi
+      if ! type poetry &> /dev/null; then
+        # shellcheck disable=SC2016
+        brew install poetry || logger info 'There may have been an issue installing `poetry` with `brew`'
+      fi
     fi
   fi
 fi

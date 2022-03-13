@@ -60,7 +60,6 @@ tasks:
       - :install:npm:{{.NPM_PROGRAM_LOCAL}}
       - :install:software:jq
     env:
-      SEMANTIC_PYTHON_POST_INSTALL: '{{if eq .SEMANTIC_RELEASE "true"}}true{{else}}false{{end}}'
       DEPS:
         sh: jq -r -S '.dependencies + .devDependencies + .optionalDependencies + .peerDependencies' package.json
       PREVIOUS_DEPS:
@@ -70,6 +69,7 @@ tasks:
           else
             echo ""
           fi
+      SEMANTIC_PYTHON_POST_INSTALL: '{{if eq .SEMANTIC_RELEASE "true"}}true{{else}}false{{end}}'
     run: once
     log:
       error: Encountered error while installing local NPM dependencies

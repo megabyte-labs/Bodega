@@ -65,12 +65,12 @@ tasks:
       - :install:modules:local
       - :install:npm:eslint
     desc: Auto-fix only modified files with ESLint
+    env:
+      ESLINT_STAGED_ONLY: on
     log:
       error: Failed to auto-fix modified files with ESLint
       start: Auto-fixing modified files with ESLint
       success: Successfully auto-fixed modified files with ESLint
-    env:
-      ESLINT_STAGED_ONLY: 'on'
     cmds:
       - >
         {{.NPX_HANDLE}}eslint -c package.json --no-eslintrc --format {{.ESLINT_FORMATTER}} --cache
@@ -205,24 +205,6 @@ tasks:
           while read PATHH; do
             misc "$PATHH"
           done < <(find . -type d \( {{.IGNORE_FOLDERS}} \) -prune -o -type f)
-        {{end}}
-
-
-  spelling:markdown:
-    deps:
-      - :install:go:misspell
-    desc: Auto-fix spelling errors in markdown files using `misspell`
-    log:
-      error: Encountered error while attempting to auto-correct spelling mistakes with `misspell`
-      start: Auto-fixing using the `misspell` spell-check engine
-      success: Successfully auto-fixed files using `misspell`
-    cmds:
-      - >
-        {{if .CLI_ARGS}}
-        misspell -w {{.CLI_ARGS}}
-        {{else}}
-        find . -type d \( {{.IGNORE_FOLDERS}} \) -prune -o -type f \( -name '*.md' \)
-        -print0 | xargs -0 -r -n1 misspell -w
         {{end}}
 
   packer:
@@ -390,6 +372,23 @@ tasks:
         {{else}}
           find . -type d \( {{.IGNORE_FOLDERS}} \) -prune -o -type f \( -name '*.sh' -o -name '*.sh.j2' \) \
             -print0 | xargs -0 {{.NPX_HANDLE}}shellcheck -e {{.SHELLCHECK_EXCLUDE}} -f diff | git apply
+        {{end}}
+
+  spelling:markdown:
+    deps:
+      - :install:go:misspell
+    desc: Auto-fix spelling errors in markdown files using `misspell`
+    log:
+      error: Encountered error while attempting to auto-correct spelling mistakes with `misspell`
+      start: Auto-fixing using the `misspell` spell-check engine
+      success: Successfully auto-fixed files using `misspell`
+    cmds:
+      - >
+        {{if .CLI_ARGS}}
+        misspell -w {{.CLI_ARGS}}
+        {{else}}
+        find . -type d \( {{.IGNORE_FOLDERS}} \) -prune -o -type f \( -name '*.md' \)
+        -print0 | xargs -0 -r -n1 misspell -w
         {{end}}
 
   toml:
