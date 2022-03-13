@@ -7,33 +7,37 @@ import (
 
 // Taskfile represents a Taskfile.yml
 type Taskfile struct {
-	Version    string
-	Expansions int
-	Output     string
-	Method     string
-	Includes   *IncludedTaskfiles
-	Vars       *Vars
-	Env        *Vars
-	Tasks      Tasks
-	Silent     bool
-	Dotenv     []string
-	Run        string
+	Version       string
+	Expansions    int
+	Output        string
+	Method        string
+	Includes      *IncludedTaskfiles
+	Vars          *Vars
+	Env           *Vars
+	Tasks         Tasks
+	Silent        bool
+	Dotenv        []string
+	Run           string
+	ShellRc       string
+	RunOnceSystem bool
 }
 
 // UnmarshalYAML implements yaml.Unmarshaler interface
 func (tf *Taskfile) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var taskfile struct {
-		Version    string
-		Expansions int
-		Output     string
-		Method     string
-		Includes   *IncludedTaskfiles
-		Vars       *Vars
-		Env        *Vars
-		Tasks      Tasks
-		Silent     bool
-		Dotenv     []string
-		Run        string
+		Version       string
+		Expansions    int
+		Output        string
+		Method        string
+		Includes      *IncludedTaskfiles
+		Vars          *Vars
+		Env           *Vars
+		Tasks         Tasks
+		Silent        bool
+		Dotenv        []string
+		Run           string
+		ShellRc       string `yaml:"profile"`
+		RunOnceSystem bool   `yaml:"run_once_system"`
 	}
 	if err := unmarshal(&taskfile); err != nil {
 		return err
@@ -49,6 +53,8 @@ func (tf *Taskfile) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	tf.Silent = taskfile.Silent
 	tf.Dotenv = taskfile.Dotenv
 	tf.Run = taskfile.Run
+	tf.ShellRc = taskfile.ShellRc
+	tf.RunOnceSystem = taskfile.RunOnceSystem
 	if tf.Expansions <= 0 {
 		tf.Expansions = 2
 	}

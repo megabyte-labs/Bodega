@@ -7,11 +7,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/go-task/task/v3/internal/compiler"
-	"github.com/go-task/task/v3/internal/execext"
-	"github.com/go-task/task/v3/internal/logger"
-	"github.com/go-task/task/v3/internal/templater"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/compiler"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/execext"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/logger"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/templater"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 var _ compiler.Compiler = &CompilerV2{}
@@ -108,7 +108,7 @@ func (c *CompilerV2) HandleDynamicVar(v taskfile.Var, _ string) (string, error) 
 		Stdout:  &stdout,
 		Stderr:  c.Logger.Stderr,
 	}
-	if err := execext.RunCommand(context.Background(), opts); err != nil {
+	if _, err := execext.RunCommand(context.Background(), opts, nil); err != nil {
 		return "", fmt.Errorf(`task: Command "%s" failed: %s`, opts.Command, err)
 	}
 

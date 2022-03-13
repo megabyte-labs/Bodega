@@ -11,22 +11,25 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/chzyer/readline"
+	shellquote "github.com/kballard/go-shellquote"
 	"github.com/spf13/pflag"
 	"mvdan.cc/sh/v3/syntax"
 
-	"github.com/go-task/task/v3"
-	"github.com/go-task/task/v3/args"
-	"github.com/go-task/task/v3/internal/logger"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega"
+	"gitlab.com/megabyte-labs/go/cli/bodega/args"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/logger"
+	"gitlab.com/megabyte-labs/go/cli/bodega/server"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 var (
 	version = ""
 )
 
-const usage = `Usage: task [-ilfwvsd] [--init] [--list] [--force] [--watch] [--verbose] [--silent] [--dir] [--taskfile] [--dry] [--summary] [task...]
+const usage = `Usage: task [-ilfwvsdm] [--init] [--list] [--force] [--watch] [--verbose] [--silent] [--dir] [--taskfile] [--dry] [--menu] [--summary] [--debug] [task...]
 
-Runs the specified task(s). Falls back to the "default" task if no task name
+Runs the specified task(s). Runs a built-in shell if no task name
 was specified, or lists all tasks if an unknown task name was specified.
 
 Example: 'task hello' with the following 'Taskfile.yml' file will generate an
@@ -46,6 +49,54 @@ tasks:
 Options:
 `
 
+// repl provides a bare REPL functionality to Task
+func repl() error {
+
+	log.Println("Type 'help' for a list of commands or 'quit' to exit ")
+	rl, err := readline.New("task> ")
+	if err != nil {
+		return err
+	}
+	defer rl.Close()
+REPL:
+	for {
+
+		// TODO: support context signals and autocompletion
+		line, err := rl.Readline()
+		if err != nil {
+			log.Fatalf("readline error: %s", err)
+			break
+		}
+		args, err := shellquote.Split(line)
+		if err != nil {
+			log.Printf("Error: %s", err)
+			continue
+		}
+		if len(args) < 1 {
+			continue
+		}
+		switch args[0] {
+		case "quit":
+			break REPL // long live goto!
+		case "clear":
+			readline.ClearScreen(os.Stderr)
+			continue
+		case "help":
+			pflag.Usage()
+			continue
+		default:
+			// log.Printf("Unknown command %s", args[0])
+			// continue
+		}
+
+		os.Args = append([]string{"task"}, args...)
+		start(true)
+
+	}
+	return nil
+
+}
+
 func main() {
 	log.SetFlags(0)
 	log.SetOutput(os.Stderr)
@@ -55,6 +106,20 @@ func main() {
 		pflag.PrintDefaults()
 	}
 
+	// Launches a shell-like interface if no arguments were provided
+	if len(os.Args) == 1 {
+		if err := repl(); err != nil {
+			log.Printf("%v", err)
+			os.Exit(1)
+		}
+		return
+	}
+	start(false)
+}
+
+// start is the entry function for Task
+func start(calledFromRepl bool) {
+
 	var (
 		versionFlag bool
 		helpFlag    bool
@@ -62,38 +127,59 @@ func main() {
 		list        bool
 		listAll     bool
 		status      bool
+		menu        bool
 		force       bool
 		watch       bool
-		verbose     bool
 		silent      bool
 		dry         bool
 		summary     bool
+		debug       bool
 		parallel    bool
+		basicServer bool
+		useTLS      bool
 		concurrency int
+		verbose     int
 		dir         string
 		entrypoint  string
 		output      string
 		color       bool
 	)
 
+	// Reset the internal state for the pflag package. This is necessary
+	// to prevent redefining flags (which causes pflag to panic).
+	// This is typically relevant in testing input with command line flags
+	// as seen in tools like Cobra, kubectl, calico, ... etc.
+	// Instead of reseting the internal state of pflag, you could operate
+	// on a new set of flags:
+	// 	newFlags := pflag.NewFlagSet(args[0], ContinueOnError)
+	//	...
+	//	newFlags.Parse(args[1:])
+	if calledFromRepl {
+		pflag.CommandLine = pflag.NewFlagSet("task", pflag.PanicOnError)
+	}
 	pflag.BoolVar(&versionFlag, "version", false, "show Task version")
 	pflag.BoolVarP(&helpFlag, "help", "h", false, "shows Task usage")
 	pflag.BoolVarP(&init, "init", "i", false, "creates a new Taskfile.yaml in the current folder")
 	pflag.BoolVarP(&list, "list", "l", false, "lists tasks with description of current Taskfile")
 	pflag.BoolVarP(&listAll, "list-all", "a", false, "lists tasks with or without a description")
 	pflag.BoolVar(&status, "status", false, "exits with non-zero exit code if any of the given tasks is not up-to-date")
+	pflag.BoolVarP(&menu, "menu", "m", false, "runs an interactive listing of tasks")
 	pflag.BoolVarP(&force, "force", "f", false, "forces execution even when the task is up-to-date")
 	pflag.BoolVarP(&watch, "watch", "w", false, "enables watch of the given task")
-	pflag.BoolVarP(&verbose, "verbose", "v", false, "enables verbose mode")
+	pflag.CountVarP(&verbose, "verbose", "v", "enables verbose mode (repeat option for more output)")
 	pflag.BoolVarP(&silent, "silent", "s", false, "disables echoing")
 	pflag.BoolVarP(&parallel, "parallel", "p", false, "executes tasks provided on command line in parallel")
 	pflag.BoolVar(&dry, "dry", false, "compiles and prints tasks in the order that they would be run, without executing them")
 	pflag.BoolVar(&summary, "summary", false, "show summary about a task")
+	pflag.BoolVar(&debug, "debug", false, "stop before each command execution")
 	pflag.StringVarP(&dir, "dir", "d", "", "sets directory of execution")
 	pflag.StringVarP(&entrypoint, "taskfile", "t", "", `choose which Taskfile to run. Defaults to "Taskfile.yml"`)
 	pflag.StringVarP(&output, "output", "o", "", "sets output style: [interleaved|group|prefixed]")
 	pflag.BoolVarP(&color, "color", "c", true, "colored output. Enabled by default. Set flag to false or use NO_COLOR=1 to disable")
 	pflag.IntVarP(&concurrency, "concurrency", "C", 0, "limit number tasks to run concurrently")
+	pflag.BoolVar(&basicServer, "server", false, "runs as a server")
+	pflag.BoolVar(&useTLS, "use-tls", false, "enable server to use TLS")
+
 	pflag.Parse()
 
 	if versionFlag {
@@ -126,6 +212,17 @@ func main() {
 		entrypoint = filepath.Base(entrypoint)
 	}
 
+	if basicServer {
+		s := &server.BasicServer{
+			Entrypoint: entrypoint,
+		}
+		if err := s.Start(useTLS); err != nil {
+			log.Fatal("task: error running server: ", err)
+		}
+		return
+
+	}
+
 	e := task.Executor{
 		Force:       force,
 		Watch:       watch,
@@ -135,6 +232,7 @@ func main() {
 		Dry:         dry,
 		Entrypoint:  entrypoint,
 		Summary:     summary,
+		Debug:       debug,
 		Parallel:    parallel,
 		Color:       color,
 		Concurrency: concurrency,
@@ -164,6 +262,19 @@ func main() {
 		return
 	}
 
+	// Identify task aliases
+	aliasesMap := make(map[string]string)
+	for _, task := range e.Taskfile.Tasks {
+		if task.Alias != "" {
+			aliasesMap[task.Alias] = task.Task
+		}
+	}
+
+	if debug {
+		// A hack to make HandleDynamicVar stop before command execution
+		e.Taskfile.Env.Set("__DEBUG__", taskfile.Var{Static: "true"})
+	}
+
 	var (
 		calls   []taskfile.Call
 		globals *taskfile.Vars
@@ -178,6 +289,14 @@ func main() {
 		calls, globals = args.ParseV3(tasksAndVars...)
 	} else {
 		calls, globals = args.ParseV2(tasksAndVars...)
+	}
+
+	// Resolve task aliases beffore execution
+	for callIdx, c := range calls {
+		if _, ok := e.Taskfile.Tasks[c.Task]; !ok {
+			calls[callIdx] = taskfile.Call{Task: aliasesMap[c.Task], Vars: c.Vars}
+			callIdx++
+		}
 	}
 
 	globals.Set("CLI_ARGS", taskfile.Var{Static: cliArgs})
@@ -195,9 +314,29 @@ func main() {
 		return
 	}
 
+	if menu {
+		// --menu should not work
+		if calledFromRepl {
+			if e.FancyLogger != nil {
+				e.FancyPrintTasksHelp()
+			}
+			return
+		}
+		if err := e.RunUI(ctx); err != nil {
+			fmt.Println("interface: ", err)
+		}
+		return
+	}
+	if list {
+		e.ListAllTasks()
+		return
+	}
+
 	if err := e.Run(ctx, calls...); err != nil {
 		e.Logger.Errf(logger.Red, "%v", err)
-		os.Exit(1)
+		if !calledFromRepl {
+			os.Exit(1)
+		}
 	}
 }
 

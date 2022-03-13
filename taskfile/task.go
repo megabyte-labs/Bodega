@@ -6,9 +6,12 @@ type Tasks map[string]*Task
 // Task represents a task
 type Task struct {
 	Task          string
+	ShellRc       string
+	Alias         string
 	Cmds          []*Cmd
 	Deps          []*Dep
 	Label         string
+	LogMsg        *LogMsg
 	Desc          string
 	Summary       string
 	Sources       []string
@@ -24,6 +27,10 @@ type Task struct {
 	Prefix        string
 	IgnoreError   bool
 	Run           string
+	Prompt        *Prompt
+	// TODO: Hide should be bool but we want Go templates
+	Hide          string
+	RunOnceSystem bool
 }
 
 func (t *Task) Name() string {
@@ -47,9 +54,12 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	var task struct {
+		Alias         string
+		ShellRc       string `yaml:"profile"`
 		Cmds          []*Cmd
 		Deps          []*Dep
 		Label         string
+		LogMsg        *LogMsg `yaml:"log"`
 		Desc          string
 		Summary       string
 		Sources       []string
@@ -65,13 +75,19 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Prefix        string
 		IgnoreError   bool `yaml:"ignore_error"`
 		Run           string
+		Prompt        *Prompt
+		Hide          string
+		RunOnceSystem bool `yaml:"run_once_system"`
 	}
 	if err := unmarshal(&task); err != nil {
 		return err
 	}
+	t.ShellRc = task.ShellRc
 	t.Cmds = task.Cmds
 	t.Deps = task.Deps
+	t.Alias = task.Alias
 	t.Label = task.Label
+	t.LogMsg = task.LogMsg
 	t.Desc = task.Desc
 	t.Summary = task.Summary
 	t.Sources = task.Sources
@@ -87,5 +103,8 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	t.Prefix = task.Prefix
 	t.IgnoreError = task.IgnoreError
 	t.Run = task.Run
+	t.Prompt = task.Prompt
+	t.Hide = task.Hide
+	t.RunOnceSystem = task.RunOnceSystem
 	return nil
 }

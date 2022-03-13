@@ -185,5 +185,41 @@ user@user:$
 
 [![bubbletea_list_demo](https://asciinema.org/a/sem2Ac3yZIUJ03HTMHyOEOq7I)](https://asciinema.org/a/sem2Ac3yZIUJ03HTMHyOEOq7I)
 
+### Output custom messages on task success/failure
+Customize the output message if the task successfully ran or failed. You can also define a custom message that runs before the task start. 
+
+```yaml
+  custom-logs:
+    run: once
+    desc: "includes custom messages on start/stop and error"
+    cmds:
+      - echo 'hey'
+      - cmd: exit 99
+        ignore_error: true
+      - cmd: exit 12
+        ignore_error: false
+    log:
+      success: 'hello custom-logs task'
+      start: 'Log message to show before Go starts running the task logic (including env scripts)'
+      error:
+        default: 'Log message to show if the cmds return exit code 1 or greater'
+        codes:          # optional!
+          - code: 12
+            message: "code exited with error code 12"
+```
+
+If the task exited with a particular error number, you may also tailor a speicific message for each error code with the `codes` field. Running the above task should output:
+
+```
+hello custom-logs task
+task: [custom-logs] echo 'hey'
+hey
+task: [custom-logs] exit 99
+task: [custom-logs] exit 12
+code exited with error code 12
+task: Failed to run task "custom-logs": exit status 12
+
+```
+
 ### [WIP] Progress bar
 Trach the issue [here](https://github.com/charmbracelet/bubbletea/issues/179)

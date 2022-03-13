@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-task/task/v3/internal/execext"
-	"github.com/go-task/task/v3/internal/logger"
-	"github.com/go-task/task/v3/internal/status"
-	"github.com/go-task/task/v3/taskfile"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/execext"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/logger"
+	"gitlab.com/megabyte-labs/go/cli/bodega/internal/status"
+	"gitlab.com/megabyte-labs/go/cli/bodega/taskfile"
 )
 
 // Status returns an error if any the of given tasks is not up-to-date
@@ -106,11 +106,12 @@ func (e *Executor) checksumChecker(t *taskfile.Task) status.Checker {
 
 func (e *Executor) isTaskUpToDateStatus(ctx context.Context, t *taskfile.Task) (bool, error) {
 	for _, s := range t.Status {
-		err := execext.RunCommand(ctx, &execext.RunCommandOptions{
+		_, err := execext.RunCommand(ctx, &execext.RunCommandOptions{
 			Command: s,
+			Debug:   e.Debug,
 			Dir:     t.Dir,
 			Env:     getEnviron(t),
-		})
+		}, nil)
 		if err != nil {
 			e.Logger.VerboseOutf(logger.Yellow, "task: status command %s exited non-zero: %s", s, err)
 			return false, nil
