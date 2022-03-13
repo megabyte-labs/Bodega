@@ -212,6 +212,11 @@
       "command": "bash start.sh && task git:remove:submodules"
     },
     {
+      "label": "(go:test:convey): Run tests through the browser with GoConvey",
+      "type": "shell",
+      "command": "bash start.sh && task go:test:convey"
+    },
+    {
       "label": "(group:exec): Execute group commands on any GitLab group (including repositories in sub-groups)",
       "type": "shell",
       "command": "bash start.sh && task group:exec"
@@ -277,7 +282,7 @@
       "command": "bash start.sh && task lint:eslint:warn-all"
     },
     {
-      "label": "(lint:go): Lint Go with all available Go linters",
+      "label": "(lint:go): Lint Go with `golangci-lint`",
       "type": "shell",
       "command": "bash start.sh && task lint:go"
     },
