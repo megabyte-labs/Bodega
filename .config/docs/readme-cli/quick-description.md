@@ -1,3 +1,3 @@
-> </br><h4 align="center">**{{ subheader_description }}**</h4></br>
+> </br><h4 align="center">**{{ subheaderDescription }}**</h4></br>
 
-![{{ terminalizer_title }}]({{ repository.gitlab }}{{ repository.location.demo.gitlab }})
+<!--TERMINALIZE![{{ terminalizer_title }}]({{ repository.gitlab }}{{ repository.location.demo.gitlab }})TERMINALIZE-->

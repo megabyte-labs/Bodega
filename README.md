@@ -6,7 +6,7 @@
   </center>
 </div>
 <div align="center">
-  <center><h1 align="center"><i></i>Bodega - An Invaluable Task Runner Known<i></i></h1></center>
+  <center><h1 align="center"><i></i>Bodega - Your Go-To Task Runner<i></i></h1></center>
   <center><h4 style="color: #18c3d1;"><i></i><a href="https://megabyte.space" target="_blank">Megabyte Labs</a></h4><i></i></center>
 </div>
 
@@ -46,9 +46,9 @@
   </a>
 </div>
 
-> </br><h4 align="center">**subheader_description**</h4></br>
+> </br><h4 align="center">**A gorgeous, feature-packed drop-in replacement for the [go-task/task](https://github.com/go-task/task) project**</h4></br>
 
-![terminalizer_title](https://gitlab.com/megabyte-labs/go/cli/bodega/-/raw/master/docs/demo.gif)
+<!--TERMINALIZE![terminalizer_title](https://gitlab.com/megabyte-labs/go/cli/bodega/-/raw/master/docs/demo.gif)TERMINALIZE-->
 
 <a href="#table-of-contents" style="width:100%"><img style="width:100%" src="https://gitlab.com/megabyte-labs/assets/-/raw/master/png/aqua-divider.png" /></a>
 
@@ -82,7 +82,7 @@
 
 ## Overview
 
-**Bodega** is taking [go-task](https://github.com/go-task/task) to a whole new level. It adds powerful UX features and functional improvements while retaining backwards compatibility. For those of you who do not know, Task is a task runner / Make alternative written in Go. It allows you to define bash script snippets in YML files and provides some advanced features. Some of the features it includes is the ability to define dependencies, running tasks conditionally, caching values, and a built-in method of housing CLI documentation. **Bodega** takes go-task to the next level by improving the TUI experience and including features that allow you to use the project as a CLI-generator.
+**Bodega** takes [go-task](https://github.com/go-task/task) to a whole new level. It adds powerful UX features and functional improvements while retaining backwards compatibility. For those of you who do not know, Task is a task runner / Make alternative written in Go. It allows you to define bash script snippets in YML files and provides some advanced features. Some of the features it includes is the ability to define dependencies, running tasks conditionally, caching values, and a built-in method of housing CLI documentation. **Bodega** takes go-task to the next level by improving the TUI experience and including features that allow you to use the project as a CLI-generator.
 
 <a href="#features" style="width:100%"><img style="width:100%" src="https://gitlab.com/megabyte-labs/assets/-/raw/master/png/aqua-divider.png" /></a>
 
@@ -362,7 +362,7 @@ You can install the CLI by compiling it from the source as long as you have a re
 ```
 git clone https://github.com/ProfessorManhattan/Bodega.git
 cd {{#withLast (split repository.github "/")}}this}}{{/withLast
-.build_command
+go build -o dist/task cmd/task/task.go
 sudo mv ./dist/task /usr/local/bin
 ```
 
