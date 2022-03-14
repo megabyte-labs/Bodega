@@ -85,15 +85,16 @@
     "gitlab_project_id": "28755315",
     "group": "go",
     "name": "Bodega",
-    "overview": "**Bodega** is taking [go-task](https://github.com/go-task/task) to a whole new level. It adds powerful UX features and functional improvements while retaining backwards compatibility. For those of you who do not know, Task is a task runner / Make alternative written in Go. It allows you to define bash script snippets in YML files and provides some advanced features. Some of the features it includes is the ability to define dependencies, running tasks conditionally, caching values, and a built-in method of housing CLI documentation. **Bodega** takes go-task to the next level by improving the TUI experience and including features that allow you to use the project as a CLI-generator.",
+    "overview": "**Bodega** takes [go-task](https://github.com/go-task/task) to a whole new level. It adds powerful UX features and functional improvements while retaining backwards compatibility. For those of you who do not know, Task is a task runner / Make alternative written in Go. It allows you to define bash script snippets in YML files and provides some advanced features. Some of the features it includes is the ability to define dependencies, running tasks conditionally, caching values, and a built-in method of housing CLI documentation. **Bodega** takes go-task to the next level by improving the TUI experience and including features that allow you to use the project as a CLI-generator.",
     "repository": {
       "github": "https://github.com/ProfessorManhattan/Bodega",
       "gitlab": "https://gitlab.com/megabyte-labs/go/cli/bodega"
     },
     "slug": "bodega",
     "snapPackage": "bodega",
+    "subheaderDescription": "A gorgeous, feature-packed drop-in replacement for the [go-task/task](https://github.com/go-task/task) project",
     "subgroup": "cli",
-    "title": "Bodega - An Invaluable Task Runner Known"
+    "title": "Bodega - Your Go-To Task Runner"
   },
   "changelog": {
     "displayTypes": [
