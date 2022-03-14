@@ -118,7 +118,9 @@ vars:
   NPX_PACKAGE: pnpx
   PROJECT_TYPE:
     sh: |
+      # yamllint disable-line rule:line-length
       if type jq &> /dev/null && [ -f package.json ]; then VER="$(jq -r '.blueprint.group' package.json)"; if [ "$VER" == 'null' ]; then echo TYPE="go"; else TYPE="$VER"; fi; else TYPE="go"; fi
+      # yamllint disable-line rule:line-length
       if type jq &> /dev/null && [ -f package.json ]; then VER="$(jq -r '.blueprint.subgroup' package.json)"; if [ "$VER" == 'null' ]; then SUBTYPE="cli"; else SUBTYPE="$VER"; fi; else SUBTYPE="cli"; fi
       if [ "$TYPE" == 'common' ] && [ "$SUBTYPE" == 'shared' ]; then
         echo 'shared'

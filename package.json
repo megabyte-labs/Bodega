@@ -30,7 +30,7 @@
     "release": "bash start.sh && task publish:semantic-release",
     "repair": "bash <(curl -sS https://install.doctor/repair)",
     "start": "test -z SKIP_NPM_START && bash start.sh || true",
-    "test": "go test ./...",
+    "test": "bash start.sh && task go:test",
     "preuninstall": "go-npm uninstall || true",
     "unpack": "bash start.sh && task npm:bundle:unpack",
     "update": "bash start.sh && task update"
