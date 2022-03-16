@@ -23,8 +23,7 @@ vars:
   GITHUB_ORG: {{profile.github}}
   GITHUB_USER: {{profile.github}}
   GROUP_EXEC_ASYNC: 'false'
-  IGNORE_FOLDERS: >-
-    -path './.autodoc/*' -o -path './.cache/*' -o -path './.common*' -o -path './.config/*' -o -path './.git/*'
+  IGNORE_FOLDERS: -path './.autodoc/*' -o -path './.cache/*' -o -path './.common*' -o -path './.config/*' -o -path './.git/*'
     -o -path './.github/*' -o -path './.gitlab/*' -o -path './.husky/*' -o -path './.modules/*' -o -path './.npm/*'
     -o -path './.pnpm-store/*' -o -path './.shared/*' -o -path './.task/*' -o -path './.venv/*' -o -path './.vscode/*'
     -o -path './build/*' -o -path './dist/*' -o -path './node_modules/*' -o -path './roles/*' -o -name pnpm-lock.yaml
@@ -41,7 +40,9 @@ vars:
   # yamllint disable rule:line-length
   PROJECT_TYPE:
     sh: |
+      # yamllint disable-line rule:line-length
       if type jq &> /dev/null && [ -f package.json ]; then VER="$(jq -r '.blueprint.group' package.json)"; if [ "$VER" == 'null' ]; then echo TYPE="{{group}}"; else TYPE="$VER"; fi; else TYPE="{{group}}"; fi
+      # yamllint disable-line rule:line-length
       if type jq &> /dev/null && [ -f package.json ]; then VER="$(jq -r '.blueprint.subgroup' package.json)"; if [ "$VER" == 'null' ]; then SUBTYPE="{{subgroup}}"; else SUBTYPE="$VER"; fi; else SUBTYPE="{{subgroup}}"; fi
       if [ "$TYPE" == 'common' ] && [ "$SUBTYPE" == 'shared' ]; then
         echo 'shared'
@@ -694,6 +695,35 @@ tasks:
     cmds:
       - task: upstream:\{{.PROJECT_TYPE}}
 
+  tag:deps:
+    desc: Inject a new command in the `Taskfile.yml` that includes all tasks matching a given tag as deps
+    summary: |
+      # Create Task with Deps Based on Tag
+
+      Use this task to inject a new task in the `Taskfile.yml` that includes all the tasks
+      that are tagged with a certain tag as deps. The tag must be supplied as a CLI argument.
+
+      Say you have a task that looks like this:
+
+      ```
+      my-task:
+        tags:
+          - docker
+        cmds:
+          - docker volume ls
+      ```
+
+      Then, by running `task tag:deps -- docker`, you will get the following task injected into the
+      `Taskfile.yml` file:
+
+      ```
+      deps:docker:
+        deps:
+          - my-task
+      ```
+    cmds:
+      - task: common:util:task:tag:deps
+
   template:
     deps:
       - install:npm:liquidjs
@@ -756,15 +786,11 @@ tasks:
       start: Updating the repository..
       success: Finished updating the repository
     cmds:
+      - task: :install:software:brew
       - |
-        if ! type brew > /dev/null; then
-          task install:software:brew
-          . "$HOME/.profile"
-        fi
-        if ! type jq > /dev/null || ! type yq > /dev/null || ! type node > /dev/null || ! type go > /dev/null || ! type poetry > /dev/null; then
-          task update:prereqs
-          . "$HOME/.profile"
-        fi
+        . "$HOME/.profile"
+        task update:prereqs
+        . "$HOME/.profile"
         task update:init
         task prepare
         task update:finish
