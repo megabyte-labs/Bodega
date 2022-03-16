@@ -102,6 +102,7 @@ tasks:
     status:
       - '[ -z "$GROUP_ACCESS_TOKEN" ] || [ -z "$GITLAB_CI_EMAIL" ] || [ -z "$GITLAB_CI_NAME" ] || [ -z "$GITLAB_CI" ]'
 
+
   lockfiles:
     cmds:
       - |
