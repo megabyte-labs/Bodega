@@ -1,16 +1,70 @@
 {
-  "author": "{{author.name}} <{{author.email}}> ({{link.home}})",
-  "blueprint": {
-    "group": "go",
-    "repository": {
-      "github": "{{#if repository.github}}{{repository.github}}{{else}}https://github.com/{{profile.github}}/{{repository.prefix.github}}{{slug}}{{/if}}",
-      "gitlab": "{{#if repository.gitlab}}{{repository.gitlab}}{{else}}{{repository.gitlabBaseUrl}}/{{group}}/{{subgroup}}/{{slug}}{{/if}}"
-    },
-    "subgroup": "cli"
+  "private": false,
+  "name": "go-bodega",
+  "version": "3.10.0",
+  "description": "A gorgeous, feature-packed drop-in replacement for the go-task project",
+  "license": "MIT",
+  "author": "Brian Zalewski <brian@megabyte.space> (https://megabyte.space)",
+  "homepage": "https://megabyte.space",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ProfessorManhattan/Bodega.git"
   },
   "bugs": {
-    "email": "{{email.help}}",
-    "url": "{{#if repository.gitlab}}{{repository.gitlab}}{{else}}{{repository.gitlabBaseUrl}}/{{group}}/{{subgroup}}/{{slug}}{{/if}}{{repository.location.issues.gitlab}}"
+    "email": "help@megabyte.space",
+    "url": "https://gitlab.com/megabyte-labs/go/cli/bodega/-/issues"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "bash start.sh && task go:build",
+    "commit": "bash start.sh && task commit",
+    "fix": "bash start.sh && task fix",
+    "help": "bash start.sh && task --menu",
+    "lint": "bash start.sh && task lint",
+    "preload": "bash start.sh && task preload",
+    "prepare": "bash start.sh && (test -f Taskfile.yml && task npm:prepare) || true",
+    "prepublishOnly": "test -z $SKIP_PREPUB && bash start.sh && task npm:bundle:create || true",
+    "release": "bash start.sh && task publish:semantic-release",
+    "repair": "bash <(curl -sS https://install.doctor/repair)",
+    "start": "test -z $SKIP_NPM_START && bash start.sh || true",
+    "test": "bash start.sh && task go:test",
+    "unpack": "bash start.sh && task npm:bundle:unpack",
+    "update": "bash start.sh && task update"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/git-cz-emoji"
+    }
+  },
+  "dependencies": {},
+  "optionalDependencies": {},
+  "devDependencies": {
+    "@commitlint/config-conventional": "latest",
+    "eslint-config-strict-mode": "latest",
+    "git-cz-emoji": "latest",
+    "handlebars-helpers": "latest",
+    "prettier-config-sexy-mode": "latest",
+    "semantic-release-config": "latest",
+    "typescript": "^4.5.5"
+  },
+  "keywords": [
+    "mblabs",
+    "megabytelabs",
+    "professormanhattan",
+    "washingtondc"
+  ],
+  "engines": {
+    "node": ">=14.18.0"
+  },
+  "publishConfig": {
+    "@megabyte:registry": "https://gitlab.com/api/v4/projects/28755315/packages/npm/",
+    "access": "public"
+  },
+  "blueprint": {
+    "repository": {
+      "github": "https://github.com/ProfessorManhattan/Bodega",
+      "gitlab": "https://gitlab.com/megabyte-labs/go/cli/bodega"
+    }
   },
   "changelog": {
     "displayTypes": [
@@ -28,60 +82,19 @@
     ],
     "helpUrl": "https://megabyte.space/docs/contributing/commits"
   },
-  "config": {
-    "commitizen": {
-      "path": "node_modules/git-cz-emoji"
-    }
-  },
-  "dependencies": {
-    "go-npm": "^0.1.9"
-  },
-  "description": "{{description}}",
-  "devDependencies": {
-    "@commitlint/config-conventional": "latest",
-    "eslint-config-strict-mode": "latest",
-    "git-cz-emoji": "latest",
-    "handlebars-helpers": "latest",
-    "prettier-config-sexy-mode": "latest",
-    "semantic-release-config": "latest",
-    "typescript": "^4.5.5"
-  },
-  "engines": {
-    "node": ">=14.18.0"
-  },
   "eslintConfig": {
     "extends": "eslint-config-strict-mode"
   },
-  "files": [],
   "funding": [
     {
       "type": "opencollective",
-      "url": "{{profile_link.opencollective}}/{{profile.opencollective}}"
+      "url": "https://opencollective.com/megabytelabs"
     },
     {
       "type": "patreon",
-      "url": "{{profile_link.patreon}}/{{profile.patreon}}"
+      "url": "https://www.patreon.com/ProfessorManhattan"
     }
   ],
-  "goBinary": {
-    "name": "{{binName}}",
-    "path": "./bin",
-    "url": "{{repository.github}}/releases/download/v{{version}}/{{replace name ' ' '-'}}-{{version}}-{{goBinarySystemInfo}}.tar.gz"
-  },
-  "homepage": "{{link.home}}",
-  "keywords": [
-    "automation",
-    "cli",
-    "go",
-    "go-lang",
-    "golang",
-    "mblabs",
-    "megabytelabs",
-    "professormanhattan",
-    "terminal",
-    "washingtondc"
-  ],
-  "license": "{{license}}",
   "lint-staged": {
     "(Brewfile|composer.lock|Gemfile|Gopkg.lock|Pipfile.lock)": [
       "task fix:prettier --"
@@ -149,7 +162,6 @@
       "task image:compress --"
     ]
   },
-  "name": "{{#if customPackageName}}{{customPackageName}}{{else}}@{{profile.npmjs_organization}}/{{repository.prefix.github}}{{slug}}{{/if}}",
   "ntl": {
     "descriptions": {
       "build": "Builds the project using the build command specified under scripts in package.json",
@@ -167,7 +179,6 @@
       "update": "Update and refresh the repository with upstream changes and templated parts"
     }
   },
-  "optionalDependencies": {},
   "pnpm": {
     "allowedVersions": {
       "@typescript-eslint/eslint-plugin": "5",
@@ -186,11 +197,6 @@
     }
   },
   "prettier": "prettier-config-sexy-mode",
-  "private": false,
-  "publishConfig": {
-    "@megabyte:registry": "https://gitlab.com/api/v4/projects/{{gitlab_project_id}}/packages/npm/",
-    "access": "{{npm_publish_config_access}}"
-  },
   "release": {
     "branches": [
       "main",
@@ -206,29 +212,5 @@
       }
     ],
     "extends": "semantic-release-config"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+{{#if repository.github}}{{repository.github}}{{else}}https://github.com/{{profile.github}}/{{repository.prefix.github}}{{slug}}{{/if}}.git"
-  },
-  "scripts": {
-    "build": "bash start.sh && {{{replace scriptsBuild scriptsReplaceThis scriptsReplaceWith}}}",
-    "commit": "bash start.sh && task commit",
-    "fix": "bash start.sh && task fix",
-    "help": "bash start.sh && task --menu",
-    "lint": "bash start.sh && task lint",
-    "postinstall": "go-npm install || true",
-    "preload": "bash start.sh && task preload",
-    "prepare": "bash start.sh && (test -f Taskfile.yml && task npm:prepare) || true",
-    "prepublishOnly": "test -z $SKIP_PREPUB && bash start.sh && task npm:bundle:create || true",
-    "preuninstall": "go-npm uninstall || true",
-    "release": "bash start.sh && task publish:semantic-release",
-    "repair": "bash <(curl -sS https://install.doctor/repair)",
-    "start": "test -z $SKIP_NPM_START && bash start.sh || true",
-    "test": "bash start.sh && {{{replace scriptsTest scriptsReplaceThis scriptsReplaceWith}}}",
-    "unpack": "bash start.sh && task npm:bundle:unpack",
-    "update": "bash start.sh && task update"
-  },
-  "type": "{{npm_type}}",
-  "version": "{{version}}"
+  }
 }

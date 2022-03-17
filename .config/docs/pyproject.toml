@@ -1,14 +1,14 @@
 [tool.poetry]
-name = "{{#if customPyPiPackageName}}{{customPyPiPackageName}}{{else}}{{#if customPackageName}}{{customPackageName}}{{else}}{{repository.prefix.github}}{{slug}}{{/if}}{{/if}}"
-version = "{{version}}"
-description = "{{description}}"
-authors = ["{{author.name}} <{{author.email}}>"]
-license = "{{license}}"
+name = "go-bodega"
+version = "3.10.0"
+description = "A gorgeous, feature-packed drop-in replacement for the go-task project"
+authors = ["Brian Zalewski <brian@megabyte.space>"]
+license = "MIT"
 readme = "README.md"
-homepage = "{{link.home}}"
-documentation = "{{docs.link}}"
-repository = "{{repository.github}}"
-keywords = [{{{poetryKeywords}}}]
+homepage = "https://megabyte.space"
+documentation = "https://megabyte.space/docs/common/go"
+repository = "https://github.com/ProfessorManhattan/Bodega"
+keywords = ["automation", "cli", "go", "go-lang", "golang", "mblabs", "megabytelabs", "professormanhattan", "terminal", "washingtondc"]
 include = ["docs/CHANGELOG.md", "LICENSE"]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -73,12 +73,12 @@ semantic = [
 ]
 
 [tool.poetry.urls]
-"Bug Tracker" = "{{repository.gitlab}}{{repository.location.issues.gitlab}}"
-"GitHub" = "{{repository.github}}"
-"GitLab" = "{{repository.gitlab}}"
+"Bug Tracker" = "https://gitlab.com/megabyte-labs/go/cli/bodega/-/issues"
+"GitHub" = "https://github.com/ProfessorManhattan/Bodega"
+"GitLab" = "https://gitlab.com/megabyte-labs/go/cli/bodega"
 "Give Directly" = "https://givedirectly.org"
-"Open Collective" = "{{profile_link.opencollective}}/{{profile.opencollective}}"
-"Patreon" = "{{profile_link.patreon}}/{{profile.patreon}}"
+"Open Collective" = "https://opencollective.com/megabytelabs"
+"Patreon" = "https://www.patreon.com/ProfessorManhattan"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
