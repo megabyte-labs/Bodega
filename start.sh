@@ -413,14 +413,18 @@ function ensureTaskfiles() {
   task donothing || BOOTSTRAP_EXIT_CODE=$?
   # shellcheck disable=SC2031
   if [ -n "$BOOTSTRAP_EXIT_CODE" ]; then
-    curl -sSL https://gitlab.com/megabyte-labs/common/shared/-/archive/master/shared-master.tar.gz > shared-master.tar.gz
-    tar -xzvf shared-master.tar.gz
-    rm shared-master.tar.gz
-    rm -rf .config/taskfiles
-    mv shared-master/common/.config/taskfiles .config/taskfiles
-    mv shared-master/common/.editorconfig .editorconfig
-    mv shared-master/common/.gitignore .gitignore
-    rm -rf shared-master
+    if [ -d common/.config/taskfiles ]; then
+      cp -rT common/.config/taskfiles/ .config/taskfiles
+    else
+      curl -sSL https://gitlab.com/megabyte-labs/common/shared/-/archive/master/shared-master.tar.gz > shared-master.tar.gz
+      tar -xzvf shared-master.tar.gz
+      rm shared-master.tar.gz
+      rm -rf .config/taskfiles
+      mv shared-master/common/.config/taskfiles .config/taskfiles
+      mv shared-master/common/.editorconfig .editorconfig
+      mv shared-master/common/.gitignore .gitignore
+      rm -rf shared-master
+    fi
   fi
 }
 
