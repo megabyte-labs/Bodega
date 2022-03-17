@@ -84,11 +84,11 @@ tasks:
         sh: jq -r -S '.dependencies + .devDependencies + .optionalDependencies + .peerDependencies' package.json
       PREVIOUS_DEPS: '{{.PREVIOUS_DEPS}}'
       SEMANTIC_PYTHON_POST_INSTALL: '{{if eq .SEMANTIC_RELEASE "true"}}true{{else}}false{{end}}'
+    run: when_changed
     log:
       error: Encountered error while installing local NPM dependencies
       start: Installing local NPM dependencies
       success: Successfully installed local NPM dependencies
-    run: when_changed
     cmds:
       - task: tslib
       - |
