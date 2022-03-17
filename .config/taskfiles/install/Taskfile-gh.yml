@@ -39,7 +39,7 @@ tasks:
       - mv "$TMP"/fusion* ./bin/fusion
       - rm -rf "$TMP"
     status:
-      - '[ -f ./bin/fusion ]'
+     - '[ -f ./bin/fusion ]'
 
   gh:
     deps:
