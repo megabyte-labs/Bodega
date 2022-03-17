@@ -220,3 +220,6 @@ install:npm:commitizen
 install:npm:commitizen
 install:npm:husky
 install:npm:commitlint
+install:npm:husky
+install:npm:commitizen
+install:npm:commitlint
