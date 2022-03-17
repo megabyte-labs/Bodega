@@ -35,7 +35,7 @@ tasks:
         .config/log info 'Installing `{{.SOFTWARE}}` by running `curl -sS https://install.doctor/{{.SOFTWARE}} | bash`'
         curl -sS https://install.doctor/{{.SOFTWARE}} | bash
     status:
-      - type {{.SOFTWARE}} &> /dev/null || [[ "${container:=}" == "docker" ]]
+      - type {{.SOFTWARE}} &> /dev/null || [[ '{{.DOCKER_ENVIRONMENT}}' == "true" ]]
 
   modules:global:
     deps:
