@@ -45,4 +45,4 @@ exclude_patterns:
   - script/
   - test-output/
   - testdata/
-  - Tests/
+  - tests/
