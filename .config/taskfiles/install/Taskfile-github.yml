@@ -6,6 +6,7 @@ tasks:
     deps:
       - docker-pushrm
       - fusion
+      - sentry
 
   docker-pushrm:
     run: once

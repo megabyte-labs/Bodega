@@ -2,15 +2,7 @@
 version: '3'
 
 tasks:
-  act:
-    cmds:
-      - task: act:{{OS}}
-
-  act:darwin: echo TODO
-
-  act:linux: echo TODO
-
-  act:windows: echo TODO
+  act: echo TODO
 
   dasel:
     cmds:
@@ -57,11 +49,11 @@ tasks:
 
   docker-pushrm:windows: echo TODO
 
-  fusion:darwin: echo TODO
-
   fusion:
     cmds:
       - task: fusion:{{OS}}
+
+  fusion:darwin: echo TODO
 
   fusion:linux:
     deps:

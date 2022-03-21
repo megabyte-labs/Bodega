@@ -139,8 +139,7 @@ tasks:
     cmds:
       - >
         git submodule foreach 'git config user.email "$GITLAB_CI_EMAIL"; git config user.name "$GITLAB_CI_NAME";
-        DEFAULT_BRANCH="$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')";
-        git checkout -q "$DEFAULT_BRANCH"; git pull -q origin "$DEFAULT_BRANCH" --ff-only'
+        git checkout -q master; git pull -q origin master --ff-only'
     status:
       - '[ -z "$CI" ]'
 

@@ -35,8 +35,6 @@ tasks:
           BIN_NAME: git-cz
           FORCE_INSTALL: true
           PACKAGE: commitizen
-    status:
-      - '[ -n "$CI" ]'
 
   commitlint:
     run: once
@@ -45,8 +43,6 @@ tasks:
         vars:
           BIN_NAME: commitlint
           PACKAGE: '@commitlint/cli'
-    status:
-      - '[ -n "$CI" ]'
 
   cspell:
     run: once
