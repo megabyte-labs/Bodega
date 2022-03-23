@@ -8,7 +8,11 @@ plugins:
     enabled: true
   jscpd:
     enabled: true
+  proselint:
+    enabled: true
   shellcheck:
+    enabled: true
+  semgrep:
     enabled: true
   yamllint:
     enabled: true
