@@ -7,14 +7,14 @@ announce:
     application_id: O3UxD7HlPpcN88gpEkPIXQ
     enabled: false
     title_template: 'Bodega {{ .Tag }} was just released!'
-    url_template: 'https://github.com/ProfessorManhattan/Bodega/releases/tag/{{ .Tag }}'
+    url_template: 'https://github.com/megabyte-labs/Bodega/releases/tag/{{ .Tag }}'
     username: tsgangster
   skip: '{{gt .Patch 0}}'
   slack:
     channel: '#go-lang'
     enabled: true
     icon_url: 'https://gitlab.com/megabyte-labs/misc/assets/-/raw/master/logo/megabytelabs-color-icon-350x350.png'
-    message_template: '**[Bodega](https://github.com/ProfessorManhattan/Bodega)** {{.Tag}} is out! Check it out at {{.ReleaseURL}}.'
+    message_template: '**[Bodega](https://github.com/megabyte-labs/Bodega)** {{.Tag}} is out! Check it out at {{.ReleaseURL}}.'
     username: Megabyte Labs Release Notification Bot
   teams:
     color: '#1DA1F2'
