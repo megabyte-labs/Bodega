@@ -587,6 +587,7 @@ ensureTaskfiles
 
 # @description Try synchronizing again (in case Task was not available yet)
 if [ "$DELAYED_CI_SYNC" == 'true' ]; then
+  logger info 'Attempting to synchronize CI..'
   NO_GITLAB_SYNCHRONIZE=true task ci:synchronize
 fi
 
