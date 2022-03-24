@@ -1,7 +1,7 @@
 module gitlab.com/megabyte-labs/go/cli/bodega
 
 require (
-	github.com/AlecAivazis/survey/v2 v2.3.2
+	github.com/AlecAivazis/survey/v2 v2.3.4
 	github.com/charmbracelet/bubbles v0.9.0
 	github.com/charmbracelet/bubbletea v0.19.2
 	github.com/charmbracelet/glamour v0.3.0
