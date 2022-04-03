@@ -14,16 +14,5 @@ cache:
     - .pnpm-store
     - .venv
 include:
-  - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/lint/codeclimate.gitlab-ci.yml
-  - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/lint/eslint.gitlab-ci.yml
-  - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/lint/golangci-lint.gitlab-ci.yml
-  - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/lint/prettier.gitlab-ci.yml
-  - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/lint/shellcheck.gitlab-ci.yml
-  - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/lint/yamllint.gitlab-ci.yml
-  - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/lsif/go.gitlab-ci.yml
+  - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/common.gitlab-ci.yml
   - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/publish/semantic-release.gitlab-ci.yml
-  - remote: https://gitlab.com/megabyte-labs/gitlab-ci/-/raw/master/update/project.gitlab-ci.yml
-  - template: Dependency-Scanning.gitlab-ci.yml
-  - template: Security/License-Scanning.gitlab-ci.yml
-  - template: Security/SAST.gitlab-ci.yml
-  - template: Security/Secret-Detection.gitlab-ci.yml
