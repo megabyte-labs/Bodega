@@ -10,7 +10,7 @@
   "autodoc_todo_description": "",
   "autodoc_variables_description": "",
   "badge_style": "for-the-badge",
-  "buildLdflags": "-s -w -X \"main.version={{.Version}}\" -X \"main.commit={{.Commit}}\" -X \"main.date={{.Date}}\" -X \"main.builtBy=Megabyte Labs\" -X \"main.goversion={{.Env.GOVERSION}}\"",
+  "buildLdflags": "-s -w -X \"main.version={{.Version}}\" -X \"main.commit={{.Commit}}\" -X \"main.date={{.Date}}\" -X \"main.builtBy=Megabyte Labs\"",
   "buildMain": "main.go",
   "commit_help_url": "https://megabyte.space/docs/contributing/commit-guidelines",
   "company": "Megabyte LLC",
@@ -50,6 +50,7 @@
     }
   ],
   "goBinarySystemInfo": "{{platform}}-{{arch}}",
+  "goModProxy": false,
   "goVetFlags": "",
   "gomodProxy": true,
   "group": "common",
