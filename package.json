@@ -74,7 +74,7 @@
   },
   "blueprint": {
     "binName": "task",
-    "buildMain": "cmd/task",
+    "buildMain": "./cmd/task",
     "build_command": "go build -o dist/task cmd/task/task.go",
     "build_command_output": "./dist/task",
     "currentBuildTag": "v3.9.2",
