@@ -274,7 +274,8 @@ function ensureTaskInstalled() {
       TASK_UPDATE_TIME="$(date +%s)"
       echo "$TASK_UPDATE_TIME" > "$HOME/.cache/megabyte/start.sh/bodega-update-check"
     fi
-    TIME_DIFF="$(($(date +%s) - "$TASK_UPDATE_TIME"))"
+    # shellcheck disable=SC2004
+    TIME_DIFF="$(($(date +%s) - $TASK_UPDATE_TIME))"
     # Only run if it has been at least 15 minutes since last attempt
     if [ "$TIME_DIFF" -gt 900 ] || [ "$TIME_DIFF" -lt 5 ]; then
       date +%s > "$HOME/.cache/megabyte/start.sh/bodega-update-check"
@@ -483,8 +484,6 @@ ensureLocalPath
 if [[ "$OSTYPE" == 'darwin'* ]]; then
   if ! type curl &> /dev/null && type brew &> /dev/null; then
     brew install curl
-  else
-    logger error "Neither curl nor brew are installed. Install one of them manually and try again."
   fi
   if ! type git &> /dev/null; then
     # shellcheck disable=SC2016
@@ -499,7 +498,6 @@ elif [[ "$OSTYPE" == 'linux-gnu'* ]] || [[ "$OSTYPE" == 'linux-musl'* ]]; then
     ensurePackageInstalled "gzip"
     ensurePackageInstalled "sudo"
     ensurePackageInstalled "jq"
-    ensurePackageInstalled "yq"
   fi
 fi
 
@@ -523,7 +521,20 @@ if [ -z "$NO_INSTALL_HOMEBREW" ]; then
         # shellcheck disable=SC2016
         brew install poetry || logger info 'There may have been an issue installing `poetry` with `brew`'
       fi
+      if ! type yq &> /dev/null; then
+        # shellcheck disable=SC2016
+        brew install yq || logger info 'There may have been an issue installing `yq` with `brew`'
+      fi
     fi
+  fi
+fi
+
+# @description Second attempt to install yq if snap is on system but the Homebrew install was skipped
+if ! type yq &> /dev/null && type snap &> /dev/null; then
+  if type sudo &> /dev/null; then
+    sudo snap install yq
+  else
+    snap install yq
   fi
 fi
 
@@ -538,10 +549,11 @@ if [ -d .git ] && type git &> /dev/null; then
   if [ -f .cache/start.sh/git-pull-time ]; then
     GIT_PULL_TIME="$(cat .cache/start.sh/git-pull-time)"
   else
-    GIT_PULL_TIME="$(date +%s)"
+    GIT_PULL_TIME=$(date +%s)
     echo "$GIT_PULL_TIME" > .cache/start.sh/git-pull-time
   fi
-  TIME_DIFF="$(($(date +%s) - "$GIT_PULL_TIME"))"
+  # shellcheck disable=SC2004
+  TIME_DIFF="$(($(date +%s) - $GIT_PULL_TIME))"
   # Only run if it has been at least 15 minutes since last attempt
   if [ "$TIME_DIFF" -gt 900 ] || [ "$TIME_DIFF" -lt 5 ]; then
     date +%s > .cache/start.sh/git-pull-time
