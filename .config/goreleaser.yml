@@ -78,7 +78,7 @@ build:
   ldflags:
     # yamllint disable-line rule:line-length
     - '-s -w -X "main.version={{.Version}}" -X "main.commit={{.Commit}}" -X "main.date={{.Date}}" -X "main.builtBy=Megabyte Labs" -X "main.goversion={{.Env.GOVERSION}}"'
-  main: cmd/task
+  main: ./cmd/task
 
 checksum:
   name_template: CHECKSUMS.txt
