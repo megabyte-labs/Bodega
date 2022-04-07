@@ -29,8 +29,8 @@
 </div>
 <br/>
 <div align="center">
-  <a title="Version: 3.10.0" href="https://github.com/megabyte-labs/Bodega" target="_blank">
-    <img alt="Version: 3.10.0" src="https://img.shields.io/badge/version-3.10.0-blue.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgAQMAAABJtOi3AAAABlBMVEUAAAD///+l2Z/dAAAAAXRSTlMAQObYZgAAACNJREFUCNdjIACY//+BEp9hhM3hAzYQwoBIAqEDYQrCZLwAAGlFKxU1nF9cAAAAAElFTkSuQmCC&cacheSeconds=2592000&style=flat-square" />
+  <a title="Version: 10.0.0" href="https://github.com/megabyte-labs/Bodega" target="_blank">
+    <img alt="Version: 10.0.0" src="https://img.shields.io/badge/version-10.0.0-blue.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgAQMAAABJtOi3AAAABlBMVEUAAAD///+l2Z/dAAAAAXRSTlMAQObYZgAAACNJREFUCNdjIACY//+BEp9hhM3hAzYQwoBIAqEDYQrCZLwAAGlFKxU1nF9cAAAAAElFTkSuQmCC&cacheSeconds=2592000&style=flat-square" />
   </a>
   <a title="Go version: goVersion" href="https://github.com/megabyte-labs/Bodega/blob/master/go.mod" target="_blank">
     <img alt="Go version: goVersion" src="https://img.shields.io/github/go-mod/go-version/profile.github}}/{{slug?logo=go&logoColor=white&style=flat-square">
