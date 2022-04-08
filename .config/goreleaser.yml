@@ -34,8 +34,6 @@ archives:
     format_overrides:
       - format: zip
         goos: windows
-    replacements:
-      darwin: macos
 
 before:
   hooks:
