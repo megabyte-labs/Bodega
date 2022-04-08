@@ -62,18 +62,18 @@ build:
   env:
     - CGO_ENABLED=0
   goarch:
-    - 386
+    - '386'
     - amd64
     - arm
     - arm64
   goarm:
-    - 6
+    - '6'
   goos:
     - windows
     - darwin
     - linux
   ignore:
-    - goarch: 386
+    - goarch: '386'
       goos: darwin
   ldflags:
     # yamllint disable-line rule:line-length
@@ -112,8 +112,6 @@ nfpms:
     maintainer: Megabyte Labs <help@megabyte.space>
     recommends:
       - git
-    replacements:
-      darwin: macos
     suggests:
       - docker
       - jq
@@ -125,6 +123,7 @@ project_name: Bodega
 release:
   disable: true
 
+# eslint-disable max-len
 snapcrafts:
   - confinement: classic
     # yamllint disable-line rule:line-length
@@ -136,9 +135,8 @@ snapcrafts:
     id: default
     license: MIT
     publish: true
-    replacements:
-      darwin: macos
     summary: 'A gorgeous, feature-packed drop-in replacement for the go-task project'
+# eslint-enable max-len
 
 snapshot:
   name_template: '{{.Tag}}'
