@@ -12,6 +12,19 @@ Grab this version by running:
 
 
 ```shell
+go install github.com/megabyte-labs/Bodega@v11.0.0
+```
+
+# [11.0.0](https://gitlab.com/megabyte-labs/go/cli/bodega/compare/v10.0.0...v11.0.0) (2022-04-08)
+
+
+
+
+
+Grab this version by running:
+
+
+```shell
 go install github.com/megabyte-labs/Bodega@v10.0.0
 ```
 
