@@ -26,7 +26,6 @@
     "lint": "bash start.sh && task lint",
     "preload": "bash start.sh && task preload",
     "prepare": "bash start.sh && (test -f Taskfile.yml && task npm:prepare) || true",
-    "prepublishOnly": "test -z $SKIP_PREPUB && bash start.sh && task npm:bundle:create || true",
     "release": "bash start.sh && task publish:semantic-release",
     "repair": "bash <(curl -sS https://install.doctor/repair)",
     "start": "test -z $SKIP_NPM_START && bash start.sh || true",

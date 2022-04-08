@@ -83,6 +83,9 @@ includes:
   git:hook:
     taskfile: ./.config/taskfiles/git/Taskfile-hook.yml
     optional: true
+  git:issues:
+    taskfile: ./.config/taskfiles/git/Taskfile-issues.yml
+    optional: true
   go:
     taskfile: ./.config/taskfiles/go/Taskfile.yml
     optional: true
@@ -776,7 +779,6 @@ tasks:
       start: Running `semantic-release` via `task publish`
       success: Successfully ran `semantic-release` via `task publish`
     cmds:
-      - task: release:build
       - task: publish:semantic-release
 
   publish:force:
