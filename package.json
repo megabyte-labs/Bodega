@@ -43,7 +43,6 @@
   "dependencies": {
     "go-npm": "^0.1.9"
   },
-  "optionalDependencies": {},
   "devDependencies": {
     "@commitlint/config-conventional": "latest",
     "eslint-config-strict-mode": "latest",
@@ -51,7 +50,7 @@
     "handlebars-helpers": "latest",
     "prettier-config-sexy-mode": "latest",
     "semantic-release-config": "latest",
-    "typescript": "^4.5.5"
+    "typescript": "^4.6.3"
   },
   "keywords": [
     "automation",
