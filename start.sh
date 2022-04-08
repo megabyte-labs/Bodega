@@ -335,7 +335,7 @@ function installTask() {
   sha256 "$DOWNLOAD_DESTINATION" "$DOWNLOAD_SHA256" > /dev/null
   logger success "Validated checksum"
   mkdir -p "$TMP_DIR/task"
-  tar -xzvf "$DOWNLOAD_DESTINATION" -C "$TMP_DIR/task" > /dev/null
+  tar -xzf "$DOWNLOAD_DESTINATION" -C "$TMP_DIR/task" > /dev/null
   if type task &> /dev/null && [ -w "$(which task)" ]; then
     TARGET_BIN_DIR="."
     TARGET_DEST="$(which task)"
@@ -423,7 +423,8 @@ function ensureTaskfiles() {
       TASK_UPDATE_TIME="$(date +%s)"
       echo "$TASK_UPDATE_TIME" > "$HOME/.cache/megabyte/start.sh/ensure-taskfiles"
     fi
-    TIME_DIFF="$(($(date +%s) - "$TASK_UPDATE_TIME"))"
+    # shellcheck disable=SC2004
+    TIME_DIFF="$(($(date +%s) - $TASK_UPDATE_TIME))"
     # Only run if it has been at least 15 minutes since last attempt
     if [ -n "$BOOTSTRAP_EXIT_CODE" ] || [ "$TIME_DIFF" -gt 900 ] || [ "$TIME_DIFF" -lt 5 ] || [ -n "$FORCE_TASKFILE_UPDATE" ]; then
       logger info 'Grabbing latest Taskfiles by downloading shared-master.tar.gz'
@@ -439,7 +440,7 @@ function ensureTaskfiles() {
       else
         mkdir -p .config/taskfiles
         curl -sSL https://gitlab.com/megabyte-labs/common/shared/-/archive/master/shared-master.tar.gz > shared-master.tar.gz
-        tar -xzvf shared-master.tar.gz > /dev/null
+        tar -xzf shared-master.tar.gz > /dev/null
         rm shared-master.tar.gz
         rm -rf .config/taskfiles
         mv shared-master/common/.config/taskfiles .config/taskfiles
@@ -498,7 +499,6 @@ elif [[ "$OSTYPE" == 'linux-gnu'* ]] || [[ "$OSTYPE" == 'linux-musl'* ]]; then
     ensurePackageInstalled "gzip"
     ensurePackageInstalled "sudo"
     ensurePackageInstalled "jq"
-    ensurePackageInstalled "yq"
   fi
 fi
 
@@ -522,7 +522,20 @@ if [ -z "$NO_INSTALL_HOMEBREW" ]; then
         # shellcheck disable=SC2016
         brew install poetry || logger info 'There may have been an issue installing `poetry` with `brew`'
       fi
+      if ! type yq &> /dev/null; then
+        # shellcheck disable=SC2016
+        brew install yq || logger info 'There may have been an issue installing `yq` with `brew`'
+      fi
     fi
+  fi
+fi
+
+# @description Second attempt to install yq if snap is on system but the Homebrew install was skipped
+if ! type yq &> /dev/null && type snap &> /dev/null; then
+  if type sudo &> /dev/null; then
+    sudo snap install yq
+  else
+    snap install yq
   fi
 fi
 
