@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. In order to maintain this file through automation, all commits to this repository must adhere to the guidelines laid out by [Conventional Commits](https://conventionalcommits.org) and the [Megabyte Labs Commit Guide](https://megabyte.space/docs/contributing/commits).
 
+# [11.0.0](https://gitlab.com/megabyte-labs/go/cli/bodega/compare/v10.0.0...v11.0.0) (2022-04-08)
+
+
+
+
+
+Grab this version by running:
+
+
+```shell
+go install github.com/megabyte-labs/Bodega@v10.0.0
+```
+
 # [10.0.0](https://gitlab.com/megabyte-labs/go/cli/bodega/compare/v9.0.0...v10.0.0) (2022-04-03)
 
 # Changelog
