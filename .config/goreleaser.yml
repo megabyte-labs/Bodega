@@ -1,30 +1,6 @@
 ---
 announce:
-  linkedin:
-    enabled: false
-    message_template: 'Bodega {{ .Tag }} is out! Check it out at {{ .ReleaseURL }}.'
-  reddit:
-    application_id: O3UxD7HlPpcN88gpEkPIXQ
-    enabled: false
-    title_template: 'Bodega {{ .Tag }} was just released!'
-    url_template: 'https://github.com/megabyte-labs/Bodega/releases/tag/{{ .Tag }}'
-    username: tsgangster
-  skip: '{{gt .Patch 0}}'
-  slack:
-    channel: '#go-lang'
-    enabled: true
-    icon_url: 'https://gitlab.com/megabyte-labs/misc/assets/-/raw/master/logo/megabytelabs-color-icon-350x350.png'
-    message_template: '**[Bodega](https://github.com/megabyte-labs/Bodega)** {{.Tag}} is out! Check it out at {{.ReleaseURL}}.'
-    username: Megabyte Labs Release Notification Bot
-  teams:
-    color: '#1DA1F2'
-    enabled: false
-    icon_url: 'https://gitlab.com/megabyte-labs/misc/assets/-/raw/master/logo/megabytelabs-color-icon-350x350.png'
-    message_template: 'Bodega {{ .Tag }} is out! Check it out at {{ .ReleaseURL }}.'
-    title_template: 'Bodega {{ .Tag }} has been released!'
-  twitter:
-    enabled: false
-    message_template: 'Bodega {{ .Tag }} is out with new features! Check it out at {{ .ReleaseURL }}.'
+  skip: 'true'
 
 archives:
   - files:
@@ -78,22 +54,24 @@ build:
     - '-s -w -X "main.version={{.Version}}" -X "main.commit={{.Commit}}" -X "main.date={{.Date}}" -X "main.builtBy=Megabyte Labs"'
   main: ./cmd/task
 
+changelog:
+  skip: true
+
 checksum:
   name_template: CHECKSUMS.txt
 
 dist: build
 
 dockers:
-  - build_flag_templates:
-      - --platform=linux/amd64
-    dockerfile: .config/Dockerfile
-    goarch: amd64
-    goos: linux
+  - dockerfile: .config/Dockerfile
+    ids:
+      - { { .ProjectName } }
     image_templates:
-      - 'megabytelabs/{{.ProjectName}}'
       - 'megabytelabs/{{.ProjectName}}:{{.Tag}}'
-      - 'megabytelabs/{{.ProjectName}}:v{{ .Major }}'
-    use: buildx
+      - 'megabytelabs/{{.ProjectName}}:v{{.Major}}'
+      - 'megabytelabs/{{.ProjectName}}:v{{.Major}}.{{.Minor}}'
+      - 'megabytelabs/{{.ProjectName}}:latest'
+    skip_push: 'false'
 
 gomod:
   proxy: false
@@ -116,7 +94,7 @@ nfpms:
       - yq
     vendor: Megabyte LLC
 
-project_name: Bodega
+project_name: bodega
 
 release:
   disable: true
