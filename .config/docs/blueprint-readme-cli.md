@@ -3,7 +3,7 @@
 {{ load:.config/docs/readme-cli/quick-description.md }}
 {{ template:toc }}
 {{ load:.config/docs/readme/overview.md }}
-{{ load:docs/partials/features.md }}
+{{ load:docs/partials/guide.md }}
 {{ load:.config/docs/readme-cli/installation.md }}
 {{ load:.config/docs/readme-cli/usage.md }}
 {{ load:.config/docs/common/readme/contribute.md }}
