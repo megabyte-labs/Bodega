@@ -18,7 +18,7 @@
 
 RELEASES_URL="https://github.com/megabyte-labs/Bodega/releases"
 
-function downloadJSON() {
+downloadJSON() {
     url="$2"
     echo "Fetching $url.."
     if test -x "$(command -v curl)"; then
@@ -41,7 +41,7 @@ function downloadJSON() {
     eval "$1='$body'"
 }
 
-function downloadFile() {
+downloadFile() {
     url="$1"
     destination="$2"
     echo "Fetching $url.."
@@ -59,7 +59,7 @@ function downloadFile() {
     fi
 }
 
-function findGoBinDirectory() {
+findGoBinDirectory() {
     EFFECTIVE_GOPATH=$(go env GOPATH)
     # CYGWIN: Convert Windows-style path into sh-compatible path
     if [ "$OS_CYGWIN" = "1" ]; then
@@ -79,7 +79,7 @@ function findGoBinDirectory() {
     eval "$1='$GOBIN'"
 }
 
-function initArch() {
+initArch() {
     ARCH=$(uname -m)
     if [ -n "$DEP_ARCH" ]; then
         echo "Using DEP_ARCH"
@@ -100,7 +100,7 @@ function initArch() {
     echo "ARCH = $ARCH"
 }
 
-function initOS() {
+initOS() {
     OS=$(uname | tr '[:upper:]' '[:lower:]')
     OS_CYGWIN=0
     if [ -n "$DEP_OS" ]; then
