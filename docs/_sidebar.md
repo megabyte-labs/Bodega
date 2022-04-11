@@ -1,8 +1,0 @@
-- [Installation](installation.md)
-- [Usage](usage.md)
-- [Styleguide](styleguide.md)
-- [Taskfile Versions](taskfile_versions.md)
-- [Community](community.md)
-- [Releasing Task](releasing_task.md)
-- [Donate](donate.md)
-- [GitHub](https://github.com/go-task/task)
