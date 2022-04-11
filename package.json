@@ -14,6 +14,12 @@
     "email": "help@megabyte.space",
     "url": "https://gitlab.com/megabyte-labs/go/cli/bodega/-/issues"
   },
+  "contributors": [
+    {
+      "name": "Brian Zalewski",
+      "email": "brian@megabyte.space"
+    }
+  ],
   "type": "module",
   "files": [],
   "scripts": {
