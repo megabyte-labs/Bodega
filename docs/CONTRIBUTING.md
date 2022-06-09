@@ -42,6 +42,8 @@ For more informative links, refer to the [GitHub Awesome Guidelines List](https:
 
 One way we enforce code style is by including the best standard linters into our projects. We normally keep the settings pretty strict. Although it may seem pointless and annoying at first, these linters will make you a better coder since you will learn to adapt your style to the style of the group of people who spent countless hours creating the linter in the first place.
 
+{{ load:.config/docs/common/contributing/troubleshooting.md }}
+
 <a href="#contributors" style="width:100%"><img style="width:100%" src="https://gitlab.com/megabyte-labs/assets/-/raw/master/png/aqua-divider.png" /></a>
 
 ## Contributors
