@@ -18,11 +18,11 @@ require (
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/radovskyb/watcher v1.0.7
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+	gopkg.in/yaml.v3 v3.0.1
 	mvdan.cc/sh/v3 v3.4.3
 	nhooyr.io/websocket v1.8.7
 )
