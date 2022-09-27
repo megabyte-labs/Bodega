@@ -1,0 +1,171 @@
+---
+announce:
+  skip: 'true'
+
+archives:
+  - files:
+      - README.md
+      - LICENSE
+      - completion/**/*
+    format_overrides:
+      - format: zip
+        goos: windows
+
+# aurs:
+#  - commit_author:
+#      name: Megabyte Labs
+#      email: help@megabyte.space
+#    description: A gorgeous, feature-packed drop-in replacement for the go-task project
+#    # The AUR Git URL for this package.
+#    # Defaults to empty. TODOTODOTODO
+#    # git_url: ssh://aur@aur.archlinux.org/mypackage-bin.git
+#    homepage: https://github.com/megabyte-labs/Bodega
+#    license: MIT
+#    maintainers:
+#      - Megabyte Labs <help@megabyte.space>
+#    name: '{{ .ProjectName }}'
+#    private_key: '{{ .Env.AUR_KEY }}'
+#
+#
+#
+#
+#
+#    package: |-
+#      install -Dm755 "./mybin" "${pkgdir}/usr/bin/task"
+#      install -Dm644 "./LICENSE" "${pkgdir}/usr/share/licenses/task/LICENSE"
+#      mkdir -p "${pkgdir}/usr/share/bash-completion/completions/"
+#      mkdir -p "${pkgdir}/usr/share/zsh/site-functions/"
+#      mkdir -p "${pkgdir}/usr/share/fish/vendor_completions.d/"
+#      install -Dm644 "./local/completion/bash/task.bash" "${pkgdir}/usr/share/bash-completion/completions/task"
+#      install -Dm644 "./local/completion/zsh/task.zsh" "${pkgdir}/usr/share/zsh/site-functions/_task"
+#      install -Dm644 "./local/completion/fish/task.fish" "${pkgdir}/usr/share/fish/vendor_completions.d/task.fish"
+#      # install -Dm644 "./local/man/task.1.gz" "${pkgdir}/usr/share/man/man1/task.1.gz"
+#    url_template: "https://github.com/megabyte-labs/Bodega/releases/{{ .Tag }}/{{ .ArtifactName }}"
+
+before:
+  hooks:
+    - go mod tidy
+
+brews:
+  - description: A gorgeous, feature-packed drop-in replacement for the go-task project
+    folder: Formula
+    homepage: https://github.com/megabyte-labs/Bodega
+    install: |-
+      bin.install "task"
+      bash_completion.install "local/completion/bash/task.bash" => "task"
+      zsh_completion.install "local/completion/zsh/_task" => "_task"
+      fish_completion.install "local/completion/fish/task.fish"
+    license: MIT
+    name: task
+    tap:
+      name: homebrew-tap
+      owner: installdoc
+    test: |
+      system "#{bin}/task --version"
+
+build:
+  binary: task
+  env:
+    - CGO_ENABLED=0
+  goarch:
+    - '386'
+    - amd64
+    - arm
+    - arm64
+  goarm:
+    - '6'
+  goos:
+    - windows
+    - darwin
+    - linux
+  ignore:
+    - goarch: '386'
+      goos: darwin
+  ldflags:
+    # yamllint disable-line rule:line-length
+    - -s -w -X "main.version={{.Version}}" -X "main.commit={{.Commit}}" -X "main.date={{.Date}}" -X "main.builtBy=Megabyte Labs"
+  main: ./cmd/task
+
+changelog:
+  skip: true
+
+checksum:
+  name_template: CHECKSUMS.txt
+
+dist: build
+
+dockers:
+  - dockerfile: .config/Dockerfile
+    ids:
+      - default
+    image_templates:
+      - 'megabytelabs/{{.ProjectName}}:{{.Tag}}'
+      - 'megabytelabs/{{.ProjectName}}:v{{.Major}}'
+      - 'megabytelabs/{{.ProjectName}}:v{{.Major}}.{{.Minor}}'
+      - 'megabytelabs/{{.ProjectName}}:latest'
+    skip_push: 'false'
+
+gomod:
+  proxy: false
+
+nfpms:
+  - contents:
+      - dst: /usr/share/bash-completion/completions/task
+        file_info:
+          mode: 0644
+        src: ./local/completion/bash/task.bash
+      - dst: /usr/share/fish/completions/task.fish
+        file_info:
+          mode: 0644
+        src: ./local/completion/fish/task.fish
+      - dst: /usr/share/zsh/vendor-completions/_task
+        file_info:
+          mode: 0644
+        src: ./local/completion/zsh/task.zsh
+      - dst: /usr/share/man/man1/task.1.gz
+        file_info:
+          mode: 0644
+        src: ./local/man/task.1.gz
+      - dst: /usr/share/doc/task/copyright
+        file_info:
+          mode: 0644
+        src: ./LICENSE
+    description: A gorgeous, feature-packed drop-in replacement for the go-task project
+    formats:
+      - apk
+      - deb
+      - rpm
+    homepage: https://github.com/megabyte-labs/Bodega
+    id: default
+    license: MIT
+    maintainer: Megabyte Labs <help@megabyte.space>
+    vendor: Megabyte LLC
+
+project_name: bodega
+
+release:
+  disable: true
+
+scoop:
+  bucket:
+    branch: master
+    name: scoops
+    owner: installdoc
+    token: '{{ .Env.GITHUB_TOKEN }}'
+  commit_author:
+    email: help@megabyte.space
+    name: Megabyte Labs
+  commit_msg_template: 'Scoop update for {{ .ProjectName }} version {{ .Tag }}'
+  description: A gorgeous, feature-packed drop-in replacement for the go-task project
+  folder: Scoops
+  homepage: https://github.com/megabyte-labs/Bodega
+  license: MIT
+  post_install: ["Write-Host 'Installation complete!'"]
+  pre_install: ["Write-Host 'Beginning the installation..'"]
+  url_template: 'https://github.com/megabyte-labs/Bodega/releases/{{ .Tag }}/{{ .ArtifactName }}'
+
+snapshot:
+  name_template: '{{ .Tag }}'
+
+universal_binaries:
+  - replace: true
