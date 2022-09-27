@@ -97,8 +97,6 @@ dist: build
 
 dockers:
   - dockerfile: .config/Dockerfile
-    ids:
-      - default
     image_templates:
       - 'megabytelabs/{{.ProjectName}}:{{.Tag}}'
       - 'megabytelabs/{{.ProjectName}}:v{{.Major}}'
