@@ -27,7 +27,7 @@ You can install the CLI by compiling it from the source as long as you have a re
 
 ```
 git clone {{repository.github}}.git
-cd {{#withLast (split repository.github "/")}}{{this}}{{/withLast}}
+cd {{#withLast (split repository.github "/")}}{{ this }}{{/withLast}}
 {{build_command}}
 sudo mv {{build_command_output}} /usr/local/bin
 ```
