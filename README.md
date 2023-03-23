@@ -49,7 +49,7 @@
   </a>
 </div>
 
-> </br><h4 align="center">**A gorgeous, feature-packed drop-in replacement for the [go-task/task](https://github.com/go-task/task) project**</h4></br>
+> <br/><h4 align="center">**A gorgeous, feature-packed drop-in replacement for the [go-task/task](https://github.com/go-task/task) project**</h4><br/>
 
 <!--TERMINALIZE![terminalizer_title](https://gitlab.com/megabyte-labs/go/cli/bodega/-/raw/master/docs/demo.gif)TERMINALIZE-->
 
