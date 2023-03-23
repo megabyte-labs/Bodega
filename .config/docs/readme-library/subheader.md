@@ -24,10 +24,10 @@
     <img alt="Version: {{ pkg.version }}" src="https://img.shields.io/badge/version-{{ pkg.version }}-blue.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgAQMAAABJtOi3AAAABlBMVEUAAAD///+l2Z/dAAAAAXRSTlMAQObYZgAAACNJREFUCNdjIACY//+BEp9hhM3hAzYQwoBIAqEDYQrCZLwAAGlFKxU1nF9cAAAAAElFTkSuQmCC&cacheSeconds=2592000&style={{ alt_badge_style }}" />
   </a>
   <a title="Go version: {{goVersion}}" href="{{ repository.github }}/blob/master/go.mod" target="_blank">
-    <img alt="Go version: {{goVersion}}" src="https://img.shields.io/github/go-mod/go-version/{{profile.github}}/{{slug}}?logo=go&logoColor=white&style={{ alt_badge_style }}">
+    <img alt="Go version: {{goVersion}}" src="https://img.shields.io/github/go-mod/go-version/{{profile.github}}/{{slug}}?logo=go&logoColor=white&style={{ alt_badge_style }}" />
   </a>
   <a title="GitLab build status" href="{{ repository.gitlab }}{{ repository.location.commits.gitlab }}" target="_blank">
-    <img alt="Build status" src="https://img.shields.io/gitlab/pipeline-status/{{ repository.group.ansible_roles_path }}/{{ galaxy_info.role_name }}?branch=master&label=build&logo=gitlab&style={{ alt_badge_style }}">
+    <img alt="Build status" src="https://img.shields.io/gitlab/pipeline-status/{{ repository.group.ansible_roles_path }}/{{ galaxy_info.role_name }}?branch=master&label=build&logo=gitlab&style={{ alt_badge_style }}" />
   </a>
   <a title="Documentation" href="{{ link.docs }}/{{ group }}" target="_blank">
     <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg?logo=readthedocs&style={{ alt_badge_style }}" />
